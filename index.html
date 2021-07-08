@@ -18,5 +18,16 @@
         <ul id="result-list"></ul>
     </main>
     <footer></footer>
+    <script type="module">
+        import {parseIngredientsJSON, Ingredient} from './scripts/ingredients.js';
+        parseIngredientsJSON().then(ingredients => {
+            for (const ingName in ingredients) {
+                const ingredient = new Ingredient(ingredients[ingName]);
+                console.log(ingredient);
+            }
+        });
+
+        
+    </script>
 </body>
 </html>
