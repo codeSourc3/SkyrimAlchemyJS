@@ -20,12 +20,17 @@
     <footer></footer>
     <script type="module">
         import {parseIngredientsJSON, Ingredient} from './scripts/ingredients.js';
+
+        let ingredientObject;
         parseIngredientsJSON().then(ingredients => {
-            for (const ingName in ingredients) {
-                const ingredient = new Ingredient(ingredients[ingName]);
-                console.log(ingredient);
-            }
+            ingredientObject = ingredients;
+        }).then(() => {
+            const riverBetty = new Ingredient(ingredientObject.riverBetty);
+            const poisonBloom = new Ingredient(ingredientObject.poisonBloom);
+            console.log(riverBetty.mixTwo(poisonBloom));
         });
+
+
 
         
     </script>

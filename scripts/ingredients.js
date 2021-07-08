@@ -65,7 +65,7 @@ export class Ingredient {
         let matchingEffects = [];
 
         for (const thisEffect of this.effects) {
-            if (otherEffects.includes(thisEffect)) {
+            if (otherIngredient.hasEffect(thisEffect)) {
                 const otherEffect = otherEffects.find(effect => effect.name === thisEffect.name);
                 // other ingredient has this effect.
                 let thisMag = thisEffect.magnitude.baseMag * thisEffect.magnitude.multiplier;
@@ -81,11 +81,28 @@ export class Ingredient {
         return matchingEffects;
     }
 
+    /**
+     * 
+     * @param {Ingredient} ingredientTwo 
+     * @param {Ingredient} ingredientThree 
+     */
     mixThree(ingredientTwo, ingredientThree) {
-        return [];
+        const thisAndSecondEffects = this.mixTwo(ingredientTwo);
+        const thisAndThirdMatches = this.mixTwo(ingredientThree);
+        const secondAndThirdMatches = ingredientTwo.mixTwo(ingredientThree);
+        const results = [...thisAndSecondEffects, ...thisAndThirdMatches, ...secondAndThirdMatches];
+        return results;
+        
     }
 
+    /**
+     * 
+     * @param {Effect} otherEffect 
+     * @returns {boolean}
+     */
     hasEffect(otherEffect) {
-        return false;
+        let effectNames = this.effects.map(effect => effect.name);
+        return effectNames.includes(otherEffect.name);
     }
 }
+
