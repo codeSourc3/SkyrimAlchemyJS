@@ -18,21 +18,7 @@
         <ul id="result-list"></ul>
     </main>
     <footer></footer>
-    <script type="module">
-        import {parseIngredientsJSON, Ingredient} from './scripts/ingredients.js';
-
-        let ingredientObject;
-        parseIngredientsJSON().then(ingredients => {
-            ingredientObject = ingredients;
-        }).then(() => {
-            const riverBetty = new Ingredient(ingredientObject.riverBetty);
-            const poisonBloom = new Ingredient(ingredientObject.poisonBloom);
-            console.log(riverBetty.mixTwo(poisonBloom));
-        });
-
-
-
-        
+    <script type="module" src="./scripts/main.js">
     </script>
 </body>
 </html>

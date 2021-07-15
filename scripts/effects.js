@@ -23,6 +23,7 @@ export const cureDisease = {
     harmful: false
 };
 
+/** @type {Effect} */
 export const curePoison = {
     name: 'Cure Poison',
     description: 'Stops poison\'s continuing effects.',

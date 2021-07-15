@@ -24,6 +24,18 @@ export class Effect {
         this.variableMagnitude = variableMagnitude;
         this.variableDuration = variableDuration
     }
+
+    get calculatedMagnitude() {
+        return this.magnitude.baseMag * this.magnitude.multiplier;
+    }
+
+    get calculatedCost() {
+        return this.cost.baseCost * this.cost.multiplier;
+    }
+
+    get calculatedDuration() {
+        return this.duration.baseDur * this.duration.multiplier;
+    }
 }
 
 
@@ -37,7 +49,7 @@ export class Ingredient {
         this.goldValue = goldValue;
         this.weight = weight;
         this.dlc = dlc;
-        this.effects = Array.from(effects);
+        this.effects = Array.from(effects).map( effect => new Effect(effect));
     }
 
     get first() {
@@ -68,8 +80,8 @@ export class Ingredient {
             if (otherIngredient.hasEffect(thisEffect)) {
                 const otherEffect = otherEffects.find(effect => effect.name === thisEffect.name);
                 // other ingredient has this effect.
-                let thisMag = thisEffect.magnitude.baseMag * thisEffect.magnitude.multiplier;
-                let otherMag = otherEffect.magnitude.baseMag * otherEffect.magnitude.multiplier;
+                let thisMag = thisEffect.calculatedMagnitude;
+                let otherMag = otherEffect.calculatedMagnitude;
 
                 if (thisMag > otherMag) {
                     matchingEffects.push(thisEffect);
@@ -90,8 +102,19 @@ export class Ingredient {
         const thisAndSecondEffects = this.mixTwo(ingredientTwo);
         const thisAndThirdMatches = this.mixTwo(ingredientThree);
         const secondAndThirdMatches = ingredientTwo.mixTwo(ingredientThree);
-        const results = [...thisAndSecondEffects, ...thisAndThirdMatches, ...secondAndThirdMatches];
-        return results;
+        let results = [...thisAndSecondEffects, ...thisAndThirdMatches, ...secondAndThirdMatches];
+        // filter out all but the strongest matches.
+        const calcMagnitude = effect => {
+            return effect.calculatedMagnitude;
+        };
+
+        const effectMap = new Map();
+        for (const effect of results) {
+            if (!effectMap.has(effect.name) || calcMagnitude(effect) > calcMagnitude(effectMap.get(effect.name))) {
+                effectMap.set(effect.name, effect);
+            }
+        }
+        return Array.from(effectMap.values());
         
     }
 
