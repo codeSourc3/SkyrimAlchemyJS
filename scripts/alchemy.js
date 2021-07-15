@@ -97,8 +97,37 @@ export function calcPowerFactor(effect, alchemySkill = 15, alchemistLevel = 0, h
  * @param {*} isMakingPoison 
  * @param {*} fortifyAlchemy 
  */
-function calcMagnitudeDurationCost(effect, alchemySkill = 15, alchemistLevel = 0, hasPhysicianPerk = false, hasBenefactorPerk = false, hasPoisonerPerk = false, isMakingPoison = false, fortifyAlchemy = 0) {
+export function calcMagnitudeDurationCost(effect, alchemySkill = 15, alchemistLevel = 0, hasPhysicianPerk = false, hasBenefactorPerk = false, hasPoisonerPerk = false, isMakingPoison = false, fortifyAlchemy = 0) {
     const powerFactor = calcPowerFactor(effect, alchemySkill, alchemistLevel, hasPhysicianPerk, hasBenefactorPerk, hasPoisonerPerk, isMakingPoison);
     let magnitude = effect.calculatedMagnitude;
-    
+    // HACK: Don't have NoMagnitude flag.
+    if (magnitude <= 0 && !effect.variableMagnitude) {
+        magnitude = 0;
+    }
+    let magnitudeFactor = 1;
+    if (effect.variableMagnitude) {
+        magnitudeFactor = powerFactor;
+    }
+    magnitude = Math.round(magnitude * magnitudeFactor);
+
+    let duration = effect.calculatedDuration;
+    // HACK: Don't have NoDuration flag.
+    if (duration < 0) duration = 0;
+    let durationFactor = (effect.variableDuration) ? powerFactor : 1;
+    duration = Math.round(duration * durationFactor);
+
+    magnitudeFactor = 1;
+    if (magnitude > 0) magnitudeFactor = magnitude;
+    durationFactor = 1;
+    if (duration > 0) durationFactor = duration / 10;
+    console.log(effect instanceof Effect);
+    console.log('Base Cost: ', effect.cost);
+    let goldValue = Math.floor(effect.cost.baseCost * (magnitudeFactor * durationFactor) ** 1.1);
+    console.log(`Magnitude: ${magnitude}, Duration: ${duration}, Gold Value: ${goldValue}`);
+    return {
+        magnitude: magnitude,
+        duration: duration,
+        value: goldValue
+    };
 }
+
