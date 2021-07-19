@@ -89,13 +89,13 @@ export function calcPowerFactor(effect, alchemySkill = 15, alchemistLevel = 0, h
 /**
  * 
  * @param {Effect} effect 
- * @param {*} alchemySkill 
- * @param {*} alchemistLevel 
- * @param {*} hasPhysicianPerk 
- * @param {*} hasBenefactorPerk 
- * @param {*} hasPoisonerPerk 
- * @param {*} isMakingPoison 
- * @param {*} fortifyAlchemy 
+ * @param {number} alchemySkill 
+ * @param {number} alchemistLevel 
+ * @param {boolean} hasPhysicianPerk 
+ * @param {boolean} hasBenefactorPerk 
+ * @param {boolean} hasPoisonerPerk 
+ * @param {boolean} isMakingPoison 
+ * @param {number} fortifyAlchemy 
  */
 export function calcMagnitudeDurationCost(effect, alchemySkill = 15, alchemistLevel = 0, hasPhysicianPerk = false, hasBenefactorPerk = false, hasPoisonerPerk = false, isMakingPoison = false, fortifyAlchemy = 0) {
     const powerFactor = calcPowerFactor(effect, alchemySkill, alchemistLevel, hasPhysicianPerk, hasBenefactorPerk, hasPoisonerPerk, isMakingPoison);
@@ -131,3 +131,36 @@ export function calcMagnitudeDurationCost(effect, alchemySkill = 15, alchemistLe
     };
 }
 
+/**
+ * 
+ * @param {Effect[]} effects 
+ */
+export function findStrongestEffect(effects) {
+    let strongest = effects[0];
+    for (const effect of effects) {
+        let currrentCost = effect.calculatedCost;
+        let strongestCost = strongest.calculatedCost;
+        if (currrentCost > strongestCost) {
+            strongest = effect;
+        }
+    }
+    return strongest;
+}
+
+/**
+ * 
+ * @param {Effect[]} effects 
+ * @param {number} alchemySkill 
+ * @param {number} alchemistLevel 
+ * @param {boolean} hasPhysicianPerk 
+ * @param {boolean} hasBenefactorPerk 
+ * @param {boolean} hasPoisonerPerk 
+ * @param {boolean} isMakingPoison 
+ * @param {number} fortifyAlchemy 
+ */
+export function makePotion(effects, alchemySkill = 15, alchemistLevel = 0, hasPhysicianPerk = false, hasBenefactorPerk = false, hasPoisonerPerk = false, isMakingPoison = false, fortifyAlchemy = 0) {
+    console.assert(Array.isArray(effects));
+    let potionEffects = effects.map(effect => {
+        return calcMagnitudeDurationCost(effect, alchemySkill, alchemistLevel, hasPhysicianPerk, hasBenefactorPerk, hasPoisonerPerk, isMakingPoison, fortifyAlchemy);
+    });
+}
