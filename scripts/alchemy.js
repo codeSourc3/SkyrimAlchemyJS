@@ -78,12 +78,12 @@ export function calcPowerFactor(effect, alchemySkill = 15, alchemistLevel = 0, h
     const physicianPerkValue = physicianPerk(effect, hasPhysicianPerk);
     const benefactorPerkValue = benefactorPerk(effect, hasBenefactorPerk, isMakingPoison);
     const poisonerPerkValue = poisonerPerk(effect, hasPoisonerPerk, isMakingPoison);
-    return ingredientMult * 
-    (1 + (skillFactor - 1) * alchemySkill / 100) * 
-    (1 + fortifyAlchemy / 100) * 
-    (1 + alchemistPerkValue / 100) * 
-    (1 + physicianPerkValue / 100) * 
-    (1 + benefactorPerkValue / 100 + poisonerPerkValue / 100);
+    return ingredientMult *
+        (1 + (skillFactor - 1) * alchemySkill / 100) *
+        (1 + fortifyAlchemy / 100) *
+        (1 + alchemistPerkValue / 100) *
+        (1 + physicianPerkValue / 100) *
+        (1 + benefactorPerkValue / 100 + poisonerPerkValue / 100);
 }
 
 /**
@@ -125,6 +125,8 @@ export function calcMagnitudeDurationCost(effect, alchemySkill = 15, alchemistLe
     let goldValue = Math.floor(effect.cost.baseCost * (magnitudeFactor * durationFactor) ** 1.1);
     console.log(`Magnitude: ${magnitude}, Duration: ${duration}, Gold Value: ${goldValue}`);
     return {
+        name: effect.name,
+        description: effect.description,
         magnitude: magnitude,
         duration: duration,
         value: goldValue
@@ -155,12 +157,36 @@ export function findStrongestEffect(effects) {
  * @param {boolean} hasPhysicianPerk 
  * @param {boolean} hasBenefactorPerk 
  * @param {boolean} hasPoisonerPerk 
- * @param {boolean} isMakingPoison 
  * @param {number} fortifyAlchemy 
  */
-export function makePotion(effects, alchemySkill = 15, alchemistLevel = 0, hasPhysicianPerk = false, hasBenefactorPerk = false, hasPoisonerPerk = false, isMakingPoison = false, fortifyAlchemy = 0) {
-    console.assert(Array.isArray(effects));
-    let potionEffects = effects.map(effect => {
-        return calcMagnitudeDurationCost(effect, alchemySkill, alchemistLevel, hasPhysicianPerk, hasBenefactorPerk, hasPoisonerPerk, isMakingPoison, fortifyAlchemy);
-    });
+export function makePotion(alchemySkill = 15, alchemistLevel = 0, hasPhysicianPerk = false, hasBenefactorPerk = false, hasPoisonerPerk = false, fortifyAlchemy = 0) {
+    return function (effects) {
+        console.assert(Array.isArray(effects));
+        const primaryEffect = findStrongestEffect(effects);
+        let isMakingPoison = primaryEffect.harmful;
+        let potionName = isMakingPoison ? 'Poison of ' : 'Potion of ';
+        potionName += primaryEffect.name;
+        let potionEffects = effects.map(effect => {
+            return calcMagnitudeDurationCost(effect, alchemySkill, alchemistLevel, hasPhysicianPerk, hasBenefactorPerk, hasPoisonerPerk, isMakingPoison, fortifyAlchemy);
+        });
+        potionEffects.forEach((effect) => {
+            if (effect.description.includes('<mag>')) {
+                effect.description = effect.description.replace('<mag>', String(effect.magnitude));
+            }
+            if (effect.description.includes('<dur>')) {
+                effect.description = effect.description.replace('<dur>', String(effect.duration));
+            }
+            effect.description = effect.description.replace('.', '');
+            console.info(effect.description);
+        });
+        let totalGoldCost = potionEffects.map(effect => effect.value).reduce((prev, curr) => {
+            return prev + curr;
+        }, 0);
+
+        return {
+            name: potionName,
+            effects: potionEffects.map(effect => effect.description).join(', '),
+            gold: totalGoldCost
+        };
+    }
 }

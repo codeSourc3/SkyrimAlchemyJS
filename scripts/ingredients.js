@@ -6,23 +6,20 @@ export async function parseIngredientsJSON(url='../data/ingredients.json') {
     return jsonData;
 }
 export class Effect {
-    constructor({name, description, cost, magnitude, duration, variableMagnitude, variableDuration}) {
+    
+    /**
+     * 
+     * @param {{name: string, description: string, cost: {baseCost: number, multiplier: number}, magnitude: {baseMag: number, multiplier: number}, duration: {baseDur: number, multiplier: number}, variableMagnitude: number, variableDuration: number, harmful: boolean}} param0 
+     */
+    constructor({name, description, cost, magnitude, duration, variableMagnitude, variableDuration, harmful}) {
         this.name = name;
         this.description = description;
-        /**
-         * @type {{baseCost: number, multiplier: number}}
-         */
         this.cost = cost;
-        /**
-         * @type {{baseMag: number, multiplier: number}}
-         */
         this.magnitude = magnitude;
-        /**
-         * @type {{baseDur: number, multiplier: number}}
-         */
         this.duration = duration;
         this.variableMagnitude = variableMagnitude;
         this.variableDuration = variableDuration
+        this.harmful = harmful;
     }
 
     get calculatedMagnitude() {
