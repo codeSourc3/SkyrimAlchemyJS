@@ -1,21 +1,58 @@
-import { makePotion } from './alchemy.js';
-import { parseIngredientsJSON, Ingredient } from './ingredients.js';
+import { parseIngredientsJSON } from './alchemy/ingredients.js';
+import {tag, DomCache} from './infrastructure/html.js';
 
-let ingredientObject;
-parseIngredientsJSON().then(ingredients => {
-    ingredientObject = ingredients;
-}).then(() => {
-    const riverBetty = new Ingredient(ingredientObject.riverBetty);
-    const poisonBloom = new Ingredient(ingredientObject.poisonBloom);
-    const tramaRoot = new Ingredient(ingredientObject.tramaRoot);
-    let skill = 75;
-    let alchemistPerkLevel = 3;
-    let hasPhysicianPerk = true;
-    let hasBenefactorPerk = true;
-    let hasPoisonerPerk = true;
-    let fortifyAlchemy = 0;
-    let effects = riverBetty.mixThree(poisonBloom, tramaRoot);
-    let potionMaker = makePotion(skill, alchemistPerkLevel, hasPhysicianPerk, hasBenefactorPerk, hasPoisonerPerk, fortifyAlchemy);
-    let potion = potionMaker(effects);
-    console.table(potion, 'name', 'effects', 'gold');
+const alchemyWorker = new Worker('scripts/alchemy-worker.js', {type: 'module'});
+//const domCache = new DomCache();
+alchemyWorker.onmessage = handleWorkerMessage;
+//alchemyWorker.onmessageerror = handleWorkerMessageError;
+alchemyWorker.onerror = handleWorkerError;
+window.addEventListener('beforeunload', (e) => {
+    console.log('Terminating Worker');
+    alchemyWorker.terminate();
 });
+
+
+/**
+ * 
+ * @param {MessageEvent} messageEvent 
+ */
+function handleWorkerMessage(messageEvent) {
+    console.log(messageEvent.data);
+}
+
+
+
+function calculate(ingredientNames, skill=15, alchemist=0, hasPhysician=false, hasBenefactor=false, hasPoisoner=false, fortifyAlchemy=0) {
+    return {
+        names: ingredientNames,
+        skill,
+        alchemist,
+        hasBenefactor,
+        hasPhysician,
+        hasPoisoner,
+        fortifyAlchemy
+    };
+}
+
+/**
+ * 
+ * @param {ErrorEvent} messageEvent 
+ */
+function handleWorkerMessageError(messageEvent) {
+    console.error(`Worker Message Error at file %s of line %d`, messageEvent.filename, messageEvent.lineno);
+}
+
+/**
+ * 
+ * @param {ErrorEvent} messageEvent 
+ */
+function handleWorkerError(messageEvent) {
+    console.info(messageEvent.defaultPrevented)
+    console.log(messageEvent.type);
+    console.info('Message from main thread error handler: ', messageEvent.message);
+    console.info('Line Nr: ', messageEvent.lineno);
+    console.info('Return Value: ', messageEvent.returnValue);
+    console.info('Error: ', messageEvent.error)
+}
+
+alchemyWorker.postMessage(calculate(['Ancestor Moth Wing', 'Ash Creep Cluster']));

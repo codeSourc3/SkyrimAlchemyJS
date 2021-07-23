@@ -71,7 +71,7 @@ function poisonerPerk(effect, hasPerk = false, isMakingPoison = false) {
  * @param {number} fortifyAlchemy 
  * @returns {number}
  */
-export function calcPowerFactor(effect, alchemySkill = 15, alchemistLevel = 0, hasPhysicianPerk = false, hasBenefactorPerk = false, hasPoisonerPerk = false, isMakingPoison = false, fortifyAlchemy = 0) {
+function calcPowerFactor(effect, alchemySkill = 15, alchemistLevel = 0, hasPhysicianPerk = false, hasBenefactorPerk = false, hasPoisonerPerk = false, isMakingPoison = false, fortifyAlchemy = 0) {
     const ingredientMult = 4.0;
     const skillFactor = 1.5;
     const alchemistPerkValue = alchemistPerk(alchemistLevel);
@@ -97,7 +97,7 @@ export function calcPowerFactor(effect, alchemySkill = 15, alchemistLevel = 0, h
  * @param {boolean} isMakingPoison 
  * @param {number} fortifyAlchemy 
  */
-export function calcMagnitudeDurationCost(effect, alchemySkill = 15, alchemistLevel = 0, hasPhysicianPerk = false, hasBenefactorPerk = false, hasPoisonerPerk = false, isMakingPoison = false, fortifyAlchemy = 0) {
+function calcMagnitudeDurationCost(effect, alchemySkill = 15, alchemistLevel = 0, hasPhysicianPerk = false, hasBenefactorPerk = false, hasPoisonerPerk = false, isMakingPoison = false, fortifyAlchemy = 0) {
     const powerFactor = calcPowerFactor(effect, alchemySkill, alchemistLevel, hasPhysicianPerk, hasBenefactorPerk, hasPoisonerPerk, isMakingPoison);
     let magnitude = effect.calculatedMagnitude;
     // HACK: Don't have NoMagnitude flag.
@@ -137,7 +137,7 @@ export function calcMagnitudeDurationCost(effect, alchemySkill = 15, alchemistLe
  * 
  * @param {Effect[]} effects 
  */
-export function findStrongestEffect(effects) {
+function findStrongestEffect(effects) {
     let strongest = effects[0];
     for (const effect of effects) {
         let currrentCost = effect.calculatedCost;
