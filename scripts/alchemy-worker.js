@@ -1,18 +1,20 @@
-import { Ingredient, parseIngredientsJSON } from "./alchemy/ingredients.js";
+import { Effect, Ingredient, parseIngredientsJSON } from "./alchemy/ingredients.js";
+import { DB_NAME, VERSION, ING_OBJ_STORE, EFFECT_OBJ_STORE } from "./infrastructure/config.js";
 import { makePotion } from "./alchemy/alchemy.js";
-import { openDB, getObjectStore, getByName, addEntry, insertEntry } from './infrastructure/db.js';
+import { openDB, getObjectStore, getByName, insertEntry, getIngredient } from './infrastructure/db.js';
 /**
  * @type {IDBDatabase}
  */
 let db;
 
-const DB_NAME = 'alchemy';
-const VERSION = 1;
-const ING_OBJ_STORE = 'ingredients';
-const EFFECT_OBJ_STORE = 'effects';
+
+
 setupIndexedDB().then(() => {
+    postMessage({event: 'worker-ready'});
     self.addEventListener('message', handleMessage);
-}).catch(e => console.info(e));
+    console.debug('Alchemy worker event listener set up.');
+    console.assert(typeof db !== 'undefined');
+});
 
 
 /**
@@ -20,36 +22,35 @@ setupIndexedDB().then(() => {
  * @param {MessageEvent} msg the message from the main thread.
  */
 async function handleMessage(msg) {
+    const start = self.performance.now();
     const msgData = msg.data;
     console.log('From main thread: ', { msgData });
-    const ingObjStore = getObjectStore(db, ING_OBJ_STORE, 'readonly');
-    const effectIndex = ingObjStore.index('effects');
-    let effectCount = effectIndex.count();
-    effectCount.onsuccess = () => console.log('Does effects work: ', 
-    effectCount.result);
-    console.log('Does effects work: ', effectCount);
-    await processIngredients(ingObjStore, msgData);
-
+    const end = self.performance.now();
+    console.debug('Time taken is %d', end - start);
+    await processIngredients(db, msgData);
 }
+
+
 
 /**
  * Processes the ingredients.
- * @param {IDBObjectStore} ingObjectStore 
- * @param {number} nrIngredients 
+ * 
+ * @param {IDBDatabase} db the database.
+ * @param {{names: string[], skill: number, alchemist: number, hasBenefactor: boolean, hasPhysician: boolean, hasPoisoner: boolean, fortifyAlchemy: number}} nrIngredients 
  */
-async function processIngredients(ingObjectStore, { names, skill, alchemist, hasBenefactor, hasPhysician, hasPoisoner, fortifyAlchemy }) {
+async function processIngredients(db, { names, skill, alchemist, hasBenefactor, hasPhysician, hasPoisoner, fortifyAlchemy }) {
     const nrIngredients = names.length;
     const potionMaker = makePotion(skill, alchemist, hasPhysician, hasBenefactor, hasPoisoner, fortifyAlchemy);
     if (nrIngredients === 2) {
-        const first = await getByName(ingObjectStore, names[0]);
-        const second = await getByName(ingObjectStore, names[1]);
+        const first = await getIngredient(db, names[0]);
+        const second = await getIngredient(db, names[1]);
         const results = first.mixTwo(second);
         const potion = potionMaker(results);
         postMessage(potion);
     } else if (nrIngredients === 3) {
-        const first = await getByName(ingObjectStore, names[0]);
-        const second = await getByName(ingObjectStore, names[1]);
-        const third = await getByName(ingObjectStore, names[2]);
+        const first = await getIngredient(db, names[0]);
+        const second = await getIngredient(db, names[1]);
+        const third = await getIngredient(db, names[2]);
         const results = first.mixThree(second, third);
         const potion = potionMaker(results);
         postMessage(potion);
@@ -111,14 +112,6 @@ async function populateDatabase(db, data) {
     
 }
 
-/**
- * 
- * @param {IDBDatabase} db 
- * @param {any} data 
- */
-function populateEffects(db, data) {
-    
-}
 
 
 async function setupIndexedDB() {

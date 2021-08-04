@@ -62,22 +62,16 @@ export function getIngredient(db, name) {
         getRequest.onsuccess = () => resolve(getRequest.result);
     });
     
-    getPromise.then(ingredient => {
-        console.info('Ingredient: ', ingredient);
-        let effectPromises = ingredient.effects.map(id => {
-            return new Promise(resolve => {
-                const getEffect = effObj.get(id);
-                getEffect.onsuccess = () => resolve(getEffect.result);
-            });
-        });
-        const ingredientPromise = Promise.resolve(ingredient);
-        return Promise.all([...effectPromises, ingredientPromise]);
-    }).then(values => {
+    return getPromise.then(ingredient => {
+        return getEffectsFromIngredient(ingredient, effObj);
+    }).then(([ingredient, ...effects]) => {
         // Effects should be found on indices 0, 1, 2, 3.
         // Ingredient should be found on index 4.
-        console.assert(values.length === 5);
-
-    })
+        ingredient.effects = effects;
+        console.debug('Effects: ', effects);
+        console.debug('Ingredient: ', ingredient);
+        return Promise.resolve(new Ingredient(ingredient));
+    });
     
 }
 
@@ -85,7 +79,7 @@ export function getIngredient(db, name) {
  * 
  * @param {{name:string, dlc: string, effects: number[], goldValue: number, weight: number}} ingredient 
  * @param {IDBObjectStore} effObj 
- * @returns {Promise<[Effect, Effect, Effect, Effect, {name: string, dlc: string, effects:number, goldValue: number, weight:number}]>}
+ * @returns {Promise<[{name: string, dlc: string, effects:number, goldValue: number, weight:number}, Effect, Effect, Effect, Effect]>}
  */
 function getEffectsFromIngredient(ingredient, effObj) {
     let effectPromises = ingredient.effects.map(id => {
@@ -95,7 +89,7 @@ function getEffectsFromIngredient(ingredient, effObj) {
         });
     });
     const ingredientPromise = Promise.resolve(ingredient);
-    return Promise.all([...effectPromises, ingredientPromise]);
+    return Promise.all([ingredientPromise, ...effectPromises]);
 }
 
 
