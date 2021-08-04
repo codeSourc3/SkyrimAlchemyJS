@@ -1,6 +1,7 @@
 import { parseIngredientsJSON } from './alchemy/ingredients.js';
 import {tag, DomCache} from './infrastructure/html.js';
 
+let isWorkerReady = false;
 const alchemyWorker = new Worker('scripts/alchemy-worker.js', {type: 'module'});
 //const domCache = new DomCache();
 alchemyWorker.onmessage = handleWorkerMessage;
@@ -17,7 +18,13 @@ window.addEventListener('beforeunload', (e) => {
  * @param {MessageEvent} messageEvent 
  */
 function handleWorkerMessage(messageEvent) {
-    console.log(messageEvent.data);
+    //const data = messageEvent.data;
+    //console.log(data);
+    let isEvent = 'data' in messageEvent && 'event' in messageEvent.data;
+    if (isEvent && messageEvent.data.event === 'worker-ready') {
+        isWorkerReady = true;
+        alchemyWorker.postMessage(calculate(['Ancestor Moth Wing', 'Ash Creep Cluster']));
+    }
 }
 
 
@@ -47,12 +54,13 @@ function handleWorkerMessageError(messageEvent) {
  * @param {ErrorEvent} messageEvent 
  */
 function handleWorkerError(messageEvent) {
-    console.info(messageEvent.defaultPrevented)
-    console.log(messageEvent.type);
+    console.info('Default prevented: ', messageEvent.defaultPrevented);
+    console.info('Source: ', messageEvent.target);
+    console.info('Cancelable: ', messageEvent.cancelable);
+    console.log('Event type: ', messageEvent.type);
     console.info('Message from main thread error handler: ', messageEvent.message);
     console.info('Line Nr: ', messageEvent.lineno);
     console.info('Return Value: ', messageEvent.returnValue);
     console.info('Error: ', messageEvent.error)
 }
 
-alchemyWorker.postMessage(calculate(['Ancestor Moth Wing', 'Ash Creep Cluster']));
