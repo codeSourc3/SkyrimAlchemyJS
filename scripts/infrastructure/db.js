@@ -1,9 +1,5 @@
 import { Ingredient } from "../alchemy/ingredients.js";
 
-function supportsIndexedDB() {
-    return 'indexedDB' in globalThis;
-}
-
 /** 
  * @callback upgradeHandler
  * @param {IDBVersionChangeEvent} ev
@@ -62,5 +58,20 @@ export function addEntry(objStore, value) {
         const request = objStore.add(value);
         request.onsuccess = () => resolve(request.result);
         request.onerror = () => reject(request.result);
+    });
+}
+
+
+/**
+ * 
+ * @param {IDBObjectStore} objStore 
+ * @param {any} value 
+ * @returns {Promise<IDBValidKey>}
+ */
+export function insertEntry(objStore, value) {
+    return new Promise((resolve, reject) => {
+        const request = objStore.put(value);
+        request.onsuccess = () => resolve(request.result);
+        request.onerror = () => reject(request.error);
     });
 }

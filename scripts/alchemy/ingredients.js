@@ -124,5 +124,6 @@ export class Ingredient {
         let effectNames = this.effects.map(effect => effect.name);
         return effectNames.includes(otherEffect.name);
     }
+
 }
 

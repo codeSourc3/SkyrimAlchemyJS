@@ -1,8 +1,11 @@
-import { parseIngredientsJSON } from "./alchemy/ingredients.js";
+import { Ingredient, parseIngredientsJSON } from "./alchemy/ingredients.js";
 import { makePotion } from "./alchemy/alchemy.js";
-import { openDB, getObjectStore, getByName, addEntry } from './infrastructure/db.js';
+import { openDB, getObjectStore, getByName, addEntry, insertEntry } from './infrastructure/db.js';
+/**
+ * @type {IDBDatabase}
+ */
+let db;
 
-console.info('hi')
 const DB_NAME = 'alchemy';
 const VERSION = 1;
 const ING_OBJ_STORE = 'ingredients';
@@ -16,14 +19,14 @@ setupIndexedDB().then(() => {
  * 
  * @param {MessageEvent} msg the message from the main thread.
  */
- async function handleMessage(msg) {
+async function handleMessage(msg) {
     const msgData = msg.data;
     console.log('From main thread: ', { msgData });
-    const db = await openDB(DB_NAME, buildStructure, VERSION);
     const ingObjStore = getObjectStore(db, ING_OBJ_STORE, 'readonly');
     const effectIndex = ingObjStore.index('effects');
     let effectCount = effectIndex.count();
-    effectCount.onsuccess = () => console.log('Does effects work: ',effectCount.result);
+    effectCount.onsuccess = () => console.log('Does effects work: ', 
+    effectCount.result);
     console.log('Does effects work: ', effectCount);
     await processIngredients(ingObjStore, msgData);
 
@@ -34,7 +37,7 @@ setupIndexedDB().then(() => {
  * @param {IDBObjectStore} ingObjectStore 
  * @param {number} nrIngredients 
  */
- async function processIngredients(ingObjectStore, { names, skill, alchemist, hasBenefactor, hasPhysician, hasPoisoner, fortifyAlchemy }) {
+async function processIngredients(ingObjectStore, { names, skill, alchemist, hasBenefactor, hasPhysician, hasPoisoner, fortifyAlchemy }) {
     const nrIngredients = names.length;
     const potionMaker = makePotion(skill, alchemist, hasPhysician, hasBenefactor, hasPoisoner, fortifyAlchemy);
     if (nrIngredients === 2) {
@@ -71,8 +74,9 @@ function buildStructure(event) {
     }
     const ingObjectStore = db.createObjectStore(ING_OBJ_STORE, { keyPath: 'name' });
     ingObjectStore.createIndex('effects', 'effects', { multiEntry: true });
-    
-    
+    // Creating effects object store.
+    const effectObjectStore = db.createObjectStore(EFFECT_OBJ_STORE, { keyPath: 'id' });
+    effectObjectStore.createIndex('name', 'name', { unique: false });
     
 }
 
@@ -82,15 +86,29 @@ function buildStructure(event) {
  * @param {any} data 
  */
 async function populateDatabase(db, data) {
-    const tx = db.transaction([ING_OBJ_STORE], 'readwrite');
+    const tx = db.transaction([ING_OBJ_STORE, EFFECT_OBJ_STORE], 'readwrite');
     const ingObj = tx.objectStore(ING_OBJ_STORE);
+    const effectObj = tx.objectStore(EFFECT_OBJ_STORE);
     
-    Object.values(data).forEach(value => {
-        
-        
-        ingObj.add(value);
-        
-    });
+    const ingredients = Object.values(data).map(value => new Ingredient(value));
+    const effects = ingredients.flatMap(ingredient => ingredient.effects);
+    const effectLength = effects.length;
+    for (let i = 0; i < effectLength; i+=4) {
+        effects[i].id = i + 1;
+        effects[i + 1].id = i + 2;
+        effects[i + 2].id = i + 3;
+        effects[i + 3].id = i + 4;
+        const ingredient = ingredients[i / 4];
+        ingredient.effects[0] = effects[i].id;
+        ingredient.effects[1] = effects[i + 1].id;
+        ingredient.effects[2] = effects[i + 2].id;
+        ingredient.effects[3] = effects[i + 3].id;
+    }
+    const effectEntries = effects.map(effect => insertEntry(effectObj, effect));
+    await Promise.all(effectEntries);
+    const ingredientEntries = ingredients.map(ingredient => insertEntry(ingObj, ingredient));
+    await Promise.all(ingredientEntries);
+    
 }
 
 /**
@@ -106,17 +124,15 @@ function populateEffects(db, data) {
 async function setupIndexedDB() {
     const ingredientData = await parseIngredientsJSON();
     try {
-        const db = await openDB(DB_NAME, e => {
-            buildStructure(e);
-            const db = e.target.result;
-            populateDatabase(db, ingredientData);
-        }, VERSION);
-    
+        db = await openDB(DB_NAME, buildStructure, VERSION);
+        
+        await populateDatabase(db, ingredientData);
+
     } catch (error) {
         console.log(error);
     }
-    
-    
+
+
 
 }
 
