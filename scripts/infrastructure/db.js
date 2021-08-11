@@ -52,27 +52,41 @@ export function openTransaction(db, storeNames, mode) {
  * Opens and closes a transaction to get an ingredient.
  * @param {IDBDatabase} db 
  * @param {string} names
+ * @returns {Promise<Ingredient>}
  */
 export function getIngredient(db, name) {
     const tx = db.transaction([ING_OBJ_STORE, EFFECT_OBJ_STORE]);
     const ingObj = tx.objectStore(ING_OBJ_STORE);
     const effObj = tx.objectStore(EFFECT_OBJ_STORE);
     const getRequest = ingObj.get(name);
-    const getPromise = new Promise(resolve => {
+    const getIngredientPromise = new Promise(resolve => {
         getRequest.onsuccess = () => resolve(getRequest.result);
     });
     
-    return getPromise.then(ingredient => {
+    return getIngredientPromise.then(ingredient => {
         return getEffectsFromIngredient(ingredient, effObj);
     }).then(([ingredient, ...effects]) => {
-        // Effects should be found on indices 0, 1, 2, 3.
-        // Ingredient should be found on index 4.
+        // Ingredient should be found on index 0.
+        // Effects should be found on indices 1, 2, 3, 4.
         ingredient.effects = effects;
         console.debug('Effects: ', effects);
         console.debug('Ingredient: ', ingredient);
         return Promise.resolve(new Ingredient(ingredient));
     });
     
+}
+
+/**
+ * 
+ * @param {IDBDatabase} db 
+ */
+export function getAllIngredients(db) {
+    const tx = db.transaction(ING_OBJ_STORE, 'readonly');
+    const ingredientStore = tx.objectStore(ING_OBJ_STORE);
+    const getIngredients = ingredientStore.getAll();
+    const getIngredientsPromise = new Promise(resolve => {
+        //
+    })
 }
 
 /**
