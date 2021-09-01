@@ -1,7 +1,9 @@
-import { Effect, Ingredient, parseIngredientsJSON } from "./alchemy/ingredients.js";
+import { Ingredient, parseIngredientsJSON } from "./alchemy/ingredients.js";
 import { DB_NAME, VERSION, ING_OBJ_STORE, EFFECT_OBJ_STORE } from "./infrastructure/config.js";
 import { makePotion } from "./alchemy/alchemy.js";
-import { openDB, getObjectStore, getByName, insertEntry, getIngredient } from './infrastructure/db.js';
+import { openDB, insertEntry, getIngredient, getAllIngredients } from './infrastructure/db.js';
+import {buildCalculateResultMessage, buildErrorMessage, buildPopulateResultMessage, buildSearchResultMessage, buildWorkerReadyMessage} from './infrastructure/messaging.js';
+
 /**
  * @type {IDBDatabase}
  */
@@ -10,7 +12,7 @@ let db;
 
 
 setupIndexedDB().then(() => {
-    postMessage({event: 'worker-ready'});
+    postMessage(buildWorkerReadyMessage(self.name));
     self.addEventListener('message', handleMessage);
     console.debug('Alchemy worker event listener set up.');
     console.assert(typeof db !== 'undefined');
@@ -20,6 +22,7 @@ setupIndexedDB().then(() => {
 /**
  * 
  * @param {MessageEvent} msg the message from the main thread.
+ * @returns {}
  */
 async function handleMessage(msg) {
     const start = self.performance.now();
@@ -27,7 +30,20 @@ async function handleMessage(msg) {
     console.log('From main thread: ', { msgData });
     const end = self.performance.now();
     console.debug('Time taken is %d', end - start);
-    await processIngredients(db, msgData);
+    switch (msgData.type) {
+        case 'calculate':
+            await processIngredients(db, msgData.payload);
+            break;
+        case 'search': 
+            postMessage(buildSearchResultMessage('Search not implemented yet'));
+            break;
+        case 'populate':
+            const ingredients = await getAllIngredients(db);
+            postMessage(buildPopulateResultMessage(ingredients));
+            break;
+        default:
+            postMessage(buildErrorMessage('Message type not recognized!'));
+    }
 }
 
 
@@ -46,16 +62,16 @@ async function processIngredients(db, { names, skill, alchemist, hasBenefactor, 
         const second = await getIngredient(db, names[1]);
         const results = first.mixTwo(second);
         const potion = potionMaker(results);
-        postMessage(potion);
+        postMessage(buildCalculateResultMessage(potion));
     } else if (nrIngredients === 3) {
         const first = await getIngredient(db, names[0]);
         const second = await getIngredient(db, names[1]);
         const third = await getIngredient(db, names[2]);
         const results = first.mixThree(second, third);
         const potion = potionMaker(results);
-        postMessage(potion);
+        postMessage(buildCalculateResultMessage(potion));
     } else {
-        postMessage({ error: 'Needs more than one ingredient' });
+        postMessage(buildErrorMessage('Needs more than one ingredient'));
     }
 }
 
