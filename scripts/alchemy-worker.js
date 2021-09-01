@@ -22,6 +22,7 @@ setupIndexedDB().then(() => {
 /**
  * 
  * @param {MessageEvent} msg the message from the main thread.
+ * @returns {}
  */
 async function handleMessage(msg) {
     const start = self.performance.now();

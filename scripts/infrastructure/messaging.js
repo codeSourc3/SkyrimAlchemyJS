@@ -1,9 +1,10 @@
-
+/** @module messaging */
 /**
  * @typedef Message
  * @property {string} type the type of message.
  * @property {Object} payload the payload to send to and from the worker.
  */
+
 /**
  * Constructs the message to be sent between threads.
  * @param {string} type 
