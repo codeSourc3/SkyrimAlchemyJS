@@ -1,8 +1,6 @@
-import { parseIngredientsJSON } from './alchemy/ingredients.js';
-import {tag, DomCache} from './infrastructure/html.js';
-
+import {buildPopulateMessage} from './infrastructure/messaging.js';
 let isWorkerReady = false;
-const alchemyWorker = new Worker('scripts/alchemy-worker.js', {type: 'module'});
+const alchemyWorker = new Worker('scripts/alchemy-worker.js', {type: 'module', name: 'mixer'});
 //const domCache = new DomCache();
 alchemyWorker.onmessage = handleWorkerMessage;
 //alchemyWorker.onmessageerror = handleWorkerMessageError;
@@ -18,28 +16,57 @@ window.addEventListener('beforeunload', (e) => {
  * @param {MessageEvent} messageEvent 
  */
 function handleWorkerMessage(messageEvent) {
-    //const data = messageEvent.data;
-    //console.log(data);
-    let isEvent = 'data' in messageEvent && 'event' in messageEvent.data;
-    if (isEvent && messageEvent.data.event === 'worker-ready') {
-        isWorkerReady = true;
-        alchemyWorker.postMessage(calculate(['Ancestor Moth Wing', 'Ash Creep Cluster']));
+    const {type, payload} = messageEvent.data;
+    
+    switch (type) {
+        case 'worker-ready':
+            onWorkerReady();
+            break;
+        case 'search-result':
+            onSearchResult(payload);
+            break;
+        case 'populate-result':
+            onPopulateResult(payload);
+            break;
+        case 'calculate-result':
+            onCalculateResult(payload);
+            break;
+        case 'error':
+            onErrorMessage(payload);
+            break;
+        default:
+            onUnknownMessage(type);
+            break;
     }
+
+    
 }
 
-
-
-function calculate(ingredientNames, skill=15, alchemist=0, hasPhysician=false, hasBenefactor=false, hasPoisoner=false, fortifyAlchemy=0) {
-    return {
-        names: ingredientNames,
-        skill,
-        alchemist,
-        hasBenefactor,
-        hasPhysician,
-        hasPoisoner,
-        fortifyAlchemy
-    };
+function onUnknownMessage(type) {
+    console.error(`${type} is not a valid message type.`);
 }
+
+function onErrorMessage(message) {
+    console.error(`Error: ${message}`);
+}
+
+function onCalculateResult(payload) {
+    console.log('Worker calculation results: ', payload);
+}
+
+function onSearchResult(payload) {
+    console.log('Worker search results: ', payload);
+}
+
+function onPopulateResult(payload) {
+    console.log('Worker populate result: ', payload);
+}
+
+function onWorkerReady() {
+    const message = buildPopulateMessage();
+    alchemyWorker.postMessage(message);
+}
+
 
 /**
  * 

@@ -79,14 +79,17 @@ export function getIngredient(db, name) {
 /**
  * 
  * @param {IDBDatabase} db 
+ * @returns {Promise<any>}
  */
 export function getAllIngredients(db) {
     const tx = db.transaction(ING_OBJ_STORE, 'readonly');
     const ingredientStore = tx.objectStore(ING_OBJ_STORE);
     const getIngredients = ingredientStore.getAll();
     const getIngredientsPromise = new Promise(resolve => {
-        //
-    })
+        getIngredients.onsuccess = () => resolve(getIngredients.result);
+    });
+
+    return getIngredientsPromise;
 }
 
 /**
