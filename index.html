@@ -12,11 +12,55 @@
     </header>
     <main>
         <!-- Search by ingredients, search by effect -->
-        <form id="alchemy-searchbar">
-            <input type="search" name="search-ingredients" id="search-ingredients">
-            <input type="submit" value="Search">
-        </form>
-        <ul id="result-list"></ul>
+        <article>
+            <h1>Ingredients</h1>
+            <form id="alchemy-searchbar">
+                <input type="search" name="search-ingredients" id="search-ingredients">
+                <input type="submit" value="Search">
+            </form>
+            <ul id="ingredient-list">
+                <!-- Filled on DOMContentLoaded -->
+            </ul>
+        </article>
+        <article>
+            <h1>Mixing</h1>
+            <form id="brew-potion">
+                <label for="skill-level">Alchemy Skill: </label>
+                <input type="number" name="skill-level" id="skill-level" min="0">
+
+                <label for="alchemist-perk">Alchemist: </label>
+                <select name="alchemist-perk" id="alchemist-perk">
+                    <option value="0" selected>0</option>
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                    <option value="4">4</option>
+                    <option value="5">5</option>
+                </select>
+
+                <label for="physician-perk">Physician: </label>
+                <input type="checkbox" name="physician-perk" id="physician-perk">
+
+                <label for="benefactor-perk">Benefactor: </label>
+                <input type="checkbox" name="benefactor-perk" id="benefactor-perk">
+
+                <label for="poisoner-perk">Poisoner: </label>
+                <input type="checkbox" name="poisoner-perk" id="poisoner-perk">
+                
+                <label for="fortify-alchemy">Fortify Alchemy: </label>
+                <input type="number" name="fortify-alchemy" id="fortify-alchemy" min="0">
+            </form>
+            <section>
+                <h1>Chosen Ingredients</h1>
+                <ul id="chosen-ingredients">
+                    <!-- Filled on user select -->
+                </ul>
+            </section>
+            <section>
+                <h1>Result</h1>
+                <ul id="result-list"></ul>
+            </section>
+        </article>
     </main>
     <footer></footer>
     <script type="module" src="./scripts/main.js">
