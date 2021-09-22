@@ -1,5 +1,5 @@
 import { Effect, Ingredient } from "../alchemy/ingredients.js";
-import { ING_OBJ_STORE, EFFECT_OBJ_STORE } from "./config.js";
+import { ING_OBJ_STORE } from "./config.js";
 
 /**
  * @typedef IngredientEntry
@@ -32,30 +32,7 @@ export function openDB(dbName, upgradeHandler,version=1) {
     });
 }
 
-/**
- * Starts a transaction and gets the object store.
- * @param {IDBDatabase} db
- * @param {string} storeName 
- * @param {string} mode either "readonly" or "readwrite"
- * @returns {IDBObjectStore}
- */
-export function getObjectStore(db, storeName, mode) {
-    const tx = db.transaction(storeName, mode);
-    return tx.objectStore(storeName);
-}
 
-/**
- * 
- * @param {IDBDatabase} db 
- * @param {string[]} storeNames 
- * @param {string} mode 
- */
-export function openTransaction(db, storeNames, mode) {
-    const tx = db.transaction(storeNames, mode);
-    let stores = Array.from(tx.objectStoreNames).map(name => tx.objectStore(name));
-    //tx.onabort = () => console.error('Transaction error: ', tx.error);
-    return stores;
-}
 
 /**
  * Opens and closes a transaction to get an ingredient.
@@ -64,24 +41,14 @@ export function openTransaction(db, storeNames, mode) {
  * @returns {Promise<Ingredient>}
  */
 export function getIngredient(db, name) {
-    const tx = db.transaction([ING_OBJ_STORE, EFFECT_OBJ_STORE]);
+    const tx = db.transaction([ING_OBJ_STORE]);
     const ingObj = tx.objectStore(ING_OBJ_STORE);
-    const effObj = tx.objectStore(EFFECT_OBJ_STORE);
     const getRequest = ingObj.get(name);
     const getIngredientPromise = new Promise(resolve => {
         getRequest.onsuccess = () => resolve(getRequest.result);
     });
     
-    return getIngredientPromise.then(ingredient => {
-        return getEffectsFromIngredient(ingredient, effObj);
-    }).then(([ingredient, ...effects]) => {
-        // Ingredient should be found on index 0.
-        // Effects should be found on indices 1, 2, 3, 4.
-        ingredient.effects = effects;
-        console.debug('Effects: ', effects);
-        console.debug('Ingredient: ', ingredient);
-        return Promise.resolve(new Ingredient(ingredient));
-    });
+    return getIngredientPromise;
     
 }
 
@@ -101,63 +68,10 @@ export function getAllIngredients(db) {
     return getIngredientsPromise;
 }
 
-/**
- * 
- * @param {{name:string, dlc: string, effects: number[], goldValue: number, weight: number}} ingredient 
- * @param {IDBObjectStore} effObj 
- * @returns {Promise<[{name: string, dlc: string, effects:number, goldValue: number, weight:number}, Effect, Effect, Effect, Effect]>}
- */
-function getEffectsFromIngredient(ingredient, effObj) {
-    let effectPromises = ingredient.effects.map(id => {
-        return new Promise(resolve => {
-            const getEffect = effObj.get(id);
-            getEffect.onsuccess = () => resolve(getEffect.result);
-        });
-    });
-    const ingredientPromise = Promise.resolve(ingredient);
-    return Promise.all([ingredientPromise, ...effectPromises]);
-}
 
 
-/**
- * Gets the ingredient by name. Case-sensitive.
- * @param {IDBObjectStore} objStore the object store to get by key.
- * @param {string} key a case-sensitive string.
- * @returns {Promise<{name:string, dlc: string, effects: number[], goldValue: number, weight: number}>}
- */
-export function getByName(objStore, key) {
-    return new Promise((resolve, reject) => {
-        const request = objStore.get(key);
-        request.onsuccess = () => {
-            console.info('Ingredient found: ', request.result);
-            resolve(request.result);
-        };
-        request.onerror = (e) => {
-            e.preventDefault();
-            console.info(e.target);
-            console.error('Error result: ', request.error);
-            reject(request.error);
-        };
-    });
-}
 
-/**
- * Gets the Effect by its ID.
- * 
- * @param {IDBObjectStore} objStore 
- * @param {number} id 
- * @returns {Promise<Effect>}
- */
-export function getByEffectId(objStore, id) {
-    return new Promise((resolve, reject) => {
-        const request = objStore.get(id);
-        request.onsuccess = () => resolve(request.result);
-        request.onerror = () => {
-            console.info('Effect of %d not found.', id);
-            reject(request.result);
-        }
-    });
-}
+
 
 /**
  * Adds an entry to the object store. This must take place

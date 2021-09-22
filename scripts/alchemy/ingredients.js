@@ -47,6 +47,7 @@ export class Ingredient {
         this.weight = weight;
         this.dlc = dlc;
         this.effects = Array.from(effects).map( effect => new Effect(effect));
+        this.effectNames = this.effects.map(effect => effect.name);
     }
 
     get first() {

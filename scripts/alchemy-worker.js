@@ -1,5 +1,5 @@
 import { Ingredient, parseIngredientsJSON } from "./alchemy/ingredients.js";
-import { DB_NAME, VERSION, ING_OBJ_STORE, EFFECT_OBJ_STORE } from "./infrastructure/config.js";
+import { DB_NAME, VERSION, ING_OBJ_STORE } from "./infrastructure/config.js";
 import { makePotion } from "./alchemy/alchemy.js";
 import { openDB, insertEntry, getIngredient, getAllIngredients } from './infrastructure/db.js';
 import {buildCalculateResultMessage, buildErrorMessage, buildPopulateResultMessage, buildSearchResultMessage, buildWorkerReadyMessage} from './infrastructure/messaging.js';
@@ -89,10 +89,8 @@ function buildStructure(event) {
         self.close();
     }
     const ingObjectStore = db.createObjectStore(ING_OBJ_STORE, { keyPath: 'name' });
-    ingObjectStore.createIndex('effects', 'effects', { multiEntry: true });
-    // Creating effects object store.
-    const effectObjectStore = db.createObjectStore(EFFECT_OBJ_STORE, { keyPath: 'id' });
-    effectObjectStore.createIndex('name', 'name', { unique: false });
+    ingObjectStore.createIndex('effect_names', 'effectNames', { multiEntry: true });
+    
     
 }
 
@@ -102,29 +100,21 @@ function buildStructure(event) {
  * @param {any} data 
  */
 async function populateDatabase(db, data) {
-    const tx = db.transaction([ING_OBJ_STORE, EFFECT_OBJ_STORE], 'readwrite');
+    console.time('populate db');
+    const tx = db.transaction([ING_OBJ_STORE], 'readwrite');
     const ingObj = tx.objectStore(ING_OBJ_STORE);
-    const effectObj = tx.objectStore(EFFECT_OBJ_STORE);
+    
     
     const ingredients = Object.values(data).map(value => new Ingredient(value));
-    const effects = ingredients.flatMap(ingredient => ingredient.effects);
-    const effectLength = effects.length;
-    for (let i = 0; i < effectLength; i+=4) {
-        effects[i].id = i + 1;
-        effects[i + 1].id = i + 2;
-        effects[i + 2].id = i + 3;
-        effects[i + 3].id = i + 4;
-        const ingredient = ingredients[i / 4];
-        ingredient.effects[0] = effects[i].id;
-        ingredient.effects[1] = effects[i + 1].id;
-        ingredient.effects[2] = effects[i + 2].id;
-        ingredient.effects[3] = effects[i + 3].id;
-    }
-    const effectEntries = effects.map(effect => insertEntry(effectObj, effect));
-    await Promise.all(effectEntries);
-    const ingredientEntries = ingredients.map(ingredient => insertEntry(ingObj, ingredient));
-    await Promise.all(ingredientEntries);
     
+    
+    const ingredientEntries = ingredients.map(ingredient => insertEntry(ingObj, ingredient));
+    try {
+        await Promise.all(ingredientEntries);
+    } catch (err) {
+        console.error('Error populating database');
+    }
+    console.timeEnd('populate db');
 }
 
 
@@ -133,11 +123,9 @@ async function setupIndexedDB() {
     const ingredientData = await parseIngredientsJSON();
     try {
         db = await openDB(DB_NAME, buildStructure, VERSION);
-        
         await populateDatabase(db, ingredientData);
-
     } catch (error) {
-        console.log(error);
+        console.log('Error setting up database: ', error);
     }
 
 
