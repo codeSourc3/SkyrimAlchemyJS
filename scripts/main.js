@@ -58,6 +58,10 @@ function onSearchResult(payload) {
     console.log('Worker search results: ', payload);
 }
 
+/**
+ * 
+ * @param {import('./infrastructure/db.js').IngredientEntry} payload 
+ */
 function onPopulateResult(payload) {
     console.log('Worker populate result: ', payload);
 }

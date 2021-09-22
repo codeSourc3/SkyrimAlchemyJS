@@ -1,4 +1,7 @@
 /**
+ * @module alchemy/effects
+ */
+/**
  * @typedef Effect
  * @property {string} name 
  * @property {string} description

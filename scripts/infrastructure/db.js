@@ -1,6 +1,15 @@
 import { Effect, Ingredient } from "../alchemy/ingredients.js";
 import { ING_OBJ_STORE, EFFECT_OBJ_STORE } from "./config.js";
 
+/**
+ * @typedef IngredientEntry
+ * @property {string} dlc the downloadable content the ingredient belongs to.
+ * @property {number[]} effects an array of IDs for the effects.
+ * @property {number} goldValue the amount of gold the ingredient is worth.
+ * @property {string} name the name of the ingredient.
+ * @property {number} weight the weight of the ingredient.
+ */
+
 /** 
  * @callback upgradeHandler
  * @param {IDBVersionChangeEvent} ev
@@ -111,9 +120,9 @@ function getEffectsFromIngredient(ingredient, effObj) {
 
 
 /**
- * 
- * @param {IDBObjectStore} objStore 
- * @param {string} key 
+ * Gets the ingredient by name. Case-sensitive.
+ * @param {IDBObjectStore} objStore the object store to get by key.
+ * @param {string} key a case-sensitive string.
  * @returns {Promise<{name:string, dlc: string, effects: number[], goldValue: number, weight: number}>}
  */
 export function getByName(objStore, key) {
@@ -133,6 +142,7 @@ export function getByName(objStore, key) {
 }
 
 /**
+ * Gets the Effect by its ID.
  * 
  * @param {IDBObjectStore} objStore 
  * @param {number} id 
@@ -150,6 +160,9 @@ export function getByEffectId(objStore, id) {
 }
 
 /**
+ * Adds an entry to the object store. This must take place
+ * within an existing transaction. The await keyword
+ * should not be used.
  * 
  * @param {IDBObjectStore} objStore 
  * @param {any} value 
@@ -159,7 +172,7 @@ export function addEntry(objStore, value) {
     return new Promise((resolve, reject) => {
         const request = objStore.add(value);
         request.onsuccess = () => resolve(request.result);
-        request.onerror = () => reject(request.result);
+        request.onerror = () => reject(request.error);
     });
 }
 
