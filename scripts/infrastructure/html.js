@@ -18,6 +18,11 @@ export class DomCache {
         this._elMap = new Map();
     }
 
+    /**
+     * 
+     * @param {string} stringId 
+     * @returns {HTMLElement}
+     */
     id(stringId) {
         if (this._elMap.has(stringId)) {
             return this._elMap.get(stringId);

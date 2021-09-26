@@ -56,17 +56,17 @@ async function handleMessage(msg) {
 async function processIngredients(db, { names, skill, alchemist, hasBenefactor, hasPhysician, hasPoisoner, fortifyAlchemy }) {
     const nrIngredients = names.length;
     const potionMaker = makePotion(skill, alchemist, hasPhysician, hasBenefactor, hasPoisoner, fortifyAlchemy);
-    if (nrIngredients === 2) {
-        const first = await getIngredient(db, names[0]);
-        const second = await getIngredient(db, names[1]);
-        const results = first.mixTwo(second);
-        const potion = potionMaker(results);
-        postMessage(buildCalculateResultMessage(potion));
-    } else if (nrIngredients === 3) {
-        const first = await getIngredient(db, names[0]);
-        const second = await getIngredient(db, names[1]);
-        const third = await getIngredient(db, names[2]);
-        const results = first.mixThree(second, third);
+    const [firstName, secondName, thirdName] = names;
+    if (nrIngredients > 1) {
+        const first = await getIngredient(db, firstName);
+        const second = await getIngredient(db, secondName);
+        let results = [];
+        if (thirdName) {
+            const third = await getIngredient(db, thirdName);
+            results = first.mixThree(second, third);
+        } else {
+            results = first.mixTwo(second);
+        }
         const potion = potionMaker(results);
         postMessage(buildCalculateResultMessage(potion));
     } else {

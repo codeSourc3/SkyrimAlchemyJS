@@ -1,14 +1,24 @@
 import {buildPopulateMessage} from './infrastructure/messaging.js';
-let isWorkerReady = false;
+import {DomCache} from './infrastructure/html.js';
+
 const alchemyWorker = new Worker('scripts/alchemy-worker.js', {type: 'module', name: 'mixer'});
-//const domCache = new DomCache();
+const domCache = new DomCache();
 alchemyWorker.onmessage = handleWorkerMessage;
 //alchemyWorker.onmessageerror = handleWorkerMessageError;
 alchemyWorker.onerror = handleWorkerError;
+
+// setting up listener.
 window.addEventListener('beforeunload', (e) => {
     console.log('Terminating Worker');
     alchemyWorker.terminate();
 });
+
+const brewPotionForm = domCache.id('brew-potion');
+const ingredientSearchBar = domCache.id('alchemy-searchbar');
+
+const ingredientList = domCache.id('ingredient-list');
+const chosenIngredients = domCache.id('chosen-ingredients');
+const resultList = domCache.id('result-list');
 
 
 /**
