@@ -1,0 +1,11 @@
+
+.selected-ingredient {
+    background-color: burlywood;
+    font-size: large;
+}
+
+#ingredient-list {
+    list-style: none;
+    max-height: 30vh;
+    overflow-y: scroll;
+}

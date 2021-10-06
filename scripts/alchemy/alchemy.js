@@ -1,6 +1,9 @@
 import { restoreHealth, restoreStamina, restoreMagicka } from './effects.js';
 import { Effect } from './ingredients.js';
 
+export const MAX_CHOSEN_INGREDIENTS = 3;
+export const MIN_CHOSEN_INGREDIENTS = 2;
+
 function alchemistPerk(level = 0) {
     if (typeof level !== 'number') {
         throw new TypeError('Level must be a number');

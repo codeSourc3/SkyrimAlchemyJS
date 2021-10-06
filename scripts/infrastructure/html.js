@@ -34,3 +34,30 @@ export class DomCache {
     }
     
 }
+
+/**
+ * Creates a bunch of HTMLLIElements and attaches them to a DocumentFragment.
+ * @param {string[]} elements the text content to attach to the list item.
+ * @returns {DocumentFragment}
+ */
+export function createList(elements=[]) {
+    const domFrag = document.createDocumentFragment();
+    console.assert(Array.isArray(elements), 'Create list expects an array of elements.');
+    elements.forEach(value => {
+        const listItem = document.createElement('li');
+        listItem.textContent = value;
+        domFrag.append(listItem);
+    });
+    return domFrag;
+}
+
+/**
+ * Creates an unconnected list item element
+ * @param {string} textContent the text node to place inside.
+ * @returns {HTMLLIElement} an unattached list item element.
+ */
+export function createListItem(textContent = '') {
+    const listItem = document.createElement('li');
+    listItem.textContent = textContent;
+    return listItem;
+}

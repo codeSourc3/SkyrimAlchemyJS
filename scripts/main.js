@@ -1,5 +1,6 @@
 import {buildPopulateMessage} from './infrastructure/messaging.js';
-import {DomCache} from './infrastructure/html.js';
+import {createList, createListItem, DomCache} from './infrastructure/html.js';
+import { MAX_CHOSEN_INGREDIENTS, MIN_CHOSEN_INGREDIENTS } from './alchemy/alchemy.js';
 
 const alchemyWorker = new Worker('scripts/alchemy-worker.js', {type: 'module', name: 'mixer'});
 const domCache = new DomCache();
@@ -13,17 +14,24 @@ window.addEventListener('beforeunload', (e) => {
     alchemyWorker.terminate();
 });
 
+/**
+ * @type {HTMLFormElement}
+ */
 const brewPotionForm = domCache.id('brew-potion');
+brewPotionForm.addEventListener('submit', handleBrewPotionFormSubmit);
+/**
+ * @type {HTMLFormElement}
+ */
 const ingredientSearchBar = domCache.id('alchemy-searchbar');
-
+const brewingErrorOutput = domCache.id('brewing-error-message');
 const ingredientList = domCache.id('ingredient-list');
 const chosenIngredients = domCache.id('chosen-ingredients');
 const resultList = domCache.id('result-list');
-
-
+// Used to avoid querying the DOM to get the name of the ingredient.
+const currentSelectedIngredients = new Set();
 /**
- * 
- * @param {MessageEvent} messageEvent 
+ * Handles the routing for the different messages sent by the worker.
+ * @param {MessageEvent} messageEvent sent by the worker.
  */
 function handleWorkerMessage(messageEvent) {
     const {type, payload} = messageEvent.data;
@@ -73,21 +81,94 @@ function onSearchResult(payload) {
  * @param {import('./infrastructure/db.js').IngredientEntry[]} payload 
  */
 function onPopulateResult(payload) {
-    console.log('Worker populate result: ', payload);
+    console.assert(Array.isArray(payload), 'Populate results payload was not an array');
+    let ingredientNames = payload.map(createListItemFromIngredient);
+    const ingredientListItems = createList(ingredientNames);
+    ingredientList.append(ingredientListItems);
+    ingredientList.addEventListener('click', toggleSelectedIngredient);
 }
 
+
+/**
+ * Toggles the selected ingredient selected or unselected.
+ * @param {PointerEvent} event the event.
+ */
+function toggleSelectedIngredient(event) {
+    // Should toggle the ingredient as selected or unselected.
+    // Can't have less than 2 ingredients or more than 3.
+    /**
+     * @type {HTMLElement}
+     */
+    const selectedElement = event.target;
+    const {textContent} = selectedElement;
+    if (!currentSelectedIngredients.has(textContent) && currentSelectedIngredients.size < MAX_CHOSEN_INGREDIENTS) {
+        // doesn't have ingredient and can select one more.
+        currentSelectedIngredients.add(textContent);
+        addToChosenIngredients(textContent);
+        selectedElement.classList.toggle('selected-ingredient');
+    } else if (currentSelectedIngredients.has(textContent)) {
+        currentSelectedIngredients.delete(textContent);
+        selectedElement.classList.toggle('selected-ingredient');
+        removeFromChosenIngredients(textContent);
+    } else {
+        displayTooManyIngredientsMessage();
+    }
+    
+}
+
+function addToChosenIngredients(ingredientName) {
+    const listItem = createListItem(ingredientName);
+    chosenIngredients.append(listItem);
+}
+
+function removeFromChosenIngredients(ingredientName) {
+    const chosenIngredientArray = Array.from(chosenIngredients.children);
+    let foundNode = chosenIngredientArray.find(el => el.textContent === ingredientName);
+    if (typeof foundNode === 'undefined') {
+        throw new Error(`Ingredient name ${ingredientName} not found among chosen ingredients.`);
+    }
+    foundNode.remove();
+}
+
+function displayTooManyIngredientsMessage() {
+    console.warn('Too many ingredients, unselect some.');
+}
+
+/**
+ * Creates a list item from an ingredient entry.
+ * @param {import('./infrastructure/db.js').IngredientEntry} ingredientEntry 
+ * @returns {string} the name of the ingredient.
+ */
+function createListItemFromIngredient(ingredientEntry) {
+    return ingredientEntry.name;
+}
+
+/**
+ * Posts a populate message to the worker.
+ */
 function onWorkerReady() {
     const message = buildPopulateMessage();
     alchemyWorker.postMessage(message);
 }
 
-
 /**
- * 
- * @param {ErrorEvent} messageEvent 
+ * Handles the submission of the potion brewing form.
+ * @param {SubmitEvent} event 
  */
-function handleWorkerMessageError(messageEvent) {
-    console.error(`Worker Message Error at file %s of line %d`, messageEvent.filename, messageEvent.lineno);
+function handleBrewPotionFormSubmit(event) {
+    // Prevents the form from redirecting to a URL.
+    event.preventDefault();
+    let selectedIngredients = Array.from(currentSelectedIngredients);
+    if (selectedIngredients.length < 2) {
+        brewPotionForm.reset();
+        brewingErrorOutput.textContent = `Expected 2 to 3 ingredients to be selected.`;
+        return;
+    }
+    const formData = new FormData(brewPotionForm);
+    formData.set('selected-ingredients', Array.from(currentSelectedIngredients).join());
+    for (const [key, value] of formData.entries()) {
+        console.log(`Key: ${key}, Value: ${value}`);
+    }
 }
 
 /**
