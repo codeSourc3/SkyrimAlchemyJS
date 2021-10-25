@@ -169,6 +169,11 @@ function handleBrewPotionFormSubmit(event) {
     for (const [key, value] of formData.entries()) {
         console.log(`Key: ${key}, Value: ${value}`);
     }
+    // Assuming we still have the paragraph element.
+    if (resultList.hasChildNodes) {
+        console.log('Attempting to remove default text');
+        resultList.children[0].remove();
+    }
 }
 
 /**
