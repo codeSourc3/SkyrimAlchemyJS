@@ -5,13 +5,15 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Skyrim Alchemy Calculator</title>
+    <link rel="stylesheet" href="styles/styles.css">
 </head>
 <body>
     <header>
         <h1>Skyrim Alchemy Calculator</h1>
     </header>
     <main>
-        <!-- Search by ingredients, search by effect -->
+        <!-- Search by ingredients, search by effect, 
+            filters out ingredients based off of said conditions -->
         <article>
             <h1>Ingredients</h1>
             <form id="alchemy-searchbar">
@@ -25,8 +27,9 @@
         <article>
             <h1>Mixing</h1>
             <form id="brew-potion">
+                <p><output id="brewing-error-message"></output></p>
                 <label for="skill-level">Alchemy Skill: </label>
-                <input type="number" name="skill-level" id="skill-level" min="0">
+                <input type="number" name="skill-level" id="skill-level" min="15" value="15">
 
                 <label for="alchemist-perk">Alchemist: </label>
                 <select name="alchemist-perk" id="alchemist-perk">
@@ -49,6 +52,7 @@
                 
                 <label for="fortify-alchemy">Fortify Alchemy: </label>
                 <input type="number" name="fortify-alchemy" id="fortify-alchemy" min="0">
+                <input type="submit" value="Mix">
             </form>
             <section>
                 <h1>Chosen Ingredients</h1>
@@ -58,7 +62,9 @@
             </section>
             <section>
                 <h1>Result</h1>
-                <ul id="result-list"></ul>
+                <ul id="result-list">
+                    <p>Choose one to two ingredients.</p>
+                </ul>
             </section>
         </article>
     </main>
