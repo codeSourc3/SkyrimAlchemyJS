@@ -101,17 +101,19 @@ function toggleSelectedIngredient(event) {
      */
     const selectedElement = event.target;
     const {textContent} = selectedElement;
-    if (!currentSelectedIngredients.has(textContent) && currentSelectedIngredients.size < MAX_CHOSEN_INGREDIENTS) {
-        // doesn't have ingredient and can select one more.
-        currentSelectedIngredients.add(textContent);
-        addToChosenIngredients(textContent);
-        selectedElement.classList.toggle('selected-ingredient');
-    } else if (currentSelectedIngredients.has(textContent)) {
-        currentSelectedIngredients.delete(textContent);
-        selectedElement.classList.toggle('selected-ingredient');
-        removeFromChosenIngredients(textContent);
-    } else {
-        displayTooManyIngredientsMessage();
+    if (selectedElement.tagName === 'LI') {
+        if (!currentSelectedIngredients.has(textContent) && currentSelectedIngredients.size < MAX_CHOSEN_INGREDIENTS) {
+            // doesn't have ingredient and can select one more.
+            currentSelectedIngredients.add(textContent);
+            addToChosenIngredients(textContent);
+            selectedElement.classList.toggle('selected-ingredient');
+        } else if (currentSelectedIngredients.has(textContent)) {
+            currentSelectedIngredients.delete(textContent);
+            selectedElement.classList.toggle('selected-ingredient');
+            removeFromChosenIngredients(textContent);
+        } else {
+            displayTooManyIngredientsMessage();
+        }
     }
     
 }
