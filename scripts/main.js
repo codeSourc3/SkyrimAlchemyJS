@@ -1,6 +1,7 @@
-import {buildPopulateMessage} from './infrastructure/messaging.js';
-import {createList, createListItem, DomCache} from './infrastructure/html.js';
+import {buildPopulateMessage, buildSearchMessage} from './infrastructure/messaging.js';
+import {createList, createListItem, DomCache, removeAllChildren} from './infrastructure/html.js';
 import { MAX_CHOSEN_INGREDIENTS, MIN_CHOSEN_INGREDIENTS } from './alchemy/alchemy.js';
+import { Ingredient } from './alchemy/ingredients.js';
 
 const alchemyWorker = new Worker('scripts/alchemy-worker.js', {type: 'module', name: 'mixer'});
 const domCache = new DomCache();
@@ -23,6 +24,7 @@ brewPotionForm.addEventListener('submit', handleBrewPotionFormSubmit);
  * @type {HTMLFormElement}
  */
 const ingredientSearchBar = domCache.id('alchemy-searchbar');
+ingredientSearchBar.addEventListener('submit', onSearchFormSubmit);
 const brewingErrorOutput = domCache.id('brewing-error-message');
 const ingredientList = domCache.id('ingredient-list');
 const chosenIngredients = domCache.id('chosen-ingredients');
@@ -72,8 +74,41 @@ function onCalculateResult(payload) {
     console.log('Worker calculation results: ', payload);
 }
 
+/**
+ * 
+ * @param {import('./infrastructure/db.js').IngredientEntry[]} payload 
+ */
 function onSearchResult(payload) {
-    console.log('Worker search results: ', payload);
+    console.log(payload);
+    if (Array.isArray(payload)) {
+        const domFrag = document.createDocumentFragment();
+        payload.forEach(ingredient => {
+            console.info('Filtered ingredient: ', ingredient);
+            let listItem = createListItem(ingredient);
+            domFrag.appendChild(listItem);
+        });
+        removeAllChildren(ingredientList);
+        ingredientList.appendChild(domFrag);
+    }
+}
+
+/**
+ * Search for ingredients.
+ * @param {SubmitEvent} event 
+ */
+function onSearchFormSubmit(event) {
+    event.preventDefault();
+    const formData = new FormData(ingredientSearchBar);
+    const logFormData = (searchFormData) => {
+        console.group('Search form');
+        for (const [key, value] of searchFormData.entries()) {
+            console.log(`Key: "${key}", Value: "${value}"`);
+        }
+        console.groupEnd();
+    };
+    logFormData(formData);
+    let searchMessage = buildSearchMessage(formData.get('search-ingredients'));
+    alchemyWorker.postMessage(searchMessage);
 }
 
 /**

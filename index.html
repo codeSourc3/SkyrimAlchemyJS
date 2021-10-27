@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -7,6 +8,7 @@
     <title>Skyrim Alchemy Calculator</title>
     <link rel="stylesheet" href="styles/styles.css">
 </head>
+
 <body>
     <header>
         <h1>Skyrim Alchemy Calculator</h1>
@@ -17,7 +19,134 @@
         <article>
             <h1>Ingredients</h1>
             <form id="alchemy-searchbar">
-                <input type="search" name="search-ingredients" id="search-ingredients">
+                <fieldset>
+                    <legend>By Ingredient</legend>
+                    <input type="search" name="search-ingredients" id="search-ingredients"
+                        placeholder="...Search by Ingredient" list="ingredients">
+                    <select name="sort-order" id="sort-order">
+                        <option value="asc" selected>Asc</option>
+                        <option value="desc">Desc</option>
+                    </select>
+                    <datalist id="ingredients">
+                        <option value="Abecean Longfin">Abecean Longfin</option>
+                        <option value="Ancestor Moth Wing">Ancestor Moth Wing</option>
+                        <option value="Ash Creep Cluster">Ash Creep Cluster</option>
+                        <option value="Ash Hopper Jelly">Ash Hopper Jelly</option>
+                        <option value="Ashen Grass Pod">Ashen Grass Pod</option>
+                        <option value="Bear Claws">Bear Claws</option>
+                        <option value="Bee">Bee</option>
+                        <option value="Beehive Husk">Beehive Husk</option>
+                        <option value="Bleeding Crown">Bleeding Crown</option>
+                        <option value="Blisterwort">Blisterwort</option>
+                        <option value="Blue Butterfly Wing">Blue Butterfly Wing</option>
+                        <option value="Blue Dartwing">Blue Dartwing</option>
+                        <option value="Blue Mountain Flower">Blue Mountain Flower</option>
+                        <option value="Boar Tusk">Boar Tusk</option>
+                        <option value="Bone Meal">Bone Meal</option>
+                        <option value="Briar Heart">Briar Heart</option>
+                        <option value="Burnt Spriggan Wood">Burnt Spriggan Wood</option>
+                        <option value="Butterfly Wing">Butterfly Wing</option>
+                        <option value="Canis Root">Canis Root</option>
+                        <option value="Charred Skeever Hide">Charred Skeever Hide</option>
+                        <option value="Chaurus Eggs">Chaurus Eggs</option>
+                        <option value="Chaurus Hunter Antennae">Chaurus Hunter Antennae</option>
+                        <option value="Chicken's Egg">Chicken's Egg</option>
+                        <option value="Creep Cluster">Creep Cluster</option>
+                        <option value="Crimson Nirnroot">Crimson Nirnroot</option>
+                        <option value="Cyrodilic Spadetail">Cyrodilic Spadetail</option>
+                        <option value="Daedra Heart">Daedra Heart</option>
+                        <option value="Deathbell">Deathbell</option>
+                        <option value="Dragon's Tongue">Dragon's Tongue</option>
+                        <option value="Dwarven Oil">Dwarven Oil</option>
+                        <option value="Ectoplasm">Ectoplasm</option>
+                        <option value="Elves Ear">Elves Ear</option>
+                        <option value="Emperor Parasol Moss">Emperor Parasol Moss</option>
+                        <option value="Eye of Sabre Cat">Eye of Sabre Cat</option>
+                        <option value="Falmer Ear">Falmer Ear</option>
+                        <option value="Felsaad Tern Feathers">Felsaad Tern Feathers</option>
+                        <option value="Fire Salts">Fire Salts</option>
+                        <option value="Fly Amanita">Fly Amanita</option>
+                        <option value="Frost Mirriam">Frost Mirriam</option>
+                        <option value="Frost Salts">Frost Salts</option>
+                        <option value="Garlic">Garlic</option>
+                        <option value="Giant Lichen">Giant Lichen</option>
+                        <option value="Giant's Toe">Giant's Toe</option>
+                        <option value="Gleamblossom">Gleamblossom</option>
+                        <option value="Glow Dust">Glow Dust</option>
+                        <option value="Glowing Mushroom">Glowing Mushroom</option>
+                        <option value="Grass Pod">Grass Pod</option>
+                        <option value="Hagraven Claw">Hagraven Claw</option>
+                        <option value="Hagraven Feathers">Hagraven Feathers</option>
+                        <option value="Hanging Moss">Hanging Moss</option>
+                        <option value="Hawk Beak">Hawk Beak</option>
+                        <option value="Hawk Feathers">Hawk Feathers</option>
+                        <option value="Hawk's Egg">Hawk's Egg</option>
+                        <option value="Histcarp">Histcarp</option>
+                        <option value="Honeycomb">Honeycomb</option>
+                        <option value="Human Flesh">Human Flesh</option>
+                        <option value="Human Heart">Human Heart</option>
+                        <option value="Ice Wraith Teeth">Ice Wraith Teeth</option>
+                        <option value="Imp Stool">Imp Stool</option>
+                        <option value="Jazbay Grapes">Jazbay Grapes</option>
+                        <option value="Juniper Berries">Juniper Berries</option>
+                        <option value="Large Antlers">Large Antlers</option>
+                        <option value="Lavender">Lavender</option>
+                        <option value="Luna Moth Wing">Luna Moth Wing</option>
+                        <option value="Moon Sugar">Moon Sugar</option>
+                        <option value="Mora Tapinella">Mora Tapinella</option>
+                        <option value="Mudcrab Chitin">Mudcrab Chitin</option>
+                        <option value="Namira's Rot">Namira's Rot</option>
+                        <option value="Netch Jelly">Netch Jelly</option>
+                        <option value="Nightshade">Nightshade</option>
+                        <option value="Nirnroot">Nirnroot</option>
+                        <option value="Nordic Barnacle">Nordic Barnacle</option>
+                        <option value="Orange Dartwing">Orange Dartwing</option>
+                        <option value="Pearl">Pearl</option>
+                        <option value="Pine Thrush Egg">Pine Thrush Egg</option>
+                        <option value="Poison Bloom">Poison Bloom</option>
+                        <option value="Powdered Mammoth Tusk">Powdered Mammoth Tusk</option>
+                        <option value="Purple Mountain Flower">Purple Mountain Flower</option>
+                        <option value="Red Mountain Flower">Red Mountain Flower</option>
+                        <option value="River Betty">River Betty</option>
+                        <option value="Rock Warbler Egg">Rock Warbler Egg</option>
+                        <option value="Sabre Cat Tooth">Sabre Cat Tooth</option>
+                        <option value="Salmon Roe">Salmon Roe</option>
+                        <option value="Salt Pile">Salt Pile</option>
+                        <option value="Scaly Pholiota">Scaly Pholiota</option>
+                        <option value="Scathecraw">Scathecraw</option>
+                        <option value="Silverside Perch">Silverside Perch</option>
+                        <option value="Skeever Tail">Skeever Tail</option>
+                        <option value="Slaughterfish Egg">Slaughterfish Egg</option>
+                        <option value="Slaughterfish Scales">Slaughterfish Scales</option>
+                        <option value="Small Antlers">Small Antlers</option>
+                        <option value="Small Pearl">Small Pearl</option>
+                        <option value="Snowberries">Snowberries</option>
+                        <option value="Spawn Ash">Spawn Ash</option>
+                        <option value="Spider Egg">Spider Egg</option>
+                        <option value="Spriggan Sap">Spriggan Sap</option>
+                        <option value="Swamp Fungal Pod">Swamp Fungal Pod</option>
+                        <option value="Taproot">Taproot</option>
+                        <option value="Thistle Branch">Thistle Branch</option>
+                        <option value="Torchbug Thorax">Torchbug Thorax</option>
+                        <option value="Trama Root">Trama Root</option>
+                        <option value="Troll Fat">Troll Fat</option>
+                        <option value="Tundra Cotton">Tundra Cotton</option>
+                        <option value="Vampire Dust">Vampire Dust</option>
+                        <option value="Void Salts">Void Salts</option>
+                        <option value="Wheat">Wheat</option>
+                        <option value="White Cap">White Cap</option>
+                        <option value="Wisp Wrappings">Wisp Wrappings</option>
+                        <option value="Yellow Mountain Flower">Yellow Mountain Flower</option>
+                    </datalist>
+                </fieldset>
+                <fieldset>
+                    <legend>By Effect</legend>
+                    <input type="search" name="search-effects" id="search-effects" placeholder="...Search by Effect"
+                        list="ingredient-effects">
+                    <datalist id="ingredient-effects">
+                        <!-- To be loaded in. -->
+                    </datalist>
+                </fieldset>
                 <input type="submit" value="Search">
             </form>
             <ul id="ingredient-list">
@@ -49,7 +178,7 @@
 
                 <label for="poisoner-perk">Poisoner: </label>
                 <input type="checkbox" name="poisoner-perk" id="poisoner-perk">
-                
+
                 <label for="fortify-alchemy">Fortify Alchemy: </label>
                 <input type="number" name="fortify-alchemy" id="fortify-alchemy" min="0">
                 <input type="submit" value="Mix">
@@ -72,4 +201,5 @@
     <script type="module" src="./scripts/main.js">
     </script>
 </body>
+
 </html>

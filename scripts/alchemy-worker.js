@@ -9,7 +9,7 @@ import {buildCalculateResultMessage, buildErrorMessage, buildPopulateResultMessa
  */
 let db;
 
-
+let shouldUpgrade = false;
 
 setupIndexedDB().then(() => {
     postMessage(buildWorkerReadyMessage(self.name));
@@ -34,7 +34,8 @@ async function handleMessage(msg) {
             await processIngredients(db, msgData.payload);
             break;
         case 'search': 
-            postMessage(buildSearchResultMessage('Search not implemented yet'));
+            const searchResults = await searchIngredients(db, msgData.payload);
+            postMessage(buildSearchResultMessage(['No']));
             break;
         case 'populate':
             const ingredients = await getAllIngredients(db);
@@ -45,10 +46,21 @@ async function handleMessage(msg) {
     }
 }
 
+/**
+ * Attempts to search for any ingredients by effect or ingredient names.
+ * 
+ * @param {IDBDatabase} db 
+ * @param {any} messagePayload 
+ * @returns {import('./infrastructure/db.js').IngredientEntry[]}
+ */
+async function searchIngredients(db, messagePayload) {
+    return [{name: 'Abecean Longfin'}];
+}
+
 
 
 /**
- * Processes the ingredients.
+ * Attempts to make a potion with the provided ingredients and character stats.
  * 
  * @param {IDBDatabase} db the database.
  * @param {{names: string[], skill: number, alchemist: number, hasBenefactor: boolean, hasPhysician: boolean, hasPoisoner: boolean, fortifyAlchemy: number}} nrIngredients 
@@ -84,13 +96,16 @@ function buildStructure(event) {
      * @type {IDBDatabase}
      */
     const db = event.target.result;
+    shouldUpgrade = true;
+    console.time('building structure');
     if (!db instanceof IDBDatabase) {
         console.error('Something went wrong with opening database.');
         self.close();
     }
     const ingObjectStore = db.createObjectStore(ING_OBJ_STORE, { keyPath: 'name' });
     ingObjectStore.createIndex('effect_names', 'effectNames', { multiEntry: true });
-    
+    console.timeEnd('building structure');
+    console.assert(ingObjectStore.transaction.mode === 'versionchange', 'Transaction is not a versionchange');
     
 }
 
@@ -123,7 +138,9 @@ async function setupIndexedDB() {
     const ingredientData = await parseIngredientsJSON();
     try {
         db = await openDB(DB_NAME, buildStructure, VERSION);
-        await populateDatabase(db, ingredientData);
+        if (shouldUpgrade) {
+            await populateDatabase(db, ingredientData);
+        }
     } catch (error) {
         console.log('Error setting up database: ', error);
     }

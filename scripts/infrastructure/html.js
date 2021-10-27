@@ -61,3 +61,14 @@ export function createListItem(textContent = '') {
     listItem.textContent = textContent;
     return listItem;
 }
+
+/**
+ * 
+ * @param {HTMLElement} parent 
+ */
+export function removeAllChildren(parent) {
+    console.info('Child element count: %d', parent.children.length);
+    while (parent.firstElementChild) {
+        parent.removeChild(parent.firstElementChild);
+    }
+}

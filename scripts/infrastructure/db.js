@@ -55,7 +55,7 @@ export function getIngredient(db, name) {
 /**
  * 
  * @param {IDBDatabase} db 
- * @returns {Promise<any>}
+ * @returns {Promise<Ingredient>}
  */
 export function getAllIngredients(db) {
     const tx = db.transaction(ING_OBJ_STORE, 'readonly');
