@@ -84,7 +84,7 @@ function onSearchResult(payload) {
         const domFrag = document.createDocumentFragment();
         payload.forEach(ingredient => {
             console.info('Filtered ingredient: ', ingredient);
-            let listItem = createListItem(ingredient);
+            let listItem = createListItem(createListItemFromIngredient(ingredient));
             domFrag.appendChild(listItem);
         });
         removeAllChildren(ingredientList);

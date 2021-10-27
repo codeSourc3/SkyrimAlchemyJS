@@ -1,7 +1,7 @@
 import { Ingredient, parseIngredientsJSON } from "./alchemy/ingredients.js";
 import { DB_NAME, VERSION, ING_OBJ_STORE } from "./infrastructure/config.js";
 import { makePotion } from "./alchemy/alchemy.js";
-import { openDB, insertEntry, getIngredient, getAllIngredients } from './infrastructure/db.js';
+import { openDB, insertEntry, getIngredient, getAllIngredients, filterIngredientsByName } from './infrastructure/db.js';
 import {buildCalculateResultMessage, buildErrorMessage, buildPopulateResultMessage, buildSearchResultMessage, buildWorkerReadyMessage} from './infrastructure/messaging.js';
 
 /**
@@ -34,8 +34,8 @@ async function handleMessage(msg) {
             await processIngredients(db, msgData.payload);
             break;
         case 'search': 
-            const searchResults = await searchIngredients(db, msgData.payload);
-            postMessage(buildSearchResultMessage(['No']));
+            const searchResults = await searchIngredients(db, {searchTerm: 'c'});
+            postMessage(buildSearchResultMessage(searchResults));
             break;
         case 'populate':
             const ingredients = await getAllIngredients(db);
@@ -54,7 +54,10 @@ async function handleMessage(msg) {
  * @returns {import('./infrastructure/db.js').IngredientEntry[]}
  */
 async function searchIngredients(db, messagePayload) {
-    return [{name: 'Abecean Longfin'}];
+    let {searchTerm} = messagePayload;
+    const searchResults = await filterIngredientsByName(db, searchTerm);
+    console.log(searchResults);
+    return searchResults;
 }
 
 
