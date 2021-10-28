@@ -23,7 +23,7 @@
                     <legend>By Ingredient</legend>
                     <input type="search" name="search-ingredients" id="search-ingredients"
                         placeholder="...Search by Ingredient" list="ingredients">
-                    <select name="sort-order" id="sort-order">
+                    <select name="ingredient-sort-order" id="ingredient-sort-order">
                         <option value="asc" selected>Asc</option>
                         <option value="desc">Desc</option>
                     </select>
@@ -143,6 +143,10 @@
                     <legend>By Effect</legend>
                     <input type="search" name="search-effects" id="search-effects" placeholder="...Search by Effect"
                         list="ingredient-effects">
+                    <select name="effect-sort-order" id="effect-sort-order">
+                        <option value="asc" selected>Asc</option>
+                        <option value="desc">Desc</option>
+                    </select>
                     <datalist id="ingredient-effects">
                         <!-- To be loaded in. -->
                     </datalist>

@@ -6,6 +6,21 @@
  */
 
 /**
+ * @typedef SearchMessagePayload
+ * @property {string} ingredientSearchTerm
+ * @property {string} ingredientOrder
+ * @property {string} effectSearchTerm
+ * @property {string} effectOrder
+ * 
+ */
+
+/**
+ * @typedef SearchMessage
+ * @property {string} type the type of the message.
+ * @property {SearchMessagePayload} payload the search payload.
+ */
+
+/**
  * Constructs the message to be sent between threads.
  * @param {string} type 
  * @param {any} payload 
@@ -38,12 +53,18 @@ function buildResultMessage(requestPrefix, result={}) {
 
 /**
  * 
- * @param {string} searchTerm 
- * @returns {Message}
+ * @param {string} ingredientSearchTerm 
+ * @param {string} effectSearchTerm 
+ * @param {string}  ingredientOrder
+ * @param {string} effectOrder 
+ * @returns 
  */
-export function buildSearchMessage(searchTerm) {
+export function buildSearchMessage(ingredientSearchTerm, effectSearchTerm, ingredientOrder, effectOrder) {
     const payload = {
-        searchTerm
+        ingredientSearchTerm,
+        ingredientOrder,
+        effectSearchTerm,
+        effectOrder
     };
     const message = buildMessage('search', payload);
     return message;

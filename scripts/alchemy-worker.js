@@ -1,8 +1,9 @@
 import { Ingredient, parseIngredientsJSON } from "./alchemy/ingredients.js";
 import { DB_NAME, VERSION, ING_OBJ_STORE } from "./infrastructure/config.js";
 import { makePotion } from "./alchemy/alchemy.js";
-import { openDB, insertEntry, getIngredient, getAllIngredients, filterIngredientsByName } from './infrastructure/db.js';
+import { openDB, insertEntry, getIngredient, getAllIngredients, filterIngredientsByName, filterIngredientsByEffect } from './infrastructure/db.js';
 import {buildCalculateResultMessage, buildErrorMessage, buildPopulateResultMessage, buildSearchResultMessage, buildWorkerReadyMessage} from './infrastructure/messaging.js';
+import { intersection } from "./infrastructure/array-helpers.js";
 
 /**
  * @type {IDBDatabase}
@@ -34,7 +35,7 @@ async function handleMessage(msg) {
             await processIngredients(db, msgData.payload);
             break;
         case 'search': 
-            const searchResults = await searchIngredients(db, {searchTerm: 'c'});
+            const searchResults = await searchIngredients(db, msgData.payload);
             postMessage(buildSearchResultMessage(searchResults));
             break;
         case 'populate':
@@ -50,17 +51,27 @@ async function handleMessage(msg) {
  * Attempts to search for any ingredients by effect or ingredient names.
  * 
  * @param {IDBDatabase} db 
- * @param {any} messagePayload 
+ * @param {import("./infrastructure/messaging.js").SearchMessagePayload} messagePayload 
  * @returns {import('./infrastructure/db.js').IngredientEntry[]}
  */
 async function searchIngredients(db, messagePayload) {
-    let {searchTerm} = messagePayload;
-    const searchResults = await filterIngredientsByName(db, searchTerm);
-    console.log(searchResults);
-    return searchResults;
+    let {ingredientSearchTerm, effectSearchTerm, ingredientOrder, effectOrder} = messagePayload;
+    const ingredientSearchResults = await filterIngredientsByName(db, ingredientSearchTerm, sortingOrderToBool(ingredientOrder));
+    //console.log(searchResults);
+    const effectSearchResults = await filterIngredientsByEffect(db, effectSearchTerm, sortingOrderToBool(effectOrder));
+    console.log('Effect Filter: ', effectSearchResults);
+    console.info(ingredientSearchTerm, ingredientOrder, effectSearchTerm, effectOrder);
+    return Array.from(intersection(new Set(ingredientSearchResults), new Set(effectSearchResults)));
 }
 
-
+/**
+ * 
+ * @param {string} order 
+ * @returns {boolean}
+ */
+function sortingOrderToBool(order) {
+    return order === 'asc';
+}
 
 /**
  * Attempts to make a potion with the provided ingredients and character stats.
@@ -114,7 +125,7 @@ function buildStructure(event) {
 
 /**
  * 
- * @param {IDBDatabase} db 
+ * @param {IDBDatabase} db the database
  * @param {any} data 
  */
 async function populateDatabase(db, data) {
@@ -136,7 +147,11 @@ async function populateDatabase(db, data) {
 }
 
 
-
+/**
+ * Loads data from JSON file and populates database.
+ * 
+ * @returns {Promise<void>}
+ */
 async function setupIndexedDB() {
     const ingredientData = await parseIngredientsJSON();
     try {

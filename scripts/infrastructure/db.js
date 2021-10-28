@@ -55,15 +55,16 @@ export function getIngredient(db, name) {
 /**
  * Tries to filter ingredients by name
  * @param {IDBDatabase} db the database
- * @param {string} searchText the search text
+ * @param {string} searchText the search text.
+ * @returns {Promise<Ingredient[]>}
  */
 export function filterIngredientsByName(db, searchText, asc=true) {
     return new Promise((resolve, reject) => {
         const transaction = db.transaction([ING_OBJ_STORE], 'readonly');
         const objectStore = transaction.objectStore(ING_OBJ_STORE);
         let result = [];
-        startsWithIgnoreCase(objectStore, searchText, (item) => {
-            result.push(item);
+        startsWithIgnoreCase(objectStore, searchText, asc ? 'next': 'prev', (item) => {
+            result.push(item.name);
         }, (err) => {
             if (err) {
                 reject(err);
@@ -77,15 +78,41 @@ export function filterIngredientsByName(db, searchText, asc=true) {
 
 /**
  * 
+ * @param {IDBDatabase} db 
+ * @param {string} searchText 
+ * @param {boolean} asc 
+ * @returns {Promise<Ingredient[]>}
+ */
+export function filterIngredientsByEffect(db, searchText, asc=true) {
+    return new Promise((resolve, reject) => {
+        const transaction = db.transaction(ING_OBJ_STORE, 'readonly');
+        const objectStore = transaction.objectStore(ING_OBJ_STORE);
+        const index = objectStore.index('effect_names');
+        let results = [];
+        startsWithIgnoreCase(index, searchText, asc ? 'next': 'prev', (item) => {
+            results.push(item.name);
+        }, err => {
+            if (err) {
+                reject(err);
+            } else {
+                resolve(results);
+            }
+        });
+    });
+}
+
+/**
+ * 
  * @param {IDBIndex} index 
  * @param {string} needle 
+ * @param {string} direction the direction of the cursor.
  * @param {(item:any) => any} onfound 
  * @param {(err?:Error) => void} onfinish 
  */
-function startsWithIgnoreCase(index, needle, onfound, onfinish) {
+function startsWithIgnoreCase(index, needle, direction, onfound, onfinish) {
     const upperNeedle = needle.toUpperCase();
     const lowerNeedle = needle.toLowerCase();
-    const cursorReq = index.openCursor();
+    const cursorReq = index.openCursor(IDBKeyRange.bound('A', 'Z', false, false), direction);
 
     const nextCasing = (key, lowerKey) => {
         const length = Math.min(key.length, lowerNeedle.length); // lowerNeedle is from outer scope
@@ -183,7 +210,7 @@ function startsWithIgnoreCase(index, needle, onfound, onfinish) {
 /**
  * 
  * @param {IDBDatabase} db 
- * @returns {Promise<Ingredient>}
+ * @returns {Promise<Ingredient[]>}
  */
 export function getAllIngredients(db) {
     const tx = db.transaction(ING_OBJ_STORE, 'readonly');

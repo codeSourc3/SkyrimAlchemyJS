@@ -76,17 +76,14 @@ function onCalculateResult(payload) {
 
 /**
  * 
- * @param {import('./infrastructure/db.js').IngredientEntry[]} payload 
+ * @param {string[]} payload 
  */
 function onSearchResult(payload) {
     console.log(payload);
     if (Array.isArray(payload)) {
         const domFrag = document.createDocumentFragment();
-        payload.forEach(ingredient => {
-            console.info('Filtered ingredient: ', ingredient);
-            let listItem = createListItem(createListItemFromIngredient(ingredient));
-            domFrag.appendChild(listItem);
-        });
+        const list = createList(payload);
+        domFrag.appendChild(list);
         removeAllChildren(ingredientList);
         ingredientList.appendChild(domFrag);
     }
@@ -99,15 +96,11 @@ function onSearchResult(payload) {
 function onSearchFormSubmit(event) {
     event.preventDefault();
     const formData = new FormData(ingredientSearchBar);
-    const logFormData = (searchFormData) => {
-        console.group('Search form');
-        for (const [key, value] of searchFormData.entries()) {
-            console.log(`Key: "${key}", Value: "${value}"`);
-        }
-        console.groupEnd();
-    };
-    logFormData(formData);
-    let searchMessage = buildSearchMessage(formData.get('search-ingredients'));
+    let ingSearch = formData.get('search-ingredients');
+    let effectSearch = formData.get('search-effects');
+    let ingOrder = formData.get('ingredient-sort-order');
+    let effOrder = formData.get('effect-sort-order');
+    let searchMessage = buildSearchMessage(ingSearch, effectSearch, ingOrder, effOrder);
     alchemyWorker.postMessage(searchMessage);
 }
 
