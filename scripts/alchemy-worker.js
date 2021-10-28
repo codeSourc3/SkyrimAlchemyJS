@@ -142,6 +142,7 @@ async function setupIndexedDB() {
     try {
         db = await openDB(DB_NAME, buildStructure, VERSION);
         if (shouldUpgrade) {
+            console.info('Populating database');
             await populateDatabase(db, ingredientData);
         }
     } catch (error) {
