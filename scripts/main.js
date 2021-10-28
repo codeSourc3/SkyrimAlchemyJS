@@ -1,6 +1,7 @@
-import {buildPopulateMessage} from './infrastructure/messaging.js';
-import {createList, createListItem, DomCache} from './infrastructure/html.js';
+import {buildPopulateMessage, buildSearchMessage} from './infrastructure/messaging.js';
+import {createList, createListItem, DomCache, removeAllChildren} from './infrastructure/html.js';
 import { MAX_CHOSEN_INGREDIENTS, MIN_CHOSEN_INGREDIENTS } from './alchemy/alchemy.js';
+import { Ingredient } from './alchemy/ingredients.js';
 
 const alchemyWorker = new Worker('scripts/alchemy-worker.js', {type: 'module', name: 'mixer'});
 const domCache = new DomCache();
@@ -23,6 +24,7 @@ brewPotionForm.addEventListener('submit', handleBrewPotionFormSubmit);
  * @type {HTMLFormElement}
  */
 const ingredientSearchBar = domCache.id('alchemy-searchbar');
+ingredientSearchBar.addEventListener('submit', onSearchFormSubmit);
 const brewingErrorOutput = domCache.id('brewing-error-message');
 const ingredientList = domCache.id('ingredient-list');
 const chosenIngredients = domCache.id('chosen-ingredients');
@@ -72,8 +74,34 @@ function onCalculateResult(payload) {
     console.log('Worker calculation results: ', payload);
 }
 
+/**
+ * 
+ * @param {string[]} payload 
+ */
 function onSearchResult(payload) {
-    console.log('Worker search results: ', payload);
+    console.log(payload);
+    if (Array.isArray(payload)) {
+        const domFrag = document.createDocumentFragment();
+        const list = createList(payload);
+        domFrag.appendChild(list);
+        removeAllChildren(ingredientList);
+        ingredientList.appendChild(domFrag);
+    }
+}
+
+/**
+ * Search for ingredients.
+ * @param {SubmitEvent} event 
+ */
+function onSearchFormSubmit(event) {
+    event.preventDefault();
+    const formData = new FormData(ingredientSearchBar);
+    let ingSearch = formData.get('search-ingredients');
+    let effectSearch = formData.get('search-effects');
+    let ingOrder = formData.get('ingredient-sort-order');
+    let effOrder = formData.get('effect-sort-order');
+    let searchMessage = buildSearchMessage(ingSearch, effectSearch, ingOrder, effOrder);
+    alchemyWorker.postMessage(searchMessage);
 }
 
 /**

@@ -1,15 +1,16 @@
 import { Ingredient, parseIngredientsJSON } from "./alchemy/ingredients.js";
 import { DB_NAME, VERSION, ING_OBJ_STORE } from "./infrastructure/config.js";
 import { makePotion } from "./alchemy/alchemy.js";
-import { openDB, insertEntry, getIngredient, getAllIngredients } from './infrastructure/db.js';
+import { openDB, insertEntry, getIngredient, getAllIngredients, filterIngredientsByName, filterIngredientsByEffect } from './infrastructure/db.js';
 import {buildCalculateResultMessage, buildErrorMessage, buildPopulateResultMessage, buildSearchResultMessage, buildWorkerReadyMessage} from './infrastructure/messaging.js';
+import { intersection } from "./infrastructure/array-helpers.js";
 
 /**
  * @type {IDBDatabase}
  */
 let db;
 
-
+let shouldUpgrade = false;
 
 setupIndexedDB().then(() => {
     postMessage(buildWorkerReadyMessage(self.name));
@@ -34,7 +35,8 @@ async function handleMessage(msg) {
             await processIngredients(db, msgData.payload);
             break;
         case 'search': 
-            postMessage(buildSearchResultMessage('Search not implemented yet'));
+            const searchResults = await searchIngredients(db, msgData.payload);
+            postMessage(buildSearchResultMessage(searchResults));
             break;
         case 'populate':
             const ingredients = await getAllIngredients(db);
@@ -45,10 +47,34 @@ async function handleMessage(msg) {
     }
 }
 
-
+/**
+ * Attempts to search for any ingredients by effect or ingredient names.
+ * 
+ * @param {IDBDatabase} db 
+ * @param {import("./infrastructure/messaging.js").SearchMessagePayload} messagePayload 
+ * @returns {import('./infrastructure/db.js').IngredientEntry[]}
+ */
+async function searchIngredients(db, messagePayload) {
+    let {ingredientSearchTerm, effectSearchTerm, ingredientOrder, effectOrder} = messagePayload;
+    const ingredientSearchResults = await filterIngredientsByName(db, ingredientSearchTerm, sortingOrderToBool(ingredientOrder));
+    //console.log(searchResults);
+    const effectSearchResults = await filterIngredientsByEffect(db, effectSearchTerm, sortingOrderToBool(effectOrder));
+    console.log('Effect Filter: ', effectSearchResults);
+    console.info(ingredientSearchTerm, ingredientOrder, effectSearchTerm, effectOrder);
+    return Array.from(intersection(new Set(ingredientSearchResults), new Set(effectSearchResults)));
+}
 
 /**
- * Processes the ingredients.
+ * 
+ * @param {string} order 
+ * @returns {boolean}
+ */
+function sortingOrderToBool(order) {
+    return order === 'asc';
+}
+
+/**
+ * Attempts to make a potion with the provided ingredients and character stats.
  * 
  * @param {IDBDatabase} db the database.
  * @param {{names: string[], skill: number, alchemist: number, hasBenefactor: boolean, hasPhysician: boolean, hasPoisoner: boolean, fortifyAlchemy: number}} nrIngredients 
@@ -84,19 +110,22 @@ function buildStructure(event) {
      * @type {IDBDatabase}
      */
     const db = event.target.result;
+    shouldUpgrade = true;
+    console.time('building structure');
     if (!db instanceof IDBDatabase) {
         console.error('Something went wrong with opening database.');
         self.close();
     }
     const ingObjectStore = db.createObjectStore(ING_OBJ_STORE, { keyPath: 'name' });
     ingObjectStore.createIndex('effect_names', 'effectNames', { multiEntry: true });
-    
+    console.timeEnd('building structure');
+    console.assert(ingObjectStore.transaction.mode === 'versionchange', 'Transaction is not a versionchange');
     
 }
 
 /**
  * 
- * @param {IDBDatabase} db 
+ * @param {IDBDatabase} db the database
  * @param {any} data 
  */
 async function populateDatabase(db, data) {
@@ -118,12 +147,19 @@ async function populateDatabase(db, data) {
 }
 
 
-
+/**
+ * Loads data from JSON file and populates database.
+ * 
+ * @returns {Promise<void>}
+ */
 async function setupIndexedDB() {
     const ingredientData = await parseIngredientsJSON();
     try {
         db = await openDB(DB_NAME, buildStructure, VERSION);
-        await populateDatabase(db, ingredientData);
+        if (shouldUpgrade) {
+            console.info('Populating database');
+            await populateDatabase(db, ingredientData);
+        }
     } catch (error) {
         console.log('Error setting up database: ', error);
     }
