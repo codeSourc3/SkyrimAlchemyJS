@@ -1,7 +1,7 @@
 import { Ingredient, parseIngredientsJSON } from "./alchemy/ingredients.js";
 import { DB_NAME, VERSION, ING_OBJ_STORE } from "./infrastructure/config.js";
 import { makePotion } from "./alchemy/alchemy.js";
-import { openDB, insertEntry, getIngredient, getAllIngredients, filterIngredientsByName, filterIngredientsByEffect } from './infrastructure/db.js';
+import { openDB, insertEntry, getIngredient, getAllIngredients, filterIngredientsByName, filterIngredientsByEffect } from './infrastructure/db/db.js';
 import {buildCalculateResultMessage, buildErrorMessage, buildPopulateResultMessage, buildSearchResultMessage, buildWorkerReadyMessage} from './infrastructure/messaging.js';
 import { intersection } from "./infrastructure/array-helpers.js";
 
@@ -52,16 +52,17 @@ async function handleMessage(msg) {
  * 
  * @param {IDBDatabase} db 
  * @param {import("./infrastructure/messaging.js").SearchMessagePayload} messagePayload 
- * @returns {import('./infrastructure/db.js').IngredientEntry[]}
+ * @returns {import('./infrastructure/db/db.js').IngredientEntry[]}
  */
 async function searchIngredients(db, messagePayload) {
-    let {ingredientSearchTerm, effectSearchTerm, ingredientOrder, effectOrder} = messagePayload;
-    const ingredientSearchResults = await filterIngredientsByName(db, ingredientSearchTerm, sortingOrderToBool(ingredientOrder));
-    //console.log(searchResults);
-    const effectSearchResults = await filterIngredientsByEffect(db, effectSearchTerm, sortingOrderToBool(effectOrder));
-    console.log('Effect Filter: ', effectSearchResults);
-    console.info(ingredientSearchTerm, ingredientOrder, effectSearchTerm, effectOrder);
-    return Array.from(intersection(new Set(ingredientSearchResults), new Set(effectSearchResults)));
+    let {effectSearchTerm, effectOrder='asc', dlc=['Vanilla']} = messagePayload;
+    console.groupCollapsed('Searching ingredients');
+    let searchResults = await filterIngredientsByEffect(db, effectSearchTerm, sortingOrderToBool(effectOrder));
+    
+    console.log('Effect Filter: ', searchResults);
+    
+    console.groupEnd();
+    return searchResults;
 }
 
 /**

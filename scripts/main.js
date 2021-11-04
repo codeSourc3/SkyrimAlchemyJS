@@ -16,11 +16,15 @@ window.addEventListener('beforeunload', (e) => {
 });
 
 /**
+ * The form responsible for calculating the potion resulting from
+ * user input.
  * @type {HTMLFormElement}
  */
 const brewPotionForm = domCache.id('brew-potion');
 brewPotionForm.addEventListener('submit', handleBrewPotionFormSubmit);
 /**
+ * The form responsible for filtering the ingredients by
+ * their DLC, effects, gold cost, etc.
  * @type {HTMLFormElement}
  */
 const ingredientSearchBar = domCache.id('alchemy-searchbar');
@@ -82,8 +86,14 @@ function onSearchResult(payload) {
     console.log(payload);
     if (Array.isArray(payload)) {
         const domFrag = document.createDocumentFragment();
-        const list = createList(payload);
-        domFrag.appendChild(list);
+        if (payload.length > 0) {
+            const list = createList(payload);
+            domFrag.appendChild(list);
+        } else {
+            const noResultsP = document.createElement('p');
+            noResultsP.textContent = `No results.`;
+            domFrag.appendChild(noResultsP);
+        }
         removeAllChildren(ingredientList);
         ingredientList.appendChild(domFrag);
     }
@@ -96,17 +106,16 @@ function onSearchResult(payload) {
 function onSearchFormSubmit(event) {
     event.preventDefault();
     const formData = new FormData(ingredientSearchBar);
-    let ingSearch = formData.get('search-ingredients');
+    let dlc = ['Dawnguard', 'Vanilla', 'Dragonborn', 'Hearthfire'];
     let effectSearch = formData.get('search-effects');
-    let ingOrder = formData.get('ingredient-sort-order');
     let effOrder = formData.get('effect-sort-order');
-    let searchMessage = buildSearchMessage(ingSearch, effectSearch, ingOrder, effOrder);
+    let searchMessage = buildSearchMessage(effectSearch, effOrder, dlc);
     alchemyWorker.postMessage(searchMessage);
 }
 
 /**
  * 
- * @param {import('./infrastructure/db.js').IngredientEntry[]} payload 
+ * @param {import('./infrastructure/db/db.js').IngredientEntry[]} payload 
  */
 function onPopulateResult(payload) {
     console.assert(Array.isArray(payload), 'Populate results payload was not an array');
@@ -166,7 +175,7 @@ function displayTooManyIngredientsMessage() {
 
 /**
  * Creates a list item from an ingredient entry.
- * @param {import('./infrastructure/db.js').IngredientEntry} ingredientEntry 
+ * @param {import('./infrastructure/db/db.js').IngredientEntry} ingredientEntry 
  * @returns {string} the name of the ingredient.
  */
 function createListItemFromIngredient(ingredientEntry) {
@@ -220,4 +229,3 @@ function handleWorkerError(messageEvent) {
     console.info('Return Value: ', messageEvent.returnValue);
     console.info('Error: ', messageEvent.error)
 }
-

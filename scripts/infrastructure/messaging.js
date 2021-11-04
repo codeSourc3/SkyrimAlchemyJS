@@ -7,11 +7,9 @@
 
 /**
  * @typedef SearchMessagePayload
- * @property {string} ingredientSearchTerm
- * @property {string} ingredientOrder
  * @property {string} effectSearchTerm
  * @property {string} effectOrder
- * 
+ * @property {string[]} dlc
  */
 
 /**
@@ -53,18 +51,17 @@ function buildResultMessage(requestPrefix, result={}) {
 
 /**
  * 
- * @param {string} ingredientSearchTerm 
+ * 
  * @param {string} effectSearchTerm 
- * @param {string}  ingredientOrder
  * @param {string} effectOrder 
+ * @param {string[]} dlc
  * @returns 
  */
-export function buildSearchMessage(ingredientSearchTerm, effectSearchTerm, ingredientOrder, effectOrder) {
+export function buildSearchMessage(effectSearchTerm, effectOrder, dlc) {
     const payload = {
-        ingredientSearchTerm,
-        ingredientOrder,
         effectSearchTerm,
-        effectOrder
+        effectOrder,
+        dlc
     };
     const message = buildMessage('search', payload);
     return message;
