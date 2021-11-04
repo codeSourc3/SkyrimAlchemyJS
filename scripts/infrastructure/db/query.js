@@ -153,7 +153,8 @@ export function startsWithOrderable(index, prefix, direction, onfound, onfinish)
  * @param {onFinishCb} onFinish 
  */
 export function startsWith(objStore, prefix, direction, onFound, onFinish) {
-    const keyRange = IDBKeyRange.bound(prefix, prefix + '\uffff', false, false);
+    const titleCasePrefix = toTitleCase(prefix);
+    const keyRange = IDBKeyRange.bound(titleCasePrefix, titleCasePrefix + '\uffff', false, false);
     const cursorReq = objStore.openCursor(keyRange, direction);
     cursorReq.onsuccess = (e) => {
         const cursor = cursorReq.result;
@@ -168,6 +169,16 @@ export function startsWith(objStore, prefix, direction, onFound, onFinish) {
     cursorReq.onerror = err => {
         onFinish(cursorReq.error);
     };
+}
+
+function toTitleCase(string) {
+    if (typeof string !== 'string') {
+        throw new TypeError(`toTitleCase expected ${string} to be a string, not a ${typeof string}.`);
+    }
+    const regex = /\w\S*/g;
+    return string.replace(regex, txt => {
+        return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
+    });
 }
 
 
