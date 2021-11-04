@@ -1,6 +1,6 @@
 import { Effect, Ingredient } from "../../alchemy/ingredients.js";
 import { ING_OBJ_STORE } from "../config.js";
-import {startsWith, startsWithOrderable} from './query.js'
+import {startsWith} from './query.js'
 
 /**
  * @typedef IngredientEntry

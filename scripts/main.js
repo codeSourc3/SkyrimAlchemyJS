@@ -1,7 +1,7 @@
 import {buildPopulateMessage, buildSearchMessage} from './infrastructure/messaging.js';
 import {createList, createListItem, DomCache, removeAllChildren} from './infrastructure/html.js';
 import { MAX_CHOSEN_INGREDIENTS, MIN_CHOSEN_INGREDIENTS } from './alchemy/alchemy.js';
-import { Ingredient } from './alchemy/ingredients.js';
+
 
 const alchemyWorker = new Worker('scripts/alchemy-worker.js', {type: 'module', name: 'mixer'});
 const domCache = new DomCache();
@@ -199,7 +199,7 @@ function handleBrewPotionFormSubmit(event) {
     // Prevents the form from redirecting to a URL.
     event.preventDefault();
     let selectedIngredients = Array.from(currentSelectedIngredients);
-    if (selectedIngredients.length < 2) {
+    if (selectedIngredients.length < MIN_CHOSEN_INGREDIENTS) {
         brewPotionForm.reset();
         brewingErrorOutput.textContent = `Expected 2 to 3 ingredients to be selected.`;
         return;
@@ -221,6 +221,7 @@ function handleBrewPotionFormSubmit(event) {
  * @param {ErrorEvent} messageEvent 
  */
 function handleWorkerError(messageEvent) {
+    console.group('Worker Error');
     console.info('Default prevented: ', messageEvent.defaultPrevented);
     console.info('Source: ', messageEvent.target);
     console.info('Cancelable: ', messageEvent.cancelable);
@@ -228,5 +229,6 @@ function handleWorkerError(messageEvent) {
     console.info('Message from main thread error handler: ', messageEvent.message);
     console.info('Line Nr: ', messageEvent.lineno);
     console.info('Return Value: ', messageEvent.returnValue);
-    console.info('Error: ', messageEvent.error)
+    console.info('Error: ', messageEvent.error);
+    console.groupEnd();
 }

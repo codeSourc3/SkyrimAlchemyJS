@@ -3,7 +3,6 @@ import { DB_NAME, VERSION, ING_OBJ_STORE } from "./infrastructure/config.js";
 import { makePotion } from "./alchemy/alchemy.js";
 import { openDB, insertEntry, getIngredient, getAllIngredients, filterIngredientsByName, filterIngredientsByEffect } from './infrastructure/db/db.js';
 import {buildCalculateResultMessage, buildErrorMessage, buildPopulateResultMessage, buildSearchResultMessage, buildWorkerReadyMessage} from './infrastructure/messaging.js';
-import { intersection } from "./infrastructure/array-helpers.js";
 
 /**
  * @type {IDBDatabase}

@@ -46,6 +46,10 @@ export class Ingredient {
         this.goldValue = goldValue;
         this.weight = weight;
         this.dlc = dlc;
+        /**
+         * @type {Effect[]}
+         * @private
+         */
         this.effects = Array.from(effects).map( effect => new Effect(effect));
         this.effectNames = this.effects.map(effect => effect.name);
     }
@@ -80,7 +84,7 @@ export class Ingredient {
                 // other ingredient has this effect.
                 let thisMag = thisEffect.calculatedMagnitude;
                 let otherMag = otherEffect.calculatedMagnitude;
-
+                // Find strongest of the two effects.
                 if (thisMag > otherMag) {
                     matchingEffects.push(thisEffect);
                 } else {
