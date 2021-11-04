@@ -1,6 +1,6 @@
 import { Effect, Ingredient } from "../../alchemy/ingredients.js";
 import { ING_OBJ_STORE } from "../config.js";
-import {startsWithOrderable} from './query.js'
+import {startsWith, startsWithOrderable} from './query.js'
 
 /**
  * @typedef IngredientEntry
@@ -96,7 +96,7 @@ export function filterIngredientsByEffect(db, searchText, asc=true) {
         const objectStore = transaction.objectStore(ING_OBJ_STORE);
         const index = objectStore.index('effect_names');
         let results = [];
-        startsWithOrderable(index, searchText, asc ? 'next': 'prev', (item) => {
+        startsWith(index, searchText, asc ? 'next': 'prev', (item) => {
             results.push(item.name);
         }, err => {
             if (err) {

@@ -83,13 +83,14 @@ function onCalculateResult(payload) {
  * @param {string[]} payload 
  */
 function onSearchResult(payload) {
-    console.log(payload);
     if (Array.isArray(payload)) {
         const domFrag = document.createDocumentFragment();
         if (payload.length > 0) {
+            // We have search results.
             const list = createList(payload);
             domFrag.appendChild(list);
         } else {
+            // Query turned up nothing.
             const noResultsP = document.createElement('p');
             noResultsP.textContent = `No results.`;
             domFrag.appendChild(noResultsP);
