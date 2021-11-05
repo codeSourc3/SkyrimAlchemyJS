@@ -107,70 +107,43 @@
 }
 
 /**
- * Finds entries whose key starts with the prefix.
- * 
- * @param {IDBIndex} index 
- * @param {string} prefix 
- * @param {string} direction 
- * @param {onFoundCb} onfound 
- * @param {onFinishCb} onfinish 
- */
-export function startsWithOrderable(index, prefix, direction, onfound, onfinish) {
-    const cursorReq = index.openCursor(null, direction);
-    cursorReq.onsuccess = ev => {
-        const cursor = cursorReq.result;
-        if (cursor) {
-            // Cursor has not reached end.
-            let currentKey = cursor.key;
-            if (typeof currentKey !== 'string') {
-                onfinish();
-                return;
-            }
-            
-            let capitalizedPrefix = prefix.replace(prefix.charAt(0), prefix.charAt(0).toUpperCase());
-            console.debug(`Prefix: ${prefix} -> ${capitalizedPrefix}`);
-            if ((currentKey.startsWith(prefix) || currentKey.startsWith(capitalizedPrefix))) {
-                onfound(cursor.value, currentKey);
-            }
-            cursor.continue();
-        } else {
-            // Reached the end of the records.
-            onfinish();
-        }
-    };
-    cursorReq.onerror = err => {
-        const domError = cursorReq.error;
-        onfinish(domError);
-    };
-}
-
-/**
- * 
- * @param {IDBObjectStore} objStore 
- * @param {string} prefix 
- * @param {string} direction
- * @param {onFoundCb} onFound 
- * @param {onFinishCb} onFinish 
+ * Finds all records in the provided object store matching the prefix.
+ * Sorts based on the direction given.
+ * @param {IDBObjectStore} objStore an object store or an IDBIndex.
+ * @param {string} prefix the string to search for.
+ * @param {string} direction the direction ("prev" or "next") the cursor should travel.
+ * @param {onFoundCb} onFound a function to call for each found item.
+ * @param {onFinishCb} onFinish a function to call when we're finished searching.
  */
 export function startsWith(objStore, prefix, direction, onFound, onFinish) {
+    console.time('startsWith');
     const titleCasePrefix = toTitleCase(prefix);
     const keyRange = IDBKeyRange.bound(titleCasePrefix, titleCasePrefix + '\uffff', false, false);
     const cursorReq = objStore.openCursor(keyRange, direction);
     cursorReq.onsuccess = (e) => {
         const cursor = cursorReq.result;
         if (cursor) {
+            
             onFound(cursor.value, cursor.key);
             console.debug('Is source an index', cursor.source instanceof IDBIndex);
             cursor.continue();
         } else {
+            console.timeEnd('startsWith');
             onFinish();
         }
     };
     cursorReq.onerror = err => {
+        console.timeEnd('startsWith');
         onFinish(cursorReq.error);
     };
 }
 
+/**
+ * Capitalizes the first letter of every word in the provided string.
+ * 
+ * @param {string} string the string to turn to title case.
+ * @returns 
+ */
 function toTitleCase(string) {
     if (typeof string !== 'string') {
         throw new TypeError(`toTitleCase expected ${string} to be a string, not a ${typeof string}.`);

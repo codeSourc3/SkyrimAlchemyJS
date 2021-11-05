@@ -3,6 +3,7 @@ import { DB_NAME, VERSION, ING_OBJ_STORE } from "./infrastructure/config.js";
 import { makePotion } from "./alchemy/alchemy.js";
 import { openDB, insertEntry, getIngredient, getAllIngredients, filterIngredientsByName, filterIngredientsByEffect } from './infrastructure/db/db.js';
 import {buildCalculateResultMessage, buildErrorMessage, buildPopulateResultMessage, buildSearchResultMessage, buildWorkerReadyMessage} from './infrastructure/messaging.js';
+import { logger } from "./infrastructure/logger.js";
 
 /**
  * @type {IDBDatabase}
@@ -26,9 +27,9 @@ setupIndexedDB().then(() => {
 async function handleMessage(msg) {
     const start = self.performance.now();
     const msgData = msg.data;
-    console.log('From main thread: ', { msgData });
+    logger.log('From main thread: ', { msgData });
     const end = self.performance.now();
-    console.debug('Time taken is %d', end - start);
+    logger.debug('Time taken is %d', end - start);
     switch (msgData.type) {
         case 'calculate':
             await processIngredients(db, msgData.payload);

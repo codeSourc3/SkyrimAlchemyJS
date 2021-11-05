@@ -1,7 +1,7 @@
 import { Effect, Ingredient } from "../../alchemy/ingredients.js";
 import { ING_OBJ_STORE } from "../config.js";
 import {startsWith} from './query.js'
-
+import { logger } from "../logger.js";
 /**
  * @typedef IngredientEntry
  * @property {string} dlc the downloadable content the ingredient belongs to.
@@ -61,17 +61,17 @@ export function getIngredient(db, name) {
  */
 export function filterIngredientsByName(db, searchText, asc=true) {
     return new Promise((resolve, reject) => {
-        console.debug('Filtering ingredients by name');
+        logger.debug('Filtering ingredients by name');
 
         const transaction = db.transaction([ING_OBJ_STORE], 'readonly');
         const objectStore = transaction.objectStore(ING_OBJ_STORE);
         let result = [];
         startsWith(objectStore, searchText, asc ? 'next': 'prev', (item, key) => {
             result.push(item.name);
-            console.info(`${searchText} matched ${key}`);
+            logger.info(`${searchText} matched ${key}`);
         }, (err) => {
             if (err) {
-                console.debug('Error name: ', err.name);
+                logger.debug('Error name: ', err.name);
                 reject(err);
             } else {
                 resolve(result);
@@ -90,7 +90,7 @@ export function filterIngredientsByName(db, searchText, asc=true) {
  */
 export function filterIngredientsByEffect(db, searchText, asc=true) {
     return new Promise((resolve, reject) => {
-        console.debug('Filtering ingredients by effect.');
+        logger.debug('Filtering ingredients by effect.');
 
         const transaction = db.transaction(ING_OBJ_STORE, 'readonly');
         const objectStore = transaction.objectStore(ING_OBJ_STORE);
@@ -100,7 +100,7 @@ export function filterIngredientsByEffect(db, searchText, asc=true) {
             results.push(item.name);
         }, err => {
             if (err) {
-                console.debug('Error name: ', err.name);
+                logger.debug('Error name: ', err.name);
                 reject(err);
             } else {
                 resolve(results);
