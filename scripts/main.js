@@ -1,4 +1,4 @@
-import {buildPopulateMessage, buildSearchMessage} from './infrastructure/messaging.js';
+import {buildCalculateMessage, buildPopulateMessage, buildSearchMessage} from './infrastructure/messaging.js';
 import {createList, createListItem, DomCache, removeAllChildren} from './infrastructure/html.js';
 import { MAX_CHOSEN_INGREDIENTS, MIN_CHOSEN_INGREDIENTS } from './alchemy/alchemy.js';
 
@@ -209,11 +209,31 @@ function handleBrewPotionFormSubmit(event) {
     for (const [key, value] of formData.entries()) {
         console.log(`Key: ${key}, Value: ${value}`);
     }
+    const calculateMsg = toCalculateMessage(formData);
+    alchemyWorker.postMessage(calculateMsg);
     // Assuming we still have the paragraph element.
     if (resultList.hasChildNodes) {
         console.log('Attempting to remove default text');
-        resultList.children[0].remove();
+        removeAllChildren(resultList);
     }
+}
+
+/**
+ * Constructs a calculate message from the form data
+ * submitted.
+ * @param {FormData} formData data from the potion brewing form.
+ * @returns {import('./infrastructure/messaging.js').Message}
+ */
+function toCalculateMessage(formData) {
+    let hasPhysician = formData.has('physician-perk');
+    let hasBenefactor = formData.has('benefactor-perk');
+    let hasPoisoner = formData.has('poisoner-perk');
+    let selectedIngredients = String(formData.get('selected-ingredients')).split(',');
+    console.assert(Array.isArray(selectedIngredients), `selectedIngredients are ${typeof selectedIngredients}`);
+    let alchemist = Number(formData.get('alchemist-perk'));
+    let skillLevel = Number(formData.get('skill-level'));
+    let fortifyAlchemy = Number(formData.get('fortify-alchemy'));
+    return buildCalculateMessage(selectedIngredients, skillLevel, alchemist, hasPhysician, hasBenefactor, hasPoisoner, fortifyAlchemy);
 }
 
 /**

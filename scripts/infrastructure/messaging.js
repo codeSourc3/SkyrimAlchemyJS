@@ -93,6 +93,17 @@ export function buildPopulateMessage() {
     return buildMessage('populate');
 }
 
+/**
+ * 
+ * @param {string[]} ingredientNames 
+ * @param {number} skill 
+ * @param {number} alchemist 
+ * @param {boolean} hasPhysician 
+ * @param {boolean} hasBenefactor 
+ * @param {boolean} hasPoisoner 
+ * @param {number} fortifyAlchemy 
+ * @returns {Message}
+ */
 export function buildCalculateMessage(ingredientNames, skill=15, alchemist=0, hasPhysician=false, hasBenefactor=false, hasPoisoner=false, fortifyAlchemy=0) {
     const payload = {
         names: ingredientNames,

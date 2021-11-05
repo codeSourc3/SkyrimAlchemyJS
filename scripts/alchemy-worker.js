@@ -1,7 +1,7 @@
 import { Ingredient, parseIngredientsJSON } from "./alchemy/ingredients.js";
 import { DB_NAME, VERSION, ING_OBJ_STORE } from "./infrastructure/config.js";
 import { makePotion } from "./alchemy/alchemy.js";
-import { openDB, insertEntry, getIngredient, getAllIngredients, filterIngredientsByName, filterIngredientsByEffect } from './infrastructure/db/db.js';
+import { openDB, insertEntry, getAllIngredients, filterIngredientsByName, filterIngredientsByEffect, getAllIngredientNames } from './infrastructure/db/db.js';
 import {buildCalculateResultMessage, buildErrorMessage, buildPopulateResultMessage, buildSearchResultMessage, buildWorkerReadyMessage} from './infrastructure/messaging.js';
 import { logger } from "./infrastructure/logger.js";
 
@@ -57,8 +57,12 @@ async function handleMessage(msg) {
 async function searchIngredients(db, messagePayload) {
     let {effectSearchTerm, effectOrder='asc', dlc=['Vanilla']} = messagePayload;
     console.groupCollapsed('Searching ingredients');
-    let searchResults = await filterIngredientsByEffect(db, effectSearchTerm, sortingOrderToBool(effectOrder));
-    
+    let searchResults = [];
+    if (effectSearchTerm.length === 0) {
+        searchResults = await getAllIngredientNames(db);
+    } else {
+        searchResults = await filterIngredientsByEffect(db, effectSearchTerm, sortingOrderToBool(effectOrder));
+    }
     console.log('Effect Filter: ', searchResults);
     
     console.groupEnd();

@@ -46,7 +46,7 @@ export function getIngredient(db, name) {
     const ingObj = tx.objectStore(ING_OBJ_STORE);
     const getRequest = ingObj.get(name);
     const getIngredientPromise = new Promise(resolve => {
-        getRequest.onsuccess = () => resolve(getRequest.result);
+        getRequest.onsuccess = () => resolve(new Ingredient(getRequest.result));
     });
     
     return getIngredientPromise;
@@ -123,6 +123,19 @@ export function getAllIngredients(db) {
         getIngredients.onsuccess = () => resolve(getIngredients.result);
     });
 
+    return getIngredientsPromise;
+}
+
+/**
+ * 
+ * @param {IDBDatabase} db 
+ */
+export function getAllIngredientNames(db) {
+    const tx = db.transaction(ING_OBJ_STORE);
+    const ingredientStore = tx.objectStore(ING_OBJ_STORE);
+    const getIngredients = ingredientStore.getAll();    const getIngredientsPromise = new Promise(resolve => {
+        getIngredients.onsuccess = () => resolve(getIngredients.result.map(entry => entry.name));
+    });
     return getIngredientsPromise;
 }
 
