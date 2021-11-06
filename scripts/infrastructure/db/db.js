@@ -133,7 +133,8 @@ export function getAllIngredients(db) {
 export function getAllIngredientNames(db) {
     const tx = db.transaction(ING_OBJ_STORE);
     const ingredientStore = tx.objectStore(ING_OBJ_STORE);
-    const getIngredients = ingredientStore.getAll();    const getIngredientsPromise = new Promise(resolve => {
+    const getIngredients = ingredientStore.getAll();    
+    const getIngredientsPromise = new Promise(resolve => {
         getIngredients.onsuccess = () => resolve(getIngredients.result.map(entry => entry.name));
     });
     return getIngredientsPromise;
