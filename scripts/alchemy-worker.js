@@ -1,9 +1,11 @@
 import { Ingredient, parseIngredientsJSON } from "./alchemy/ingredients.js";
 import { DB_NAME, VERSION, ING_OBJ_STORE } from "./infrastructure/config.js";
 import { makePotion } from "./alchemy/alchemy.js";
-import { openDB, insertEntry, getAllIngredients, filterIngredientsByName, filterIngredientsByEffect, getAllIngredientNames } from './infrastructure/db/db.js';
+import { openDB, insertEntry, getAllIngredients, filterIngredientsByEffect, getAllIngredientNames, filterByDLC } from './infrastructure/db/db.js';
 import {buildCalculateResultMessage, buildErrorMessage, buildPopulateResultMessage, buildSearchResultMessage, buildWorkerReadyMessage} from './infrastructure/messaging.js';
 import { logger } from "./infrastructure/logger.js";
+import { difference, differenceArray, intersection, toArray, toSet } from "./infrastructure/array-helpers.js";
+import { isInRange } from "./infrastructure/math.js";
 
 /**
  * @type {IDBDatabase}
@@ -57,16 +59,34 @@ async function handleMessage(msg) {
 async function searchIngredients(db, messagePayload) {
     let {effectSearchTerm, effectOrder='asc', dlc=['Vanilla']} = messagePayload;
     console.groupCollapsed('Searching ingredients');
-    let searchResults = [];
-    if (effectSearchTerm.length === 0) {
-        searchResults = await getAllIngredientNames(db);
-    } else {
-        searchResults = await filterIngredientsByEffect(db, effectSearchTerm, sortingOrderToBool(effectOrder));
+    if (!dlc.includes('Vanilla')) {
+        dlc.push('Vanilla');
     }
-    console.log('Effect Filter: ', searchResults);
+    let searchResults = [];
+    const appliedFilters = [];
+    if (effectSearchTerm.length === 0) {
+        appliedFilters.push(getAllIngredientNames(db));
+        console.info('Getting all ingredients');
+    } else {
+        const byEffect = filterIngredientsByEffect(db, effectSearchTerm, sortingOrderToBool(effectOrder));
+        appliedFilters.push(byEffect);
+        console.info('Getting by Effect');
+    }
+    const byDLC = filterByDLC(db, dlc);
+    appliedFilters.push(byDLC);
+    let unprocessedResults = await Promise.all(appliedFilters);
+    const comparator = createComparator(!sortingOrderToBool(effectOrder));
+    searchResults = toArray(intersection(toSet(unprocessedResults[0]), toSet(unprocessedResults[1]))).sort(comparator);
+    console.log('Filters: ', searchResults);
     
     console.groupEnd();
     return searchResults;
+}
+
+function createComparator(reversed) {
+    return (a, b) => {
+        return (a == b ? 0 : a < b ? -1 : 1) * (reversed ? -1 : 1);
+    };
 }
 
 /**
@@ -106,6 +126,14 @@ async function processIngredients(db, { names, skill, alchemist, hasBenefactor, 
 }
 
 /**
+ * 
+ * @param {Event} event 
+ */
+function dbCloseHandler(event) {
+    
+}
+
+/**
  * Builds an ingredient data store.
  * @param {IDBVersionChangeEvent} event 
  * @param {any} data
@@ -115,6 +143,8 @@ function buildStructure(event) {
      * @type {IDBDatabase}
      */
     const db = event.target.result;
+    db.addEventListener('close', dbCloseHandler)
+    
     shouldUpgrade = true;
     console.time('building structure');
     if (!db instanceof IDBDatabase) {
@@ -123,6 +153,7 @@ function buildStructure(event) {
     }
     const ingObjectStore = db.createObjectStore(ING_OBJ_STORE, { keyPath: 'name' });
     ingObjectStore.createIndex('effect_names', 'effectNames', { multiEntry: true });
+    ingObjectStore.createIndex('dlc', 'dlc');
     console.timeEnd('building structure');
     console.assert(ingObjectStore.transaction.mode === 'versionchange', 'Transaction is not a versionchange');
     
@@ -162,9 +193,10 @@ async function setupIndexedDB() {
     try {
         db = await openDB(DB_NAME, buildStructure, VERSION);
         if (shouldUpgrade) {
-            console.info('Populating database');
+            console.log('Populating database');
             await populateDatabase(db, ingredientData);
         }
+        await populateDatabase(db, ingredientData);
     } catch (error) {
         console.log('Error setting up database: ', error);
     }

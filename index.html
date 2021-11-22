@@ -17,7 +17,7 @@
         <!-- Search by ingredients, search by effect, 
             filters out ingredients based off of said conditions -->
         <article>
-            <h1>Ingredients</h1>
+            <h1>Filter</h1>
             <form id="alchemy-searchbar">
                 <fieldset>
                     <legend>By Effect</legend>
@@ -85,6 +85,15 @@
                         <option value="Weakness to Poison">Weakness to Poison</option>
                         <option value="Weakness to Shock">Weakness to Shock</option>
                     </datalist>
+                </fieldset>
+                <fieldset>
+                    <legend>By DLC</legend>
+                    <input type="checkbox" name="dragonborn-dlc" id="dragonborn-dlc">
+                    <label for="dragonborn-dlc">Dragonborn</label>
+                    <input type="checkbox" name="dawnguard-dlc" id="dawnguard-dlc">
+                    <label for="dawnguard-dlc">Dawnguard</label>
+                    <input type="checkbox" name="hearthfire-dlc" id="hearthfire-dlc">
+                    <label for="hearthfire-dlc">Hearthfire</label>
                 </fieldset>
                 <input type="submit" value="Search">
             </form>

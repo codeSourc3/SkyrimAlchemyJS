@@ -23,3 +23,42 @@ export function difference(setA, setB) {
     }
     return _difference;
 }
+
+/**
+ * 
+ * @param {any[]} arrayA 
+ * @param {any[]} arrayB 
+ * @returns {any[]}
+ */
+export function differenceArray(arrayA, arrayB) {
+    return arrayA.filter(x => !arrayB.includes(x));
+}
+
+/**
+ * 
+ * @param {any[]} array 
+ * @returns {Set<any>}
+ */
+export function toSet(array) {
+    return new Set(array);
+}
+
+/**
+ * 
+ * @param {Iterable<any>} aSet 
+ * @returns {any[]}
+ */
+export function toArray(aSet) {
+    return Array.from(aSet);
+}
+
+/**
+ * 
+ * @param {number} value 
+ * @param {number} min 
+ * @param {number} max 
+ * @returns {boolean}
+ */
+export function isWithin(value, min, max) {
+    return value >= min && value <= max;
+}

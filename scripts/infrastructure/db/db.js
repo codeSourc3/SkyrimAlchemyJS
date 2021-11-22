@@ -1,6 +1,6 @@
 import { Effect, Ingredient } from "../../alchemy/ingredients.js";
 import { ING_OBJ_STORE } from "../config.js";
-import {startsWith} from './query.js'
+import {equalsAnyOf, startsWith} from './query.js'
 import { logger } from "../logger.js";
 /**
  * @typedef IngredientEntry
@@ -54,6 +54,32 @@ export function getIngredient(db, name) {
 }
 
 /**
+ * 
+ * @param {IDBDatabase} db 
+ * @param {string[]} dlc 
+ * @returns {Promise<string[]>}
+ */
+export function filterByDLC(db, dlc=['Vanilla'], asc=true) {
+    return new Promise((resolve, reject) => {
+        const transaction = db.transaction([ING_OBJ_STORE]);
+        const objectStore = transaction.objectStore(ING_OBJ_STORE);
+        const index = objectStore.index('dlc');
+        let results = [];
+        const direction = asc ? 'next' : 'prev';
+        equalsAnyOf(index, dlc, direction, item => {
+            results.push(item);
+        }, err => {
+            if (err) {
+                reject(err);
+            } else {
+                logger.info('Filter by DLC: ', results);
+                resolve(results);
+            }
+        })
+    });
+}
+
+/**
  * Tries to filter ingredients by name
  * @param {IDBDatabase} db the database
  * @param {string} searchText the search text.
@@ -65,16 +91,16 @@ export function filterIngredientsByName(db, searchText, asc=true) {
 
         const transaction = db.transaction([ING_OBJ_STORE], 'readonly');
         const objectStore = transaction.objectStore(ING_OBJ_STORE);
-        let result = [];
+        let results = [];
         startsWith(objectStore, searchText, asc ? 'next': 'prev', (item, key) => {
-            result.push(item.name);
+            results.push(item.name);
             logger.info(`${searchText} matched ${key}`);
         }, (err) => {
             if (err) {
                 logger.debug('Error name: ', err.name);
                 reject(err);
             } else {
-                resolve(result);
+                resolve(results);
             }
         });
         
@@ -86,7 +112,7 @@ export function filterIngredientsByName(db, searchText, asc=true) {
  * @param {IDBDatabase} db 
  * @param {string} searchText 
  * @param {boolean} asc 
- * @returns {Promise<Ingredient[]>}
+ * @returns {Promise<string[]>}
  */
 export function filterIngredientsByEffect(db, searchText, asc=true) {
     return new Promise((resolve, reject) => {

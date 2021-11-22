@@ -107,9 +107,12 @@ function onSearchResult(payload) {
 function onSearchFormSubmit(event) {
     event.preventDefault();
     const formData = new FormData(ingredientSearchBar);
-    let dlc = ['Dawnguard', 'Vanilla', 'Dragonborn', 'Hearthfire'];
+    let dlc = ['Vanilla'];
     let effectSearch = formData.get('search-effects');
     let effOrder = formData.get('effect-sort-order');
+    if (formData.has('dragonborn-dlc')) dlc.push('Dragonborn');
+    if (formData.has('dawnguard-dlc')) dlc.push('Dawnguard');
+    if (formData.has('hearthfire-dlc')) dlc.push('Hearthfire');
     let searchMessage = buildSearchMessage(effectSearch, effOrder, dlc);
     alchemyWorker.postMessage(searchMessage);
 }
