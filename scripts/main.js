@@ -1,18 +1,16 @@
 import {buildCalculateMessage, buildPopulateMessage, buildSearchMessage} from './infrastructure/messaging.js';
 import {createList, createListItem, DomCache, removeAllChildren} from './infrastructure/html/html.js';
 import { MAX_CHOSEN_INGREDIENTS, MIN_CHOSEN_INGREDIENTS } from './alchemy/alchemy.js';
-import { CALCULATE_POTION_RESULT, createCalculatePotionResult, createIngredientDeselected, createIngredientSearchResult, createIngredientSelected, createMaxIngredientsSelected, createPopulateIngredientList, createWorkerError, createWorkerReady, INGREDIENT_DESELECTED, INGREDIENT_SEARCH_RESULT, INGREDIENT_SELECTED, MAX_INGREDIENTS_SELECTED, POPULATE_INGREDIENT_LIST, WORKER_ERROR, WORKER_READY } from './infrastructure/events/client-side-events.js';
+import { createIngredientDeselected, createIngredientSelected, createMaxIngredientsSelected, INGREDIENT_DESELECTED, INGREDIENT_SELECTED, MAX_INGREDIENTS_SELECTED } from './infrastructure/events/client-side-events.js';
+import { AlchemyWorker } from './infrastructure/worker/alchemy-worker.js';
 
-const alchemyWorker = new Worker('scripts/infrastructure/worker/alchemy-worker-script.js', {type: 'module', name: 'mixer'});
+const alchemyWorker = new AlchemyWorker('scripts/infrastructure/worker/alchemy-worker-script.js');
 const domCache = new DomCache();
-alchemyWorker.onmessage = handleWorkerMessage;
-//alchemyWorker.onmessageerror = handleWorkerMessageError;
-alchemyWorker.onerror = handleWorkerError;
-alchemyWorker.addEventListener(WORKER_READY, onWorkerReady);
-alchemyWorker.addEventListener(INGREDIENT_SEARCH_RESULT, onSearchResult);
-alchemyWorker.addEventListener(POPULATE_INGREDIENT_LIST, onPopulateResult);
-alchemyWorker.addEventListener(CALCULATE_POTION_RESULT, onCalculateResult);
-alchemyWorker.addEventListener(WORKER_ERROR, onErrorMessage);
+alchemyWorker.onWorkerReady(onWorkerReady);
+alchemyWorker.onIngredientSearchResult( onSearchResult);
+alchemyWorker.onPopulateIngredientList(onPopulateResult);
+alchemyWorker.onCalculateResult(onCalculateResult);
+alchemyWorker.onWorkerError(onErrorMessage);
 // setting up listener.
 window.addEventListener('beforeunload', (e) => {
     console.log('Terminating Worker');
@@ -48,50 +46,11 @@ ingredientList.addEventListener(INGREDIENT_SELECTED, (evt) => {
 
 ingredientList.addEventListener(INGREDIENT_DESELECTED, (evt) => {
     const ingredientName = evt.detail.ingredientName;
-    console.log(`${ingredientName} deselected`);
+    console.info(`${ingredientName} deselected`);
     removeFromChosenIngredients(ingredientName);
 });
 
 ingredientList.addEventListener(MAX_INGREDIENTS_SELECTED, displayTooManyIngredientsMessage);
-/**
- * Handles the routing for the different messages sent by the worker.
- * @param {MessageEvent} messageEvent sent by the worker.
- */
-function handleWorkerMessage(messageEvent) {
-    const {type, payload} = messageEvent.data;
-    
-    switch (type) {
-        case 'worker-ready':
-            const workerReady = createWorkerReady();
-            alchemyWorker.dispatchEvent(workerReady);
-            break;
-        case 'search-result':
-            const ingredientSearchResult = createIngredientSearchResult(payload);
-            alchemyWorker.dispatchEvent(ingredientSearchResult);
-            break;
-        case 'populate-result':
-            const populateResultEvt = createPopulateIngredientList(payload);
-            alchemyWorker.dispatchEvent(populateResultEvt);
-            break;
-        case 'calculate-result':
-            const calculateResultEvt = createCalculatePotionResult(payload);
-            alchemyWorker.dispatchEvent(calculateResultEvt);
-            break;
-        case 'error':
-            const workerError = createWorkerError(payload);
-            alchemyWorker.dispatchEvent(workerError);
-            break;
-        default:
-            onUnknownMessage(type);
-            break;
-    }
-
-    
-}
-
-function onUnknownMessage(type) {
-    console.error(`${type} is not a valid message type.`);
-}
 
 function onErrorMessage({detail: {payload: message}}) {
     console.error(`Error: ${message}`);
