@@ -1,11 +1,11 @@
-import { Ingredient, parseIngredientsJSON } from "./alchemy/ingredients.js";
-import { DB_NAME, VERSION, ING_OBJ_STORE } from "./infrastructure/config.js";
-import { makePotion } from "./alchemy/alchemy.js";
-import { openDB, insertEntry, getAllIngredients, filterIngredientsByEffect, getAllIngredientNames, filterByDLC, getIngredient } from './infrastructure/db/db.js';
-import {buildCalculateResultMessage, buildErrorMessage, buildPopulateResultMessage, buildSearchResultMessage, buildWorkerReadyMessage} from './infrastructure/messaging.js';
-import { logger } from "./infrastructure/logger.js";
-import { difference, differenceArray, intersection, toArray, toSet } from "./infrastructure/array-helpers.js";
-import { isInRange } from "./infrastructure/math.js";
+import { Ingredient, parseIngredientsJSON } from "../../alchemy/ingredients.js";
+import { DB_NAME, VERSION, ING_OBJ_STORE } from "../config.js";
+import { makePotion } from "../../alchemy/alchemy.js";
+import { openDB, insertEntry, getAllIngredients, filterIngredientsByEffect, getAllIngredientNames, filterByDLC, getIngredient } from '../db/db.js';
+import {buildCalculateResultMessage, buildErrorMessage, buildPopulateResultMessage, buildSearchResultMessage, buildWorkerReadyMessage} from '../messaging.js';
+import { logger } from "../logger.js";
+import { difference, differenceArray, intersection, toArray, toSet } from "../array-helpers.js";
+import { isInRange } from "../math.js";
 
 /**
  * @type {IDBDatabase}
@@ -53,8 +53,8 @@ async function handleMessage(msg) {
  * Attempts to search for any ingredients by effect or ingredient names.
  * 
  * @param {IDBDatabase} db 
- * @param {import("./infrastructure/messaging.js").SearchMessagePayload} messagePayload 
- * @returns {import('./infrastructure/db/db.js').IngredientEntry[]}
+ * @param {import("../messaging.js").SearchMessagePayload} messagePayload 
+ * @returns {import('../db/db.js').IngredientEntry[]}
  */
 async function searchIngredients(db, messagePayload) {
     let {effectSearchTerm, effectOrder='asc', dlc=['Vanilla']} = messagePayload;
@@ -189,7 +189,8 @@ async function populateDatabase(db, data) {
  * @returns {Promise<void>}
  */
 async function setupIndexedDB() {
-    const ingredientData = await parseIngredientsJSON();
+    
+    const ingredientData = await parseIngredientsJSON('../../../data/ingredients.json');
     try {
         db = await openDB(DB_NAME, buildStructure, VERSION);
         if (shouldUpgrade) {
