@@ -35,6 +35,8 @@ const brewingErrorOutput = domCache.id('brewing-error-message');
 const ingredientList = domCache.id('ingredient-list');
 const chosenIngredients = domCache.id('chosen-ingredients');
 const resultList = domCache.id('result-list');
+const hitCount = domCache.id('hit-count');
+
 // Used to avoid querying the DOM to get the name of the ingredient.
 const currentSelectedIngredients = new Set();
 
@@ -75,6 +77,7 @@ function onSearchResult({detail: {payload}}) {
             // We have search results.
             const list = createList(payload);
             domFrag.appendChild(list);
+            setHitCount(payload.length);
             // TODO: make ingredient list remember currently selected ingredients.
             currentSelectedIngredients.clear();
             removeAllChildren(chosenIngredients);
@@ -115,7 +118,12 @@ function onPopulateResult({detail: {payload}}) {
     let ingredientNames = payload.map(createListItemFromIngredient);
     const ingredientListItems = createList(ingredientNames);
     ingredientList.append(ingredientListItems);
+    setHitCount(payload.length);
     ingredientList.addEventListener('click', toggleSelectedIngredient);
+}
+
+function setHitCount(count) {
+    hitCount.textContent = `Number of Results: ${count}`;
 }
 
 
