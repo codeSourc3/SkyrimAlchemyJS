@@ -1,14 +1,18 @@
 import {buildCalculateMessage, buildPopulateMessage, buildSearchMessage} from './infrastructure/messaging.js';
 import {createList, createListItem, DomCache, removeAllChildren} from './infrastructure/html.js';
 import { MAX_CHOSEN_INGREDIENTS, MIN_CHOSEN_INGREDIENTS } from './alchemy/alchemy.js';
-import { createIngredientDeselected, createIngredientSelected, createMaxIngredientsSelected, INGREDIENT_DESELECTED, INGREDIENT_SELECTED, MAX_INGREDIENTS_SELECTED } from './infrastructure/events/event.js';
+import { CALCULATE_POTION_RESULT, createIngredientDeselected, createIngredientSelected, createMaxIngredientsSelected, INGREDIENT_DESELECTED, INGREDIENT_SEARCH_RESULT, INGREDIENT_SELECTED, MAX_INGREDIENTS_SELECTED, POPULATE_INGREDIENT_LIST, WORKER_ERROR, WORKER_READY } from './infrastructure/events/client-side-events.js';
 
-const alchemyWorker = new Worker('scripts/alchemy-worker.js', {type: 'module', name: 'mixer'});
+const alchemyWorker = new Worker('scripts/alchemy-worker-script.js', {type: 'module', name: 'mixer'});
 const domCache = new DomCache();
 alchemyWorker.onmessage = handleWorkerMessage;
 //alchemyWorker.onmessageerror = handleWorkerMessageError;
 alchemyWorker.onerror = handleWorkerError;
-
+alchemyWorker.addEventListener(WORKER_READY, onWorkerReady);
+alchemyWorker.addEventListener(INGREDIENT_SEARCH_RESULT, onSearchResult);
+alchemyWorker.addEventListener(POPULATE_INGREDIENT_LIST, onPopulateResult);
+alchemyWorker.addEventListener(CALCULATE_POTION_RESULT, onCalculateResult);
+alchemyWorker.addEventListener(WORKER_ERROR, onErrorMessage);
 // setting up listener.
 window.addEventListener('beforeunload', (e) => {
     console.log('Terminating Worker');

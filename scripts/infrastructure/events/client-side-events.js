@@ -16,17 +16,22 @@ function dispatchEventAsync(target, event) {
     }, 0);
 }
 
-const INGREDIENT_SELECTED = 'ingredient-selected';
-const INGREDIENT_DESELECTED = 'ingredient-deselected';
-const MAX_INGREDIENTS_SELECTED = 'max-ingredients-selected';
+
 const WORKER_READY = 'worker-ready';
 const POPULATE_INGREDIENT_LIST = 'populate-ingredient-list';
-const INGREDIENT_SEARCH_RESULT = 'ingredient-search';
-const CALCULATE_POTION_RESULT = 'calculate-potion';
+const INGREDIENT_SEARCH_RESULT = 'ingredient-search-result';
+const CALCULATE_POTION_RESULT = 'calculate-potion-result';
+const WORKER_ERROR = 'worker-error';
 const workerReadyFactory = createEventFactory(WORKER_READY, {bubbles: true});
 const populateIngredientListFactory = createEventFactory(POPULATE_INGREDIENT_LIST, {bubbles: true});
 const ingredientSearchFactory = createEventFactory(INGREDIENT_SEARCH_RESULT, {bubbles: true, cancelable: true});
 const calculatePotionFactory = createEventFactory(CALCULATE_POTION_RESULT, {bubbles: true, cancelable: true});
+const workerErrorFactory = createEventFactory(WORKER_ERROR, {bubbles: true, cancelable: true});
+
+// Event factories for choosing ingredients
+const INGREDIENT_SELECTED = 'ingredient-selected';
+const INGREDIENT_DESELECTED = 'ingredient-deselected';
+const MAX_INGREDIENTS_SELECTED = 'max-ingredients-selected';
 const ingredientSelectedFactory = createEventFactory(INGREDIENT_SELECTED, {bubbles: true});
 const ingredientDeselectedFactory = createEventFactory(INGREDIENT_DESELECTED, {bubbles: true});
 const maxIngredientsSelectedFactory = createEventFactory(MAX_INGREDIENTS_SELECTED, {bubbles: true});
@@ -39,7 +44,25 @@ function createIngredientSelected(ingredientName) {
     return ingredientSelectedFactory({ingredientName});
 }
 
-function createWorkerReady()
+function createWorkerReady() {
+    return workerReadyFactory(null);
+}
+
+function createPopulateIngredientList(payload) {
+    return populateIngredientListFactory({payload: payload});
+}
+
+function createIngredientSearchResult(payload) {
+    return ingredientSearchFactory({payload});
+}
+
+function createCalculatePotionResult(payload) {
+    return calculatePotionFactory({payload});
+}
+
+function createWorkerError(payload) {
+    return workerErrorFactory({payload});
+}
 
 /**
  * 
@@ -62,8 +85,18 @@ export {
     createIngredientSelected, 
     createIngredientDeselected, 
     createMaxIngredientsSelected,
+    createWorkerReady,
+    createPopulateIngredientList,
+    createIngredientSearchResult,
+    createCalculatePotionResult,
+    createWorkerError,
     dispatchEventAsync,
     MAX_INGREDIENTS_SELECTED,
     INGREDIENT_DESELECTED,
-    INGREDIENT_SELECTED
+    INGREDIENT_SELECTED,
+    WORKER_READY,
+    POPULATE_INGREDIENT_LIST,
+    INGREDIENT_SEARCH_RESULT,
+    CALCULATE_POTION_RESULT,
+    WORKER_ERROR
 };
