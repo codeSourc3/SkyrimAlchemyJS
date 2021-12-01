@@ -116,6 +116,9 @@ function onSearchResult({detail: {payload}}) {
             // We have search results.
             const list = createList(payload);
             domFrag.appendChild(list);
+            // TODO: make ingredient list remember currently selected ingredients.
+            currentSelectedIngredients.clear();
+            removeAllChildren(chosenIngredients);
         } else {
             // Query turned up nothing.
             const noResultsP = document.createElement('p');
