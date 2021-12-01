@@ -1,7 +1,7 @@
 import {buildCalculateMessage, buildPopulateMessage, buildSearchMessage} from './infrastructure/messaging.js';
 import {createList, createListItem, DomCache, removeAllChildren} from './infrastructure/html.js';
 import { MAX_CHOSEN_INGREDIENTS, MIN_CHOSEN_INGREDIENTS } from './alchemy/alchemy.js';
-
+import { createIngredientDeselected, createIngredientSelected, createMaxIngredientsSelected, INGREDIENT_DESELECTED, INGREDIENT_SELECTED, MAX_INGREDIENTS_SELECTED } from './infrastructure/events/event.js';
 
 const alchemyWorker = new Worker('scripts/alchemy-worker.js', {type: 'module', name: 'mixer'});
 const domCache = new DomCache();
@@ -35,6 +35,20 @@ const chosenIngredients = domCache.id('chosen-ingredients');
 const resultList = domCache.id('result-list');
 // Used to avoid querying the DOM to get the name of the ingredient.
 const currentSelectedIngredients = new Set();
+
+ingredientList.addEventListener(INGREDIENT_SELECTED, (evt) => {
+    const ingredientName = evt.detail.ingredientName;
+    console.log(`${ingredientName} selected`);
+    addToChosenIngredients(ingredientName);
+});
+
+ingredientList.addEventListener(INGREDIENT_DESELECTED, (evt) => {
+    const ingredientName = evt.detail.ingredientName;
+    console.log(`${ingredientName} deselected`);
+    removeFromChosenIngredients(ingredientName);
+});
+
+ingredientList.addEventListener(MAX_INGREDIENTS_SELECTED, displayTooManyIngredientsMessage);
 /**
  * Handles the routing for the different messages sent by the worker.
  * @param {MessageEvent} messageEvent sent by the worker.
@@ -146,18 +160,26 @@ function toggleSelectedIngredient(event) {
         if (!currentSelectedIngredients.has(textContent) && currentSelectedIngredients.size < MAX_CHOSEN_INGREDIENTS) {
             // doesn't have ingredient and can select one more.
             currentSelectedIngredients.add(textContent);
-            addToChosenIngredients(textContent);
+
+            // create and dispatch ingredient-selected
+            const ingredientSelected = createIngredientSelected(textContent);
+            selectedElement.dispatchEvent(ingredientSelected);
             selectedElement.classList.toggle('selected-ingredient');
         } else if (currentSelectedIngredients.has(textContent)) {
             currentSelectedIngredients.delete(textContent);
             selectedElement.classList.toggle('selected-ingredient');
-            removeFromChosenIngredients(textContent);
+            
+            // create and dispatch ingredient-deselected
+            const ingredientDeselected = createIngredientDeselected(textContent);
+            selectedElement.dispatchEvent(ingredientDeselected);
         } else {
-            displayTooManyIngredientsMessage();
+            const maxIngredientsSelected = createMaxIngredientsSelected();
+            selectedElement.dispatchEvent(maxIngredientsSelected);
         }
     }
     
 }
+
 
 function addToChosenIngredients(ingredientName) {
     const listItem = createListItem(ingredientName);
