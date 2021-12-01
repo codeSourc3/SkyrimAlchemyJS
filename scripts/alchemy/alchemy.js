@@ -164,7 +164,8 @@ function findStrongestEffect(effects) {
  */
 export function makePotion(alchemySkill = 15, alchemistLevel = 0, hasPhysicianPerk = false, hasBenefactorPerk = false, hasPoisonerPerk = false, fortifyAlchemy = 0) {
     return function (effects) {
-        console.assert(Array.isArray(effects));
+        console.assert(Array.isArray(effects), 'Effects is not an array');
+        if (effects.length === 0) return {name: 'Potion Failed', didSucceed: false};
         const primaryEffect = findStrongestEffect(effects);
         let isMakingPoison = primaryEffect.harmful;
         let potionName = isMakingPoison ? 'Poison of ' : 'Potion of ';
@@ -189,7 +190,8 @@ export function makePotion(alchemySkill = 15, alchemistLevel = 0, hasPhysicianPe
         return {
             name: potionName,
             effects: potionEffects.map(effect => effect.description).join(', '),
-            gold: totalGoldCost
+            gold: totalGoldCost,
+            didSucceed: true
         };
     }
 }

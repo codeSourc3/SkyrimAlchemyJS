@@ -1,7 +1,7 @@
 import { Ingredient, parseIngredientsJSON } from "./alchemy/ingredients.js";
 import { DB_NAME, VERSION, ING_OBJ_STORE } from "./infrastructure/config.js";
 import { makePotion } from "./alchemy/alchemy.js";
-import { openDB, insertEntry, getAllIngredients, filterIngredientsByEffect, getAllIngredientNames, filterByDLC } from './infrastructure/db/db.js';
+import { openDB, insertEntry, getAllIngredients, filterIngredientsByEffect, getAllIngredientNames, filterByDLC, getIngredient } from './infrastructure/db/db.js';
 import {buildCalculateResultMessage, buildErrorMessage, buildPopulateResultMessage, buildSearchResultMessage, buildWorkerReadyMessage} from './infrastructure/messaging.js';
 import { logger } from "./infrastructure/logger.js";
 import { difference, differenceArray, intersection, toArray, toSet } from "./infrastructure/array-helpers.js";
@@ -29,7 +29,7 @@ setupIndexedDB().then(() => {
 async function handleMessage(msg) {
     const start = self.performance.now();
     const msgData = msg.data;
-    logger.log('From main thread: ', { msgData });
+    logger.log('From main thread to worker thread: ', { msgData });
     const end = self.performance.now();
     logger.debug('Time taken is %d', end - start);
     switch (msgData.type) {

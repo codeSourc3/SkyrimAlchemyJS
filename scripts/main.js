@@ -1,7 +1,7 @@
 import {buildCalculateMessage, buildPopulateMessage, buildSearchMessage} from './infrastructure/messaging.js';
 import {createList, createListItem, DomCache, removeAllChildren} from './infrastructure/html.js';
 import { MAX_CHOSEN_INGREDIENTS, MIN_CHOSEN_INGREDIENTS } from './alchemy/alchemy.js';
-import { CALCULATE_POTION_RESULT, createIngredientDeselected, createIngredientSelected, createMaxIngredientsSelected, INGREDIENT_DESELECTED, INGREDIENT_SEARCH_RESULT, INGREDIENT_SELECTED, MAX_INGREDIENTS_SELECTED, POPULATE_INGREDIENT_LIST, WORKER_ERROR, WORKER_READY } from './infrastructure/events/client-side-events.js';
+import { CALCULATE_POTION_RESULT, createCalculatePotionResult, createIngredientDeselected, createIngredientSearchResult, createIngredientSelected, createMaxIngredientsSelected, createPopulateIngredientList, createWorkerError, createWorkerReady, INGREDIENT_DESELECTED, INGREDIENT_SEARCH_RESULT, INGREDIENT_SELECTED, MAX_INGREDIENTS_SELECTED, POPULATE_INGREDIENT_LIST, WORKER_ERROR, WORKER_READY } from './infrastructure/events/client-side-events.js';
 
 const alchemyWorker = new Worker('scripts/alchemy-worker-script.js', {type: 'module', name: 'mixer'});
 const domCache = new DomCache();
@@ -62,19 +62,24 @@ function handleWorkerMessage(messageEvent) {
     
     switch (type) {
         case 'worker-ready':
-            onWorkerReady();
+            const workerReady = createWorkerReady();
+            alchemyWorker.dispatchEvent(workerReady);
             break;
         case 'search-result':
-            onSearchResult(payload);
+            const ingredientSearchResult = createIngredientSearchResult(payload);
+            alchemyWorker.dispatchEvent(ingredientSearchResult);
             break;
         case 'populate-result':
-            onPopulateResult(payload);
+            const populateResultEvt = createPopulateIngredientList(payload);
+            alchemyWorker.dispatchEvent(populateResultEvt);
             break;
         case 'calculate-result':
-            onCalculateResult(payload);
+            const calculateResultEvt = createCalculatePotionResult(payload);
+            alchemyWorker.dispatchEvent(calculateResultEvt);
             break;
         case 'error':
-            onErrorMessage(payload);
+            const workerError = createWorkerError(payload);
+            alchemyWorker.dispatchEvent(workerError);
             break;
         default:
             onUnknownMessage(type);
@@ -88,19 +93,23 @@ function onUnknownMessage(type) {
     console.error(`${type} is not a valid message type.`);
 }
 
-function onErrorMessage(message) {
+function onErrorMessage({detail: {payload: message}}) {
     console.error(`Error: ${message}`);
 }
 
-function onCalculateResult(payload) {
+/**
+ * 
+ * @param {CustomEvent<{payload: any}>} payload 
+ */
+function onCalculateResult({detail: {payload}}) {
     console.log('Worker calculation results: ', payload);
 }
 
 /**
  * 
- * @param {string[]} payload 
+ * @param {CustomEvent<{payload: string[]}>} payload 
  */
-function onSearchResult(payload) {
+function onSearchResult({detail: {payload}}) {
     if (Array.isArray(payload)) {
         const domFrag = document.createDocumentFragment();
         if (payload.length > 0) {
@@ -137,9 +146,9 @@ function onSearchFormSubmit(event) {
 
 /**
  * 
- * @param {import('./infrastructure/db/db.js').IngredientEntry[]} payload 
+ * @param {CustomEvent<{payload: import('./infrastructure/db/db.js').IngredientEntry[]}>} payload 
  */
-function onPopulateResult(payload) {
+function onPopulateResult({detail: {payload}}) {
     console.assert(Array.isArray(payload), 'Populate results payload was not an array');
     let ingredientNames = payload.map(createListItemFromIngredient);
     const ingredientListItems = createList(ingredientNames);
