@@ -1,7 +1,7 @@
 import {buildCalculateMessage, buildPopulateMessage, buildSearchMessage} from './infrastructure/messaging.js';
 import {createList, createListItem, DomCache, removeAllChildren} from './infrastructure/html/html.js';
 import { MAX_CHOSEN_INGREDIENTS, MIN_CHOSEN_INGREDIENTS } from './alchemy/alchemy.js';
-import { createIngredientDeselected, createIngredientSelected, createMaxIngredientsSelected, INGREDIENT_DESELECTED, INGREDIENT_SELECTED, MAX_INGREDIENTS_SELECTED } from './infrastructure/events/client-side-events.js';
+import { createIngredientDeselected, createIngredientSelected, createMaxIngredientsSelected, INGREDIENT_DESELECTED, INGREDIENT_SELECTED, LIST_CLEARED, MAX_INGREDIENTS_SELECTED } from './infrastructure/events/client-side-events.js';
 import { AlchemyWorker } from './infrastructure/worker/alchemy-worker.js';
 import { IngredientList } from './infrastructure/html/ingredient-list.js';
 import { ChosenIngredients } from './infrastructure/html/chosen-ingredients.js';
@@ -55,6 +55,16 @@ ingredientListElem.addEventListener(INGREDIENT_DESELECTED, (evt) => {
     chosenIngredients.removeIngredient(ingredientName);
 });
 
+chosenIngredientsElem.addEventListener(LIST_CLEARED, evt => {
+    const elementsToKeep = evt.detail;
+    console.info('Ingredients to keep in chosen: ', elementsToKeep, evt.target);
+    chosenIngredients.addAll(elementsToKeep);
+});
+chosenIngredientsElem.addEventListener(INGREDIENT_DESELECTED, evt => {
+    const ingredientName = evt.detail.ingredientName;
+    ingredientList.unselectIngredient(ingredientName);
+})
+
 ingredientListElem.addEventListener(MAX_INGREDIENTS_SELECTED, displayTooManyIngredientsMessage);
 
 function onErrorMessage({detail: {payload: message}}) {
@@ -81,7 +91,7 @@ function onSearchResult({detail: {payload}}) {
             ingredientList.addAll(payload);
             setHitCount(payload.length);
             // TODO: make ingredient list remember currently selected ingredients.
-            removeAllChildren(chosenIngredientsElem);
+            chosenIngredients.clear();
         } else {
             // Query turned up nothing.
             ingredientList.replaceWithNoResults();
@@ -124,33 +134,8 @@ function setHitCount(count) {
 }
 
 
-
-
-function addToChosenIngredients(ingredientName) {
-    const listItem = createListItem(ingredientName);
-    chosenIngredientsElem.append(listItem);
-}
-
-function removeFromChosenIngredients(ingredientName) {
-    const chosenIngredientArray = Array.from(chosenIngredientsElem.children);
-    let foundNode = chosenIngredientArray.find(el => el.textContent === ingredientName);
-    if (typeof foundNode === 'undefined') {
-        throw new Error(`Ingredient name ${ingredientName} not found among chosen ingredients.`);
-    }
-    foundNode.remove();
-}
-
 function displayTooManyIngredientsMessage() {
     console.warn('Too many ingredients, unselect some.');
-}
-
-/**
- * Creates a list item from an ingredient entry.
- * @param {import('./infrastructure/db/db.js').IngredientEntry} ingredientEntry 
- * @returns {string} the name of the ingredient.
- */
-function createListItemFromIngredient(ingredientEntry) {
-    return ingredientEntry.name;
 }
 
 /**
@@ -204,21 +189,4 @@ function toCalculateMessage(formData) {
     let skillLevel = Number(formData.get('skill-level'));
     let fortifyAlchemy = Number(formData.get('fortify-alchemy'));
     return buildCalculateMessage(selectedIngredients, skillLevel, alchemist, hasPhysician, hasBenefactor, hasPoisoner, fortifyAlchemy);
-}
-
-/**
- * 
- * @param {ErrorEvent} messageEvent 
- */
-function handleWorkerError(messageEvent) {
-    console.group('Worker Error');
-    console.info('Default prevented: ', messageEvent.defaultPrevented);
-    console.info('Source: ', messageEvent.target);
-    console.info('Cancelable: ', messageEvent.cancelable);
-    console.log('Event type: ', messageEvent.type);
-    console.info('Message from main thread error handler: ', messageEvent.message);
-    console.info('Line Nr: ', messageEvent.lineno);
-    console.info('Return Value: ', messageEvent.returnValue);
-    console.info('Error: ', messageEvent.error);
-    console.groupEnd();
 }

@@ -1,4 +1,4 @@
-import { createIngredientDeselected } from "../events/client-side-events.js";
+import { createIngredientDeselected, createListCleared } from "../events/client-side-events.js";
 import { createListItem } from "./html.js";
 
 /**
@@ -61,6 +61,34 @@ class ChosenIngredients {
                 break;
             }
         }
+    }
+
+    /**
+     * 
+     * @param {string[]} ingredientNames 
+     */
+    addAll(ingredientNames) {
+        for (let ingredientName of ingredientNames) {
+            this.addIngredient(ingredientName);
+        }
+    }
+
+    clear(retainSelected=true) {
+        while (this.#list.firstElementChild) {
+            this.#list.removeChild(this.#list.firstElementChild);
+        }
+        let elementsToKeep = [];
+        if (retainSelected) {
+            console.debug('Retaining selected');
+            const currentElements = Array.from(this.#selected.values());
+            console.debug('Current elements', currentElements);
+            elementsToKeep = elementsToKeep.concat(currentElements);
+            console.debug('Elements to keep: ', elementsToKeep);
+        } else {
+            this.#selected.clear();
+        }
+        const clearEvt = createListCleared(elementsToKeep);
+        this.#list.dispatchEvent(clearEvt);
     }
 
     /**

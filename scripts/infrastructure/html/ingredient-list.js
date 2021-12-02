@@ -36,7 +36,7 @@ class IngredientList {
         if (retainSelected) {
             // keep selected elements.
             const currentElements = Array.from(this.#currentSelectedIngredients.values());
-            elementsToKeep.join(currentElements);
+            elementsToKeep = elementsToKeep.concat(currentElements);
         } else {
             this.#currentSelectedIngredients.clear();
         }
@@ -51,6 +51,20 @@ class IngredientList {
         domFrag.appendChild(noResultsP);
         this.clear();
         this.#ulList.appendChild(domFrag);
+    }
+
+    unselectIngredient(ingredientName) {
+        let didSucceed = this.#currentSelectedIngredients.delete(ingredientName);
+        if (didSucceed) {
+            const len = this.#ulList.children.length;
+            for (let i = 0; i < len; i++) {
+                const child = this.#ulList.children[i];
+                if (child.textContent === ingredientName) {
+                    child.classList.remove('selected-ingredient');
+                    break;
+                }
+            }
+        }
     }
 
     /**
