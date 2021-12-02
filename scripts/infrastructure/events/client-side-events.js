@@ -29,12 +29,14 @@ const calculatePotionFactory = createEventFactory(CALCULATE_POTION_RESULT, {bubb
 const workerErrorFactory = createEventFactory(WORKER_ERROR, {bubbles: true, cancelable: true});
 
 // Event factories for choosing ingredients
+const LIST_CLEARED = 'list-cleared';
 const INGREDIENT_SELECTED = 'ingredient-selected';
 const INGREDIENT_DESELECTED = 'ingredient-deselected';
 const MAX_INGREDIENTS_SELECTED = 'max-ingredients-selected';
-const ingredientSelectedFactory = createEventFactory(INGREDIENT_SELECTED, {bubbles: true});
-const ingredientDeselectedFactory = createEventFactory(INGREDIENT_DESELECTED, {bubbles: true});
+const ingredientSelectedFactory = createEventFactory(INGREDIENT_SELECTED, {bubbles: true, cancelable: true});
+const ingredientDeselectedFactory = createEventFactory(INGREDIENT_DESELECTED, {bubbles: true, cancelable: true});
 const maxIngredientsSelectedFactory = createEventFactory(MAX_INGREDIENTS_SELECTED, {bubbles: true});
+const listClearedFactory = createEventFactory(LIST_CLEARED, {bubbles: true, cancelable: true});
 /**
  * Creates an event of type "ingredient-selected".
  * @param {string} ingredientName the name of the ingredient.
@@ -81,6 +83,10 @@ function createMaxIngredientsSelected() {
     return maxIngredientsSelectedFactory(null);
 }
 
+function createListCleared(elementsToKeep) {
+    return listClearedFactory(elementsToKeep);
+}
+
 export {
     createIngredientSelected, 
     createIngredientDeselected, 
@@ -89,6 +95,7 @@ export {
     createPopulateIngredientList,
     createIngredientSearchResult,
     createCalculatePotionResult,
+    createListCleared,
     createWorkerError,
     dispatchEventAsync,
     MAX_INGREDIENTS_SELECTED,
@@ -98,5 +105,6 @@ export {
     POPULATE_INGREDIENT_LIST,
     INGREDIENT_SEARCH_RESULT,
     CALCULATE_POTION_RESULT,
-    WORKER_ERROR
+    WORKER_ERROR,
+    LIST_CLEARED
 };

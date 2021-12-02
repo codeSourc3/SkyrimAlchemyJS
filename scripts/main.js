@@ -3,6 +3,8 @@ import {createList, createListItem, DomCache, removeAllChildren} from './infrast
 import { MAX_CHOSEN_INGREDIENTS, MIN_CHOSEN_INGREDIENTS } from './alchemy/alchemy.js';
 import { createIngredientDeselected, createIngredientSelected, createMaxIngredientsSelected, INGREDIENT_DESELECTED, INGREDIENT_SELECTED, MAX_INGREDIENTS_SELECTED } from './infrastructure/events/client-side-events.js';
 import { AlchemyWorker } from './infrastructure/worker/alchemy-worker.js';
+import { IngredientList } from './infrastructure/html/ingredient-list.js';
+import { ChosenIngredients } from './infrastructure/html/chosen-ingredients.js';
 
 const alchemyWorker = new AlchemyWorker('scripts/infrastructure/worker/alchemy-worker-script.js');
 const domCache = new DomCache();
@@ -32,27 +34,28 @@ brewPotionForm.addEventListener('submit', handleBrewPotionFormSubmit);
 const ingredientSearchBar = domCache.id('alchemy-searchbar');
 ingredientSearchBar.addEventListener('submit', onSearchFormSubmit);
 const brewingErrorOutput = domCache.id('brewing-error-message');
-const ingredientList = domCache.id('ingredient-list');
-const chosenIngredients = domCache.id('chosen-ingredients');
+const ingredientListElem = domCache.id('ingredient-list');
+const chosenIngredientsElem = domCache.id('chosen-ingredients');
 const resultList = domCache.id('result-list');
 const hitCount = domCache.id('hit-count');
 
 // Used to avoid querying the DOM to get the name of the ingredient.
 const currentSelectedIngredients = new Set();
-
-ingredientList.addEventListener(INGREDIENT_SELECTED, (evt) => {
+const ingredientList = new IngredientList(ingredientListElem, currentSelectedIngredients);
+const chosenIngredients = new ChosenIngredients(chosenIngredientsElem);
+ingredientListElem.addEventListener(INGREDIENT_SELECTED, (evt) => {
     const ingredientName = evt.detail.ingredientName;
     console.log(`${ingredientName} selected`);
-    addToChosenIngredients(ingredientName);
+    chosenIngredients.addIngredient(ingredientName);
 });
 
-ingredientList.addEventListener(INGREDIENT_DESELECTED, (evt) => {
+ingredientListElem.addEventListener(INGREDIENT_DESELECTED, (evt) => {
     const ingredientName = evt.detail.ingredientName;
     console.info(`${ingredientName} deselected`);
-    removeFromChosenIngredients(ingredientName);
+    chosenIngredients.removeIngredient(ingredientName);
 });
 
-ingredientList.addEventListener(MAX_INGREDIENTS_SELECTED, displayTooManyIngredientsMessage);
+ingredientListElem.addEventListener(MAX_INGREDIENTS_SELECTED, displayTooManyIngredientsMessage);
 
 function onErrorMessage({detail: {payload: message}}) {
     console.error(`Error: ${message}`);
@@ -72,23 +75,18 @@ function onCalculateResult({detail: {payload}}) {
  */
 function onSearchResult({detail: {payload}}) {
     if (Array.isArray(payload)) {
-        const domFrag = document.createDocumentFragment();
+        
         if (payload.length > 0) {
             // We have search results.
-            const list = createList(payload);
-            domFrag.appendChild(list);
+            ingredientList.addAll(payload);
             setHitCount(payload.length);
             // TODO: make ingredient list remember currently selected ingredients.
-            currentSelectedIngredients.clear();
-            removeAllChildren(chosenIngredients);
+            removeAllChildren(chosenIngredientsElem);
         } else {
             // Query turned up nothing.
-            const noResultsP = document.createElement('p');
-            noResultsP.textContent = `No results.`;
-            domFrag.appendChild(noResultsP);
+            ingredientList.replaceWithNoResults();
         }
-        removeAllChildren(ingredientList);
-        ingredientList.appendChild(domFrag);
+        
     }
 }
 
@@ -115,11 +113,10 @@ function onSearchFormSubmit(event) {
  */
 function onPopulateResult({detail: {payload}}) {
     console.assert(Array.isArray(payload), 'Populate results payload was not an array');
-    let ingredientNames = payload.map(createListItemFromIngredient);
-    const ingredientListItems = createList(ingredientNames);
-    ingredientList.append(ingredientListItems);
+    let ingredientNames = payload.map(value => value.name);
+    ingredientList.addAll(ingredientNames);
     setHitCount(payload.length);
-    ingredientList.addEventListener('click', toggleSelectedIngredient);
+    
 }
 
 function setHitCount(count) {
@@ -127,50 +124,15 @@ function setHitCount(count) {
 }
 
 
-/**
- * Toggles the selected ingredient selected or unselected.
- * @param {PointerEvent} event the event.
- */
-function toggleSelectedIngredient(event) {
-    // Should toggle the ingredient as selected or unselected.
-    // Can't have less than 2 ingredients or more than 3.
-    /**
-     * @type {HTMLElement}
-     */
-    const selectedElement = event.target;
-    const {textContent} = selectedElement;
-    if (selectedElement.tagName === 'LI') {
-        if (!currentSelectedIngredients.has(textContent) && currentSelectedIngredients.size < MAX_CHOSEN_INGREDIENTS) {
-            // doesn't have ingredient and can select one more.
-            currentSelectedIngredients.add(textContent);
-
-            // create and dispatch ingredient-selected
-            const ingredientSelected = createIngredientSelected(textContent);
-            selectedElement.dispatchEvent(ingredientSelected);
-            selectedElement.classList.toggle('selected-ingredient');
-        } else if (currentSelectedIngredients.has(textContent)) {
-            currentSelectedIngredients.delete(textContent);
-            selectedElement.classList.toggle('selected-ingredient');
-            
-            // create and dispatch ingredient-deselected
-            const ingredientDeselected = createIngredientDeselected(textContent);
-            selectedElement.dispatchEvent(ingredientDeselected);
-        } else {
-            const maxIngredientsSelected = createMaxIngredientsSelected();
-            selectedElement.dispatchEvent(maxIngredientsSelected);
-        }
-    }
-    
-}
 
 
 function addToChosenIngredients(ingredientName) {
     const listItem = createListItem(ingredientName);
-    chosenIngredients.append(listItem);
+    chosenIngredientsElem.append(listItem);
 }
 
 function removeFromChosenIngredients(ingredientName) {
-    const chosenIngredientArray = Array.from(chosenIngredients.children);
+    const chosenIngredientArray = Array.from(chosenIngredientsElem.children);
     let foundNode = chosenIngredientArray.find(el => el.textContent === ingredientName);
     if (typeof foundNode === 'undefined') {
         throw new Error(`Ingredient name ${ingredientName} not found among chosen ingredients.`);
