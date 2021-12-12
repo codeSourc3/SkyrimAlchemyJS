@@ -1,5 +1,5 @@
 import {buildCalculateMessage, buildPopulateMessage, buildSearchMessage} from './infrastructure/messaging.js';
-import {createList, createListItem, DomCache, removeAllChildren} from './infrastructure/html/html.js';
+import {createList, createListItem, DomCache, removeAllChildren, tag} from './infrastructure/html/html.js';
 import { MAX_CHOSEN_INGREDIENTS, MIN_CHOSEN_INGREDIENTS } from './alchemy/alchemy.js';
 import { createIngredientDeselected, createIngredientSelected, createMaxIngredientsSelected, INGREDIENT_DESELECTED, INGREDIENT_SELECTED, LIST_CLEARED, MAX_INGREDIENTS_SELECTED } from './infrastructure/events/client-side-events.js';
 import { AlchemyWorker } from './infrastructure/worker/alchemy-worker.js';
@@ -73,10 +73,38 @@ function onErrorMessage({detail: {payload: message}}) {
 
 /**
  * 
- * @param {CustomEvent<{payload: any}>} payload 
+ * @param {CustomEvent<{payload: {name: string, didSucceed: boolean, effects?: string, gold?: number}}>} payload 
  */
 function onCalculateResult({detail: {payload}}) {
     console.log('Worker calculation results: ', payload);
+    removeAllChildren(resultList);
+    displayPotion(payload);
+}
+
+/**
+ * Displays the given potion. Does not remove any children from the parent.
+ * @param {{name:string, didSucceed:boolean, effects?:string, gold?:number}} param0 
+ */
+function displayPotion({name, didSucceed, effects, gold}) {
+    const frag = document.createDocumentFragment();
+    // create name paragraph.
+    const potionName = tag('p', {
+        content: name
+    });
+    frag.appendChild(potionName);
+    if (didSucceed) {
+        // add effects and gold to fragment.
+        const potionEffects = tag('p', {
+            content: `Description: ${effects}`
+        });
+        frag.appendChild(potionEffects);
+        
+        const potionSellPrice = tag('p', {
+            content: `Gold: ${gold}`
+        });
+        frag.appendChild(potionSellPrice);
+    }
+    resultList.appendChild(frag);
 }
 
 /**
@@ -90,7 +118,6 @@ function onSearchResult({detail: {payload}}) {
             // We have search results.
             ingredientList.addAll(payload);
             setHitCount(payload.length);
-            // TODO: make ingredient list remember currently selected ingredients.
             chosenIngredients.clear();
         } else {
             // Query turned up nothing.

@@ -73,6 +73,7 @@ export class Ingredient {
     /**
      * Filters out matching effects. Only keeps the strongest of each match.
      * @param {Ingredient} otherIngredient 
+     * @returns {Effect[]}
      */
     mixTwo(otherIngredient) {
         const otherEffects = otherIngredient.effects;
@@ -99,6 +100,7 @@ export class Ingredient {
      * 
      * @param {Ingredient} ingredientTwo 
      * @param {Ingredient} ingredientThree 
+     * @returns {Effect[]}
      */
     mixThree(ingredientTwo, ingredientThree) {
         const thisAndSecondEffects = this.mixTwo(ingredientTwo);

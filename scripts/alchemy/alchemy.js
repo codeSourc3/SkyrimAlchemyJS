@@ -161,6 +161,7 @@ function findStrongestEffect(effects) {
  * @param {boolean} hasBenefactorPerk 
  * @param {boolean} hasPoisonerPerk 
  * @param {number} fortifyAlchemy 
+ * @returns {(effects: Effect[]) => {name: string, didSucceed: boolean, effects?: string, gold?: number}}
  */
 export function makePotion(alchemySkill = 15, alchemistLevel = 0, hasPhysicianPerk = false, hasBenefactorPerk = false, hasPoisonerPerk = false, fortifyAlchemy = 0) {
     return function (effects) {
@@ -181,7 +182,7 @@ export function makePotion(alchemySkill = 15, alchemistLevel = 0, hasPhysicianPe
                 effect.description = effect.description.replace('<dur>', String(effect.duration));
             }
             effect.description = effect.description.replace('.', '');
-            console.info(effect.description);
+            console.info('Effect description', effect.description);
         });
         let totalGoldCost = potionEffects.map(effect => effect.value).reduce((prev, curr) => {
             return prev + curr;
