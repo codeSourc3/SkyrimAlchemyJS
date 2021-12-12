@@ -1,6 +1,6 @@
 import { Effect, Ingredient } from "../../alchemy/ingredients.js";
 import { ING_OBJ_STORE } from "../config.js";
-import {equalsAnyOf, startsWith} from './query.js'
+import {equals, equalsAnyOf, startsWith} from './query.js'
 import { logger } from "../logger.js";
 /**
  * @typedef IngredientEntry
@@ -122,7 +122,7 @@ export function filterIngredientsByEffect(db, searchText, asc=true) {
         const objectStore = transaction.objectStore(ING_OBJ_STORE);
         const index = objectStore.index('effect_names');
         let results = [];
-        startsWith(index, searchText, asc ? 'next': 'prev', (item) => {
+        equals(index, searchText, asc ? 'next': 'prev', (item) => {
             results.push(item.name);
         }, err => {
             if (err) {

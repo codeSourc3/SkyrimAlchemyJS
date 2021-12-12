@@ -67,7 +67,7 @@ export function createListItem(textContent = '') {
  * @param {HTMLElement} parent 
  */
 export function removeAllChildren(parent) {
-    console.info('Child element count: %d', parent.children.length);
+    console.debug('Child element count before deletion: %d', parent.children.length);
     while (parent.firstElementChild) {
         parent.removeChild(parent.firstElementChild);
     }

@@ -88,7 +88,7 @@ function onCalculateResult({detail: {payload}}) {
 function displayPotion({name, didSucceed, effects, gold}) {
     const frag = document.createDocumentFragment();
     // create name paragraph.
-    const potionName = tag('p', {
+    const potionName = tag('h2', {
         content: name
     });
     frag.appendChild(potionName);

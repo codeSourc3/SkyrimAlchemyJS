@@ -39,6 +39,36 @@ export function startsWith(objStore, prefix, direction, onFound, onFinish) {
 }
 
 /**
+ * 
+ * @param {IDBObjectStore} objStore 
+ * @param {string} str 
+ * @param {string} direction 
+ * @param {onFoundCb} onFound 
+ * @param {onFinishCb} onFinish 
+ */
+export function equals(objStore, str, direction, onFound, onFinish) {
+    const cursorReq = objStore.openCursor();
+    cursorReq.addEventListener('success', e => {
+        const cursor = cursorReq.result;
+        if (cursor) {
+            let potentialMatch = cursor.key;
+            if (potentialMatch === str) {
+                onFound(cursor.value, potentialMatch);
+            }
+            cursor.continue();
+        } else {
+            onFinish();
+        }
+    });
+
+    cursorReq.addEventListener('error', e => {
+        e.preventDefault();
+        const error = cursorReq.error;
+        onFinish(error);
+    });
+}
+
+/**
  * Returns a comparator function.
  * @param {string} direction 
  * @returns {compareFn}
