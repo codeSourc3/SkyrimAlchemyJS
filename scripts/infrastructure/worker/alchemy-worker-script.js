@@ -41,7 +41,7 @@ async function handleMessage(msg) {
             postMessage(buildSearchResultMessage(searchResults));
             break;
         case 'populate':
-            const ingredients = await getAllIngredients(db);
+            const ingredients = await getAllIngredientNames(db);
             postMessage(buildPopulateResultMessage(ingredients));
             break;
         default:
@@ -197,7 +197,6 @@ async function setupIndexedDB() {
             console.log('Populating database');
             await populateDatabase(db, ingredientData);
         }
-        await populateDatabase(db, ingredientData);
     } catch (error) {
         console.log('Error setting up database: ', error);
     }

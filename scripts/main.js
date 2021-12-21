@@ -146,12 +146,11 @@ function onSearchFormSubmit(event) {
 
 /**
  * 
- * @param {CustomEvent<{payload: import('./infrastructure/db/db.js').IngredientEntry[]}>} payload 
+ * @param {CustomEvent<{payload: string[]}>} payload 
  */
 function onPopulateResult({detail: {payload}}) {
     console.assert(Array.isArray(payload), 'Populate results payload was not an array');
-    let ingredientNames = payload.map(value => value.name);
-    ingredientList.addAll(ingredientNames);
+    ingredientList.addAll(payload);
     setHitCount(payload.length);
     
 }
