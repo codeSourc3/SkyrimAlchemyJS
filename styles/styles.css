@@ -4,6 +4,10 @@
     font-size: large;
 }
 
+.selected-ingredient::before {
+    content: '>';
+}
+
 #ingredient-list {
     list-style: none;
     max-height: 30vh;

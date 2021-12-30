@@ -1,6 +1,6 @@
 import { Ingredient, parseIngredientsJSON } from "../../alchemy/ingredients.js";
 import { DB_NAME, VERSION, ING_OBJ_STORE } from "../config.js";
-import { makePotion } from "../../alchemy/alchemy.js";
+import { createPotionBuilder as makePotion } from "../../alchemy/alchemy.js";
 import { openDB, insertEntry, getAllIngredients, filterIngredientsByEffect, getAllIngredientNames, filterByDLC, getIngredient } from '../db/db.js';
 import {buildCalculateResultMessage, buildErrorMessage, buildPopulateResultMessage, buildSearchResultMessage, buildWorkerReadyMessage} from '../messaging.js';
 import { logger } from "../logger.js";
@@ -64,7 +64,7 @@ async function searchIngredients(db, messagePayload) {
     }
     let searchResults = [];
     const appliedFilters = [];
-    if (effectSearchTerm.length === 0) {
+    if (effectSearchTerm === 'All') {
         appliedFilters.push(getAllIngredientNames(db));
         console.info('Getting all ingredients');
     } else {

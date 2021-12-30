@@ -163,7 +163,7 @@ function findStrongestEffect(effects) {
  * @param {number} fortifyAlchemy 
  * @returns {(effects: Effect[]) => {name: string, didSucceed: boolean, effects?: string, gold?: number}}
  */
-export function makePotion(alchemySkill = 15, alchemistLevel = 0, hasPhysicianPerk = false, hasBenefactorPerk = false, hasPoisonerPerk = false, fortifyAlchemy = 0) {
+export function createPotionBuilder(alchemySkill = 15, alchemistLevel = 0, hasPhysicianPerk = false, hasBenefactorPerk = false, hasPoisonerPerk = false, fortifyAlchemy = 0) {
     return function (effects) {
         console.assert(Array.isArray(effects), 'Effects is not an array');
         if (effects.length === 0) return {name: 'Potion Failed', didSucceed: false};

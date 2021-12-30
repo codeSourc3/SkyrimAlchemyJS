@@ -31,12 +31,12 @@ brewPotionForm.addEventListener('submit', handleBrewPotionFormSubmit);
  * their DLC, effects, gold cost, etc.
  * @type {HTMLFormElement}
  */
-const ingredientSearchBar = domCache.id('alchemy-searchbar');
+const ingredientSearchBar = domCache.id('ingredient-filter');
 ingredientSearchBar.addEventListener('submit', onSearchFormSubmit);
 const brewingErrorOutput = domCache.id('brewing-error-message');
 const ingredientListElem = domCache.id('ingredient-list');
 const chosenIngredientsElem = domCache.id('chosen-ingredients');
-const resultList = domCache.id('result-list');
+const resultList = domCache.id('possible-potions');
 const hitCount = domCache.id('hit-count');
 
 
@@ -149,7 +149,7 @@ function onSearchFormSubmit(event) {
     event.preventDefault();
     const formData = new FormData(ingredientSearchBar);
     let dlc = ['Vanilla'];
-    let effectSearch = formData.get('search-effects');
+    let effectSearch = formData.get('by-effect');
     let effOrder = formData.get('effect-sort-order');
     if (formData.has('dragonborn-dlc')) dlc.push('Dragonborn');
     if (formData.has('dawnguard-dlc')) dlc.push('Dawnguard');

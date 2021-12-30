@@ -18,11 +18,11 @@
             filters out ingredients based off of said conditions -->
         <article>
             <h1>Filter</h1>
-            <form id="alchemy-searchbar">
+            <form id="ingredient-filter">
                 <fieldset>
                     <legend>By Effect</legend>
                     <select id="by-effect" name="by-effect">
-                        <option value="All">All</option>
+                        <option value="All" selected>All</option>
                         <option value="Cure Disease">Cure Disease</option>
                         <option value="Cure Poison">Cure Poison</option>
                         <option value="Damage Health">Damage Health</option>
@@ -141,7 +141,7 @@
             </section>
             <section>
                 <h1>Result</h1>
-                <ul id="result-list">
+                <ul id="possible-potions">
                     <p>Choose one to two ingredients.</p>
                 </ul>
             </section>
