@@ -21,13 +21,8 @@
             <form id="alchemy-searchbar">
                 <fieldset>
                     <legend>By Effect</legend>
-                    <input type="search" name="search-effects" id="search-effects" placeholder="...Search by Effect"
-                        list="ingredient-effects">
-                    <select name="effect-sort-order" id="effect-sort-order">
-                        <option value="asc" selected>Asc</option>
-                        <option value="desc">Desc</option>
-                    </select>
-                    <datalist id="ingredient-effects">
+                    <select id="by-effect" name="by-effect">
+                        <option value="All">All</option>
                         <option value="Cure Disease">Cure Disease</option>
                         <option value="Cure Poison">Cure Poison</option>
                         <option value="Damage Health">Damage Health</option>
@@ -84,23 +79,29 @@
                         <option value="Weakness to Magic">Weakness to Magic</option>
                         <option value="Weakness to Poison">Weakness to Poison</option>
                         <option value="Weakness to Shock">Weakness to Shock</option>
-                    </datalist>
+                    </select>
+                    <select name="effect-sort-order" id="effect-sort-order">
+                        <option value="asc" selected>Asc</option>
+                        <option value="desc">Desc</option>
+                    </select>
+                    
                 </fieldset>
                 <fieldset>
                     <legend>By DLC</legend>
-                    <input type="checkbox" name="dragonborn-dlc" id="dragonborn-dlc">
+                    <input type="checkbox" name="dragonborn-dlc" id="dragonborn-dlc" checked>
                     <label for="dragonborn-dlc">Dragonborn</label>
-                    <input type="checkbox" name="dawnguard-dlc" id="dawnguard-dlc">
+                    <input type="checkbox" name="dawnguard-dlc" id="dawnguard-dlc" checked>
                     <label for="dawnguard-dlc">Dawnguard</label>
-                    <input type="checkbox" name="hearthfire-dlc" id="hearthfire-dlc">
+                    <input type="checkbox" name="hearthfire-dlc" id="hearthfire-dlc" checked>
                     <label for="hearthfire-dlc">Hearthfire</label>
                 </fieldset>
                 <input type="submit" value="Search">
             </form>
+            <output id="query-interpretation"></output>
             <output id="hit-count"></output>
-            <ul id="ingredient-list">
+            <ol id="ingredient-list">
                 <!-- Filled on DOMContentLoaded -->
-            </ul>
+            </ol>
         </article>
         <article>
             <h1>Mixing</h1>
