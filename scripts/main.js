@@ -1,15 +1,16 @@
 import {buildCalculateMessage, buildPopulateMessage, buildSearchMessage} from './infrastructure/messaging.js';
-import {createList, createListItem, DomCache, removeAllChildren, tag} from './infrastructure/html/html.js';
-import { MAX_CHOSEN_INGREDIENTS, MIN_CHOSEN_INGREDIENTS } from './alchemy/alchemy.js';
-import { createIngredientDeselected, createIngredientSelected, createMaxIngredientsSelected, INGREDIENT_DESELECTED, INGREDIENT_SELECTED, LIST_CLEARED, MAX_INGREDIENTS_SELECTED } from './infrastructure/events/client-side-events.js';
+import {DomCache, removeAllChildren, tag} from './infrastructure/html/html.js';
+import { MIN_CHOSEN_INGREDIENTS } from './alchemy/alchemy.js';
+import { INGREDIENT_DESELECTED, INGREDIENT_SELECTED, LIST_CLEARED, MAX_INGREDIENTS_SELECTED } from './infrastructure/events/client-side-events.js';
 import { AlchemyWorker } from './infrastructure/worker/alchemy-worker.js';
 import { IngredientList } from './infrastructure/html/ingredient-list.js';
 import { ChosenIngredients } from './infrastructure/html/chosen-ingredients.js';
-import { logger, setLogLevel, LogLevel } from './infrastructure/logger.js';
+import { logger, setLogLevel } from './infrastructure/logger.js';
+import { LOGGING_LEVEL } from './infrastructure/config.js';
 
 const console = logger;
 document.addEventListener('DOMContentLoaded', e => {
-    setLogLevel(LogLevel.ERROR);
+    setLogLevel(LOGGING_LEVEL);
 }, {once: true});
 const alchemyWorker = new AlchemyWorker('scripts/infrastructure/worker/alchemy-worker-script.js');
 const domCache = new DomCache();
@@ -20,7 +21,7 @@ alchemyWorker.onCalculateResult(onCalculateResult);
 alchemyWorker.onWorkerError(onErrorMessage);
 // setting up listener.
 window.addEventListener('beforeunload', (e) => {
-    console.log('Terminating Worker');
+    console.info('Terminating Worker');
     alchemyWorker.terminate();
 });
 
@@ -52,7 +53,7 @@ const ingredientList = new IngredientList(ingredientListElem, currentSelectedIng
 const chosenIngredients = new ChosenIngredients(chosenIngredientsElem);
 ingredientListElem.addEventListener(INGREDIENT_SELECTED, (evt) => {
     const ingredientName = evt.detail.ingredientName;
-    console.log(`${ingredientName} selected`);
+    console.info(`${ingredientName} selected`);
     chosenIngredients.addIngredient(ingredientName);
 });
 
@@ -75,16 +76,7 @@ chosenIngredientsElem.addEventListener(INGREDIENT_DESELECTED, evt => {
 ingredientListElem.addEventListener(MAX_INGREDIENTS_SELECTED, displayTooManyIngredientsMessage);
 
 const mainElement = document.querySelector('main');
-mainElement.addEventListener(INGREDIENT_DESELECTED, evt => {
-    /**
-     * @type {HTMLElement}
-     */
-    const targetNode = evt.target;
-    if (chosenIngredientsElem.contains(targetNode)) {
-        // one of the chosen ingredients was removed. update ingredient list to match.
-        ingredientList.unselectIngredient(evt.detail.ingredientName);
-    }
-});
+
 
 function onErrorMessage({detail: {payload: message}}) {
     console.error(`Error: ${message}`);
@@ -95,7 +87,7 @@ function onErrorMessage({detail: {payload: message}}) {
  * @param {CustomEvent<{payload: {name: string, didSucceed: boolean, effects?: string, gold?: number}}>} payload 
  */
 function onCalculateResult({detail: {payload}}) {
-    console.log('Worker calculation results: ', payload);
+    console.info('Worker calculation results: ', payload);
     removeAllChildren(resultList);
     displayPotion(payload);
 }
@@ -207,13 +199,13 @@ function handleBrewPotionFormSubmit(event) {
     const formData = new FormData(brewPotionForm);
     formData.set('selected-ingredients', Array.from(currentSelectedIngredients).join());
     for (const [key, value] of formData.entries()) {
-        console.log(`Key: ${key}, Value: ${value}`);
+        console.debug(`Key: ${key}, Value: ${value}`);
     }
     const calculateMsg = toCalculateMessage(formData);
     alchemyWorker.postMessage(calculateMsg);
     // Assuming we still have the paragraph element.
     if (resultList.hasChildNodes) {
-        console.log('Attempting to remove default text');
+        console.debug('Attempting to remove default text');
         removeAllChildren(resultList);
     }
 }

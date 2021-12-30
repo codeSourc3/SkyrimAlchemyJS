@@ -1,4 +1,4 @@
-import { Effect, Ingredient } from "../../alchemy/ingredients.js";
+import { Ingredient } from "../../alchemy/ingredients.js";
 import { ING_OBJ_STORE } from "../config.js";
 import {equals, equalsAnyOf, startsWith} from './query.js'
 import { logger } from "../logger.js";

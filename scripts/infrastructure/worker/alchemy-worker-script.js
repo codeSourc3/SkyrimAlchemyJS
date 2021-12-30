@@ -1,11 +1,10 @@
 import { Ingredient, parseIngredientsJSON } from "../../alchemy/ingredients.js";
-import { DB_NAME, VERSION, ING_OBJ_STORE } from "../config.js";
+import { DB_NAME, VERSION, ING_OBJ_STORE, LOGGING_LEVEL } from "../config.js";
 import { createPotionBuilder as makePotion } from "../../alchemy/alchemy.js";
-import { openDB, insertEntry, getAllIngredients, filterIngredientsByEffect, getAllIngredientNames, filterByDLC, getIngredient } from '../db/db.js';
+import { openDB, insertEntry, filterIngredientsByEffect, getAllIngredientNames, filterByDLC, getIngredient } from '../db/db.js';
 import {buildCalculateResultMessage, buildErrorMessage, buildPopulateResultMessage, buildSearchResultMessage, buildWorkerReadyMessage} from '../messaging.js';
-import { logger, LogLevel, setLogLevel } from "../logger.js";
-import { difference, differenceArray, intersection, toArray, toSet } from "../array-helpers.js";
-import { isInRange } from "../math.js";
+import { logger, setLogLevel } from "../logger.js";
+import { intersection, toArray, toSet } from "../array-helpers.js";
 
 const console = logger;
 
@@ -17,7 +16,7 @@ let db;
 let shouldUpgrade = false;
 
 setupIndexedDB().then(() => {
-    setLogLevel(LogLevel.DEFAULT);
+    setLogLevel(LOGGING_LEVEL);
     postMessage(buildWorkerReadyMessage(self.name));
     self.addEventListener('message', handleMessage);
     logger.debug('Alchemy worker event listener set up.');
@@ -80,7 +79,7 @@ async function searchIngredients(db, messagePayload) {
     let unprocessedResults = await Promise.all(appliedFilters);
     const comparator = createComparator(!sortingOrderToBool(effectOrder));
     searchResults = toArray(intersection(toSet(unprocessedResults[0]), toSet(unprocessedResults[1]))).sort(comparator);
-    console.log('Filters: ', searchResults);
+    console.debug('Filters: ', searchResults);
     
     console.groupEnd();
     return searchResults;

@@ -1,6 +1,6 @@
 import { MAX_CHOSEN_INGREDIENTS } from "../../alchemy/alchemy.js";
-import { createIngredientDeselected, createIngredientSelected, createListCleared, createMaxIngredientsSelected, INGREDIENT_DESELECTED, INGREDIENT_SELECTED } from "../events/client-side-events.js";
-import { createListItem, createList } from "./html.js";
+import { createIngredientDeselected, createIngredientSelected, createListCleared, createMaxIngredientsSelected } from "../events/client-side-events.js";
+import { createListItem } from "./html.js";
 
 
 
