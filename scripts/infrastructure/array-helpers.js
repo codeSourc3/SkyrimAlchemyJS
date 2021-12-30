@@ -52,13 +52,30 @@ export function toArray(aSet) {
     return Array.from(aSet);
 }
 
+export function maxBy(arr, fn) {
+    // found from 30secondsofcode.org. Arrow function originally.
+    return Math.max(...arr.map(typeof fn === 'function' ? fn : val => val[fn]));
+}
+
 /**
  * 
- * @param {number} value 
- * @param {number} min 
- * @param {number} max 
- * @returns {boolean}
+ * @param {any[]} arr 
+ * @param {(element: object) => number | bigint} fn 
+ * @returns {number | bigint}
  */
-export function isWithin(value, min, max) {
-    return value >= min && value <= max;
+export function sumBy(arr, fn) {
+    let mapped = arr.map(typeof fn === 'function' ? fn : val => val[fn]);
+    return mapped.reduce((acc, val) => acc + val, 0);
+}
+
+/**
+ * 
+ * @param {any[]} a 
+ * @param {any[]} b 
+ * @param {(element: any) => any} fn 
+ * @returns {any[]}
+ */
+export function intersectionBy(a, b, fn) {
+    const s = new Set(b.map(fn));
+    return Array.from(new Set(a)).filter(x => s.has(fn(x)));
 }

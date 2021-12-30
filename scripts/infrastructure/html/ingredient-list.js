@@ -28,7 +28,7 @@ class IngredientList {
         return this.#currentSelectedIngredients;
     }
 
-    clear(retainSelected=true) {
+    clear({retainSelected=true}={}) {
         while (this.#ulList.firstElementChild) {
             this.#ulList.removeChild(this.#ulList.firstElementChild);
         }

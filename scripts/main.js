@@ -39,6 +39,8 @@ const chosenIngredientsElem = domCache.id('chosen-ingredients');
 const resultList = domCache.id('result-list');
 const hitCount = domCache.id('hit-count');
 
+
+
 // Used to avoid querying the DOM to get the name of the ingredient.
 const currentSelectedIngredients = new Set();
 const ingredientList = new IngredientList(ingredientListElem, currentSelectedIngredients);
@@ -66,6 +68,18 @@ chosenIngredientsElem.addEventListener(INGREDIENT_DESELECTED, evt => {
 })
 
 ingredientListElem.addEventListener(MAX_INGREDIENTS_SELECTED, displayTooManyIngredientsMessage);
+
+const mainElement = document.querySelector('main');
+mainElement.addEventListener(INGREDIENT_DESELECTED, evt => {
+    /**
+     * @type {HTMLElement}
+     */
+    const targetNode = evt.target;
+    if (chosenIngredientsElem.contains(targetNode)) {
+        // one of the chosen ingredients was removed. update ingredient list to match.
+        ingredientList.unselectIngredient(evt.detail.ingredientName);
+    }
+});
 
 function onErrorMessage({detail: {payload: message}}) {
     console.error(`Error: ${message}`);

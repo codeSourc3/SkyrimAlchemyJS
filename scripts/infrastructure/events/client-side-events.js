@@ -1,8 +1,27 @@
 
-function createEventFactory(type, {bubbles=false, cancelable= false, composed = false}) {
+
+/**
+ * 
+ * @param {string} type 
+ * @param {{bubbles: boolean, cancelable: boolean, composed: boolean}} param1 
+ * @returns {(data: T) => CustomEvent<T>}
+ */
+function createCustomEventFactory(type, {bubbles=false, cancelable= false, composed = false}) {
     return (data) => {
         return new CustomEvent(type, {bubbles, cancelable, composed, detail: data});
     };
+}
+
+/**
+ * 
+ * @param {string} type 
+ * @param {{bubbles: boolean, cancelable: false, composed: false}} param1 
+ * @returns {() => Event}
+ */
+function createEventFactory(type, {bubbles = false, cancelable = false, composed = false}={}) {
+    return () => {
+        return new Event(type, {bubbles, cancelable, composed});
+    }
 }
 
 /**
@@ -23,20 +42,20 @@ const INGREDIENT_SEARCH_RESULT = 'ingredient-search-result';
 const CALCULATE_POTION_RESULT = 'calculate-potion-result';
 const WORKER_ERROR = 'worker-error';
 const workerReadyFactory = createEventFactory(WORKER_READY, {bubbles: true});
-const populateIngredientListFactory = createEventFactory(POPULATE_INGREDIENT_LIST, {bubbles: true});
-const ingredientSearchFactory = createEventFactory(INGREDIENT_SEARCH_RESULT, {bubbles: true, cancelable: true});
-const calculatePotionFactory = createEventFactory(CALCULATE_POTION_RESULT, {bubbles: true, cancelable: true});
-const workerErrorFactory = createEventFactory(WORKER_ERROR, {bubbles: true, cancelable: true});
+const populateIngredientListFactory = createCustomEventFactory(POPULATE_INGREDIENT_LIST, {bubbles: true});
+const ingredientSearchFactory = createCustomEventFactory(INGREDIENT_SEARCH_RESULT, {bubbles: true, cancelable: true});
+const calculatePotionFactory = createCustomEventFactory(CALCULATE_POTION_RESULT, {bubbles: true, cancelable: true});
+const workerErrorFactory = createCustomEventFactory(WORKER_ERROR, {bubbles: true, cancelable: true});
 
 // Event factories for choosing ingredients
 const LIST_CLEARED = 'list-cleared';
 const INGREDIENT_SELECTED = 'ingredient-selected';
 const INGREDIENT_DESELECTED = 'ingredient-deselected';
 const MAX_INGREDIENTS_SELECTED = 'max-ingredients-selected';
-const ingredientSelectedFactory = createEventFactory(INGREDIENT_SELECTED, {bubbles: true, cancelable: true});
-const ingredientDeselectedFactory = createEventFactory(INGREDIENT_DESELECTED, {bubbles: true, cancelable: true});
+const ingredientSelectedFactory = createCustomEventFactory(INGREDIENT_SELECTED, {bubbles: true, cancelable: true});
+const ingredientDeselectedFactory = createCustomEventFactory(INGREDIENT_DESELECTED, {bubbles: true, cancelable: true});
 const maxIngredientsSelectedFactory = createEventFactory(MAX_INGREDIENTS_SELECTED, {bubbles: true});
-const listClearedFactory = createEventFactory(LIST_CLEARED, {bubbles: true, cancelable: true});
+const listClearedFactory = createCustomEventFactory(LIST_CLEARED, {bubbles: true, cancelable: true});
 /**
  * Creates an event of type "ingredient-selected".
  * @param {string} ingredientName the name of the ingredient.
@@ -47,7 +66,7 @@ function createIngredientSelected(ingredientName) {
 }
 
 function createWorkerReady() {
-    return workerReadyFactory(null);
+    return workerReadyFactory();
 }
 
 function createPopulateIngredientList(payload) {
@@ -77,10 +96,10 @@ function createIngredientDeselected(ingredientName) {
 
 /**
  * 
- * @returns {CustomEvent<any>}
+ * @returns {Event}
  */
 function createMaxIngredientsSelected() {
-    return maxIngredientsSelectedFactory(null);
+    return maxIngredientsSelectedFactory();
 }
 
 function createListCleared(elementsToKeep) {
