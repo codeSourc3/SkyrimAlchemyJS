@@ -3,9 +3,11 @@ import { DB_NAME, VERSION, ING_OBJ_STORE } from "../config.js";
 import { createPotionBuilder as makePotion } from "../../alchemy/alchemy.js";
 import { openDB, insertEntry, getAllIngredients, filterIngredientsByEffect, getAllIngredientNames, filterByDLC, getIngredient } from '../db/db.js';
 import {buildCalculateResultMessage, buildErrorMessage, buildPopulateResultMessage, buildSearchResultMessage, buildWorkerReadyMessage} from '../messaging.js';
-import { logger } from "../logger.js";
+import { logger, LogLevel, setLogLevel } from "../logger.js";
 import { difference, differenceArray, intersection, toArray, toSet } from "../array-helpers.js";
 import { isInRange } from "../math.js";
+
+const console = logger;
 
 /**
  * @type {IDBDatabase}
@@ -15,10 +17,11 @@ let db;
 let shouldUpgrade = false;
 
 setupIndexedDB().then(() => {
+    setLogLevel(LogLevel.DEFAULT);
     postMessage(buildWorkerReadyMessage(self.name));
     self.addEventListener('message', handleMessage);
-    console.debug('Alchemy worker event listener set up.');
-    console.assert(typeof db !== 'undefined');
+    logger.debug('Alchemy worker event listener set up.');
+    logger.assert(typeof db !== 'undefined');
 });
 
 
@@ -29,7 +32,7 @@ setupIndexedDB().then(() => {
 async function handleMessage(msg) {
     const start = self.performance.now();
     const msgData = msg.data;
-    logger.log('From main thread to worker thread: ', { msgData });
+    logger.info('From main thread to worker thread: ', { msgData });
     const end = self.performance.now();
     logger.debug('Time taken is %d', end - start);
     switch (msgData.type) {

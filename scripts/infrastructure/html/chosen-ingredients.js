@@ -1,5 +1,6 @@
 import { createIngredientDeselected, createListCleared } from "../events/client-side-events.js";
 import { createListItem } from "./html.js";
+import { logger as console} from '../../infrastructure/logger.js';
 
 /**
  * 

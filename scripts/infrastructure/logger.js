@@ -1,19 +1,29 @@
 import { isInRange } from "./math.js";
 
+
 const LogLevel = Object.freeze({
-    ERROR: 1,
-    WARN: 2,
-    INFO: 3,
-    DEFAULT: 4,
-    DEBUG: 5
+    ERROR: 5,
+    WARN: 4,
+    DEFAULT: 3,
+    INFO: 2,
+    DEBUG: 1
 });
 const lookupTable = new Map([
     ['error', 'ERROR'],
     ['warn', 'WARN'],
     ['info', 'INFO'],
     ['log', 'DEFAULT'],
-    ['debug', 'DEBUG']
+    ['debug', 'DEBUG'],
+    ['assert', 'ERROR']
 ]);
+
+const getRequiredLogLevel = (funcName) => {
+    let requiredLevel = LogLevel.DEBUG;
+    if (lookupTable.has(funcName)) {
+        requiredLevel = LogLevel[lookupTable.get(funcName)];
+    }
+    return requiredLevel;
+};
 
 let currentLogLevel = LogLevel.DEFAULT;
 const filterableConsole = new Proxy(console, {
@@ -24,12 +34,9 @@ const filterableConsole = new Proxy(console, {
         }
         return (...args) => {
             if (typeof prop === 'string') {
-                let requiredLogLevel = LogLevel.DEFAULT;
-                if (lookupTable.has(prop)) {
-                    //
-                    requiredLogLevel = LogLevel[lookupTable.get(prop)];
-                }
-                if (currentLogLevel >= requiredLogLevel) {
+                let requiredLogLevel = getRequiredLogLevel(prop);
+                // check if current level is 
+                if (currentLogLevel <= requiredLogLevel) {
                     return target[prop].apply(target, args);
                 } else {
                     // do nothing if current log level isn't high enough.
@@ -42,8 +49,10 @@ const filterableConsole = new Proxy(console, {
 });
 
 function setLogLevel(newLogLevel) {
-    if (isInRange(newLogLevel, LogLevel.ERROR, LogLevel.DEBUG)) {
+    if (isInRange(newLogLevel, LogLevel.DEBUG, LogLevel.ERROR)) {
         currentLogLevel = Number(newLogLevel);
+    } else {
+        console.error('Tried to set log level to invalid value.');
     }
 }
 

@@ -4,7 +4,6 @@ const messageHandlerSwitch = {
     worker: null,
     ['worker-ready']() {
         const workerReady = createWorkerReady();
-        console.log('Message handler switch: worker ready');
         this.worker.dispatchEvent(workerReady);
     },
     ['search-result'](payload) {

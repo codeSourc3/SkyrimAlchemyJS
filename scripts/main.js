@@ -5,7 +5,12 @@ import { createIngredientDeselected, createIngredientSelected, createMaxIngredie
 import { AlchemyWorker } from './infrastructure/worker/alchemy-worker.js';
 import { IngredientList } from './infrastructure/html/ingredient-list.js';
 import { ChosenIngredients } from './infrastructure/html/chosen-ingredients.js';
+import { logger, setLogLevel, LogLevel } from './infrastructure/logger.js';
 
+const console = logger;
+document.addEventListener('DOMContentLoaded', e => {
+    setLogLevel(LogLevel.ERROR);
+}, {once: true});
 const alchemyWorker = new AlchemyWorker('scripts/infrastructure/worker/alchemy-worker-script.js');
 const domCache = new DomCache();
 alchemyWorker.onWorkerReady(onWorkerReady);
