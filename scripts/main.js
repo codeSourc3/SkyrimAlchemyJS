@@ -151,8 +151,7 @@ function onSearchFormSubmit(event) {
     if (formData.has('dragonborn-dlc')) dlc.push('Dragonborn');
     if (formData.has('dawnguard-dlc')) dlc.push('Dawnguard');
     if (formData.has('hearthfire-dlc')) dlc.push('Hearthfire');
-    let searchMessage = buildSearchMessage(effectSearch, effOrder, dlc);
-    alchemyWorker.postMessage(searchMessage);
+    alchemyWorker.sendSearchMessage(effectSearch, effOrder, dlc);
 }
 
 /**
@@ -179,8 +178,7 @@ function displayTooManyIngredientsMessage() {
  * Posts a populate message to the worker.
  */
 function onWorkerReady() {
-    const message = buildPopulateMessage();
-    alchemyWorker.postMessage(message);
+    alchemyWorker.sendPopulateMessage();
 }
 
 /**
@@ -201,8 +199,8 @@ function handleBrewPotionFormSubmit(event) {
     for (const [key, value] of formData.entries()) {
         console.debug(`Key: ${key}, Value: ${value}`);
     }
-    const calculateMsg = toCalculateMessage(formData);
-    alchemyWorker.postMessage(calculateMsg);
+    sendCalculateMessage(formData);
+    
     // Assuming we still have the paragraph element.
     if (resultList.hasChildNodes) {
         console.debug('Attempting to remove default text');
@@ -216,7 +214,7 @@ function handleBrewPotionFormSubmit(event) {
  * @param {FormData} formData data from the potion brewing form.
  * @returns {import('./infrastructure/messaging.js').Message}
  */
-function toCalculateMessage(formData) {
+function sendCalculateMessage(formData) {
     let hasPhysician = formData.has('physician-perk');
     let hasBenefactor = formData.has('benefactor-perk');
     let hasPoisoner = formData.has('poisoner-perk');
@@ -225,5 +223,5 @@ function toCalculateMessage(formData) {
     let alchemist = Number(formData.get('alchemist-perk'));
     let skillLevel = Number(formData.get('skill-level'));
     let fortifyAlchemy = Number(formData.get('fortify-alchemy'));
-    return buildCalculateMessage(selectedIngredients, skillLevel, alchemist, hasPhysician, hasBenefactor, hasPoisoner, fortifyAlchemy);
+    alchemyWorker.sendCalculateMessage(selectedIngredients, skillLevel, alchemist, hasPhysician, hasBenefactor, hasPoisoner, fortifyAlchemy);
 }

@@ -1,4 +1,5 @@
 import { createCalculatePotionResult, createWorkerError, createPopulateIngredientList, createIngredientSearchResult, createWorkerReady, WORKER_READY, INGREDIENT_SEARCH_RESULT, POPULATE_INGREDIENT_LIST, CALCULATE_POTION_RESULT, WORKER_ERROR } from "../events/client-side-events.js";
+import { buildCalculateMessage, buildPopulateMessage, buildSearchMessage } from "../messaging.js";
 
 const messageHandlerSwitch = {
     worker: null,
@@ -81,6 +82,41 @@ export class AlchemyWorker {
 
     postMessage(message) {
         this.#worker.postMessage(message);
+    }
+
+    /**
+     * Sends a search message to the worker. This is used to filter
+     * ingredients.
+     * @param {string} effectSearchTerm 
+     * @param {string} effectOrder 
+     * @param {string[]} dlc 
+     */
+    sendSearchMessage(effectSearchTerm, effectOrder, dlc) {
+        const searchMsg = buildSearchMessage(effectSearchTerm, effectOrder, dlc);
+        this.#worker.postMessage(searchMsg);
+    }
+
+    /**
+     * Sends a populate message to the worker.
+     */
+    sendPopulateMessage() {
+        const populateMsg = buildPopulateMessage();
+        this.#worker.postMessage(populateMsg);
+    }
+
+    /**
+     * Sends a calculate message to the worker.
+     * @param {string[]} ingredientNames 
+     * @param {number} skill 
+     * @param {number} alchemist 
+     * @param {boolean} hasPhysician 
+     * @param {boolean} hasBenefactor 
+     * @param {boolean} hasPoisoner 
+     * @param {number} fortifyAlchemy 
+     */
+    sendCalculateMessage(ingredientNames, skill=15, alchemist=0, hasPhysician=false, hasBenefactor=false, hasPoisoner=false, fortifyAlchemy=0) {
+        const calculateMsg = buildCalculateMessage(ingredientNames, skill, alchemist, hasPhysician, hasBenefactor, hasPoisoner, fortifyAlchemy);
+        this.#worker.postMessage(calculateMsg);
     }
 
 
