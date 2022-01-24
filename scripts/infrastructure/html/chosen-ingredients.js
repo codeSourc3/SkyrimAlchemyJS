@@ -20,10 +20,19 @@ class ChosenIngredients {
         this.#list.addEventListener('click', this);
     }
 
+    /**
+     * Checks if said ingredient has been selected.
+     * @param {string} ingredientName the name of the ingredient.
+     * @returns {boolean}
+     */
     hasIngredient(ingredientName) {
         return this.#selected.has(ingredientName);
     }
 
+    /**
+     * Adds the ingredient to 
+     * @param {string} ingredientName 
+     */
     addIngredient(ingredientName) {
         //
         this.#selected.add(ingredientName);
@@ -38,7 +47,7 @@ class ChosenIngredients {
     }
 
     /**
-     * 
+     * Adds the ingredient to the list element.
      * @private
      * @param {string} ingredientName 
      */
@@ -65,7 +74,7 @@ class ChosenIngredients {
     }
 
     /**
-     * 
+     * Adds all of the ingredients to the HTML list.
      * @param {string[]} ingredientNames 
      */
     addAll(ingredientNames) {
@@ -74,7 +83,7 @@ class ChosenIngredients {
         }
     }
 
-    clear(retainSelected=true) {
+    clear({retainSelected=true}={}) {
         while (this.#list.firstElementChild) {
             this.#list.removeChild(this.#list.firstElementChild);
         }

@@ -1,10 +1,12 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en-US">
 
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Skyrim Special Edition potion calculator.">
+    <meta name="author" content="Enzo M.">
     <title>Skyrim Alchemy Calculator</title>
     <link rel="stylesheet" href="styles/styles.css">
 </head>
@@ -96,6 +98,7 @@
                     <label for="hearthfire-dlc">Hearthfire</label>
                 </fieldset>
                 <input type="submit" value="Search">
+                <input type="reset" value="Reset">
             </form>
             <output id="query-interpretation"></output>
             <output id="hit-count"></output>
@@ -103,10 +106,12 @@
                 <!-- Filled on DOMContentLoaded -->
             </ol>
         </article>
+        <!-- Could sort filtered ingredients by name, gold cost, etc. -->
         <article>
             <h1>Mixing</h1>
             <form id="brew-potion">
                 <p><output id="brewing-error-message"></output></p>
+                
                 <label for="skill-level">Alchemy Skill: </label>
                 <input type="number" name="skill-level" id="skill-level" min="15" value="15">
 
@@ -131,6 +136,8 @@
 
                 <label for="fortify-alchemy">Fortify Alchemy: </label>
                 <input type="number" name="fortify-alchemy" id="fortify-alchemy" min="0" value="0">
+                
+                <input type="reset" value="Reset">
                 <input type="submit" value="Mix">
             </form>
             <section>
@@ -140,14 +147,20 @@
                 </ul>
             </section>
             <section>
-                <h1>Result</h1>
-                <ul id="possible-potions">
+                <h1>Results</h1>
+                <!-- Should display possible potions from the 2-3 ingredients 
+                    selected. Potions with 3 ingredient potions being appended first, 
+                 then each successful 2-ingredient potion after that.
+                -->
+                <ol id="possible-potions">
                     <p>Choose one to two ingredients.</p>
-                </ul>
+                </ol>
             </section>
         </article>
     </main>
-    <footer></footer>
+    <footer>
+        <p>Link to <a href="https://github.com/codeSourc3/SkyrimAlchemyJS">Github</a></p>
+    </footer>
     <script type="module" src="./scripts/main.js">
     </script>
 </body>
