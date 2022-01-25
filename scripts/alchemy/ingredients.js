@@ -56,7 +56,7 @@ export class Ingredient {
         this.dlc = dlc;
         /**
          * @type {Effect[]}
-         * @private
+         * 
          */
         this.effects = Array.from(effects).map( effect => new Effect(effect));
         this.effectNames = this.effects.map(effect => effect.name);
@@ -119,7 +119,9 @@ export class Ingredient {
         const calcMagnitude = effect => {
             return effect.calculatedMagnitude;
         };
-
+        /**
+         * @type {Map<string, Effect>}
+         */
         const effectMap = new Map();
         for (const effect of results) {
             if (!effectMap.has(effect.name) || calcMagnitude(effect) > calcMagnitude(effectMap.get(effect.name))) {
@@ -128,7 +130,7 @@ export class Ingredient {
         }
         return Array.from(effectMap.values());
         
-    }
+    } 
 
     /**
      * 
@@ -138,6 +140,15 @@ export class Ingredient {
     hasEffect(otherEffect) {
         let effectNames = this.effects.map(effect => effect.name);
         return effectNames.includes(otherEffect.name);
+    }
+
+    /**
+     * 
+     * @param {Ingredient} otherIngredient - The ingredient to determine if any effects match.
+     * @returns {boolean}
+     */
+    sharesAnyWith(otherIngredient) {
+        return this.effects.some(eff => otherIngredient.hasEffect(eff));
     }
 
     toString() {

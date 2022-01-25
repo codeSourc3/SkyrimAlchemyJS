@@ -39,7 +39,7 @@ async function handleMessage(msg) {
             await processIngredients(db, msgData.payload);
             break;
         case 'search': 
-            const searchResults = await searchIngredients(db, msgData.payload);
+            const searchResults = await filterIngredients(db, msgData.payload);
             postMessage(buildSearchResultMessage(searchResults));
             break;
         case 'populate':
@@ -58,7 +58,7 @@ async function handleMessage(msg) {
  * @param {import("../messaging.js").SearchMessagePayload} messagePayload 
  * @returns {import('../db/db.js').IngredientEntry[]}
  */
-async function searchIngredients(db, messagePayload) {
+async function filterIngredients(db, messagePayload) {
     let {effectSearchTerm, effectOrder='asc', dlc=['Vanilla']} = messagePayload;
     console.groupCollapsed('Searching ingredients');
     if (!dlc.includes('Vanilla')) {

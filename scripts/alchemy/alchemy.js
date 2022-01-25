@@ -13,6 +13,11 @@ import { logger as console } from '../infrastructure/logger.js';
 export const MAX_CHOSEN_INGREDIENTS = 3;
 export const MIN_CHOSEN_INGREDIENTS = 2;
 
+/**
+ * 
+ * @param {number} level - An integer between 0 and 5. Defaults to 0.
+ * @returns {number}
+ */
 function alchemistPerk(level = 0) {
     if (typeof level !== 'number') {
         throw new TypeError('Level must be a number');
@@ -52,6 +57,14 @@ function physicianPerk(effect, hasPerk = false) {
     }
 }
 
+/**
+ * 
+ * @param {Effect} effect - The effect to apply the multiplier on.
+ * @param {boolean} hasPerk - Whether the player has the perk.
+ * @param {boolean} isMakingPosion - This is decided based on the potion effect with the highest cost.
+ * @returns {number} - Returns 25.0 if player has the perk, the effect isn't harmful and is making poison 
+ * - Returns 0 in all other cases.
+ */
 function benefactorPerk(effect, hasPerk = false, isMakingPosion = false) {
     const isPotion = !isMakingPosion;
     const isBeneficial = !effect.harmful;
