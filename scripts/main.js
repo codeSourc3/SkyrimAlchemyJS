@@ -1,5 +1,4 @@
-import {buildCalculateMessage, buildPopulateMessage, buildSearchMessage} from './infrastructure/messaging.js';
-import {DomCache, removeAllChildren, tag} from './infrastructure/html/html.js';
+import {DomCache, tag} from './infrastructure/html/html.js';
 import { MIN_CHOSEN_INGREDIENTS } from './alchemy/alchemy.js';
 import { INGREDIENT_DESELECTED, INGREDIENT_SELECTED, LIST_CLEARED, MAX_INGREDIENTS_SELECTED } from './infrastructure/events/client-side-events.js';
 import { AlchemyWorker } from './infrastructure/worker/alchemy-worker.js';
@@ -51,31 +50,35 @@ const hitCount = domCache.id('hit-count');
 const currentSelectedIngredients = new Set();
 const ingredientList = new IngredientList(ingredientListElem, currentSelectedIngredients);
 const chosenIngredients = new ChosenIngredients(chosenIngredientsElem);
+
+// Adds selected ingredient to chosen ingredients.
 ingredientListElem.addEventListener(INGREDIENT_SELECTED, (evt) => {
     const ingredientName = evt.detail.ingredientName;
     console.info(`${ingredientName} selected`);
     chosenIngredients.addIngredient(ingredientName);
 });
 
+// Removes unselected ingredient from chosen ingredients.
 ingredientListElem.addEventListener(INGREDIENT_DESELECTED, (evt) => {
     const ingredientName = evt.detail.ingredientName;
     console.info(`${ingredientName} deselected`);
     chosenIngredients.removeIngredient(ingredientName);
 });
 
+// 
 chosenIngredientsElem.addEventListener(LIST_CLEARED, evt => {
     const elementsToKeep = evt.detail;
     console.info('Ingredients to keep in chosen: ', elementsToKeep, evt.target);
     chosenIngredients.addAll(elementsToKeep);
 });
+
+// Unselects ingredient from ingredient list if chosen ingredients is clicked on.
 chosenIngredientsElem.addEventListener(INGREDIENT_DESELECTED, evt => {
     const ingredientName = evt.detail.ingredientName;
     ingredientList.unselectIngredient(ingredientName);
 })
 
 ingredientListElem.addEventListener(MAX_INGREDIENTS_SELECTED, displayTooManyIngredientsMessage);
-
-const mainElement = document.querySelector('main');
 
 
 function onErrorMessage({detail: {payload: message}}) {
@@ -88,7 +91,7 @@ function onErrorMessage({detail: {payload: message}}) {
  */
 function onCalculateResult({detail: {payload}}) {
     console.info('Worker calculation results: ', payload);
-    removeAllChildren(resultList);
+    resultList.replaceChildren();
     displayPotion(payload);
 }
 
@@ -204,7 +207,7 @@ function handleBrewPotionFormSubmit(event) {
     // Assuming we still have the paragraph element.
     if (resultList.hasChildNodes) {
         console.debug('Attempting to remove default text');
-        removeAllChildren(resultList);
+        resultList.replaceChildren();
     }
 }
 

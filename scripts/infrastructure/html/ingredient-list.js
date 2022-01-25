@@ -1,5 +1,5 @@
 import { MAX_CHOSEN_INGREDIENTS } from "../../alchemy/alchemy.js";
-import { createIngredientDeselected, createIngredientSelected, createListCleared, createMaxIngredientsSelected } from "../events/client-side-events.js";
+import { triggerIngredientDeselected, triggerIngredientSelected, triggerListCleared, triggerMaxSelected } from "../events/client-side-events.js";
 import { createListItem } from "./html.js";
 
 
@@ -40,8 +40,7 @@ class IngredientList {
         } else {
             this.#currentSelectedIngredients.clear();
         }
-        const clearEvt = createListCleared(elementsToKeep);
-        this.#ulList.dispatchEvent(clearEvt);
+        triggerListCleared(this.#ulList, elementsToKeep);
     }
 
     replaceWithNoResults() {
@@ -111,8 +110,7 @@ class IngredientList {
              one more.
              */
             this.#currentSelectedIngredients.add(textContent);
-            const ingredientSelected = createIngredientSelected(textContent);
-            selectedElement.dispatchEvent(ingredientSelected);
+            triggerIngredientSelected(selectedElement, textContent);
             selectedElement.classList.toggle('selected-ingredient');
          } else if (this.#currentSelectedIngredients.has(textContent)) {
              // Was previously selected and can be deselected.
@@ -120,12 +118,10 @@ class IngredientList {
              selectedElement.classList.toggle('selected-ingredient');
 
              // create and dispatch ingredient-deselected.
-             const ingredientDeselected = createIngredientDeselected(textContent);
-             selectedElement.dispatchEvent(ingredientDeselected);
+             triggerIngredientDeselected(selectedElement, textContent);
          } else {
              // Cannot select more ingredients.
-             const maxIngredientsSelected = createMaxIngredientsSelected();
-             selectedElement.dispatchEvent(maxIngredientsSelected);
+             triggerMaxSelected(selectedElement);
          }
     }
 }

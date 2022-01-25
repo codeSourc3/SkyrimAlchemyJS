@@ -1,29 +1,3 @@
-
-
-/**
- * 
- * @param {string} type 
- * @param {{bubbles: boolean, cancelable: boolean, composed: boolean}} param1 
- * @returns {(data: T) => CustomEvent<T>}
- */
-function createCustomEventFactory(type, {bubbles=false, cancelable= false, composed = false}) {
-    return (data) => {
-        return new CustomEvent(type, {bubbles, cancelable, composed, detail: data});
-    };
-}
-
-/**
- * 
- * @param {string} type 
- * @param {{bubbles: boolean, cancelable: false, composed: false}} param1 
- * @returns {() => Event}
- */
-function createEventFactory(type, {bubbles = false, cancelable = false, composed = false}={}) {
-    return () => {
-        return new Event(type, {bubbles, cancelable, composed});
-    }
-}
-
 /**
  * Dispatches an event using the target. If the detail is null it fires a normal Event,
  * else it dispatches a CustomEvent.
@@ -109,47 +83,41 @@ const LIST_CLEARED = 'list-cleared';
 const INGREDIENT_SELECTED = 'ingredient-selected';
 const INGREDIENT_DESELECTED = 'ingredient-deselected';
 const MAX_INGREDIENTS_SELECTED = 'max-ingredients-selected';
-const ingredientSelectedFactory = createCustomEventFactory(INGREDIENT_SELECTED, {bubbles: true, cancelable: true});
-const ingredientDeselectedFactory = createCustomEventFactory(INGREDIENT_DESELECTED, {bubbles: true, cancelable: true});
-const maxIngredientsSelectedFactory = createEventFactory(MAX_INGREDIENTS_SELECTED, {bubbles: true});
-const listClearedFactory = createCustomEventFactory(LIST_CLEARED, {bubbles: true, cancelable: true});
-
-/**
- * Creates an event of type "ingredient-selected".
- * 
- * @param {string} ingredientName the name of the ingredient.
- * @returns {CustomEvent<{ingredientName: string}>}
- */
-function createIngredientSelected(ingredientName) {
-    return ingredientSelectedFactory({ingredientName});
-}
 
 /**
  * 
+ * @param {EventTarget} target 
  * @param {string} ingredientName 
- * @returns {CustomEvent<{ingredientName: string}>}
+ * @returns {boolean}
  */
-function createIngredientDeselected(ingredientName) {
-    return ingredientDeselectedFactory({ingredientName});
-}
+const triggerIngredientSelected = (target, ingredientName) => triggerEvent(INGREDIENT_SELECTED, target, {ingredientName}, {bubbles: true, cancelable: true});
 
 /**
  * 
- * @returns {Event}
+ * @param {EventTarget} target 
+ * @param {string} ingredientName 
+ * @returns {boolean}
  */
-function createMaxIngredientsSelected() {
-    return maxIngredientsSelectedFactory();
-}
+const triggerIngredientDeselected = (target, ingredientName) => triggerEvent(INGREDIENT_DESELECTED, target, {ingredientName}, {bubbles: true, cancelable: true});
 
-function createListCleared(elementsToKeep) {
-    return listClearedFactory(elementsToKeep);
-}
+/**
+ * 
+ * @param {EventTarget} target 
+ * @returns {boolean}
+ */
+const triggerMaxSelected = target => triggerEvent(MAX_INGREDIENTS_SELECTED, target, null, {bubbles: true});
+
+/**
+ * 
+ * @param {EventTarget} target 
+ * @param {string} detail 
+ * @returns {boolean}
+ */
+const triggerListCleared = (target, detail) => triggerEvent(LIST_CLEARED, target, detail, {bubbles: true, cancelable: true});
+
+
 
 export {
-    createIngredientSelected, 
-    createIngredientDeselected, 
-    createMaxIngredientsSelected,
-    createListCleared,
     dispatchEventAsync,
     MAX_INGREDIENTS_SELECTED,
     INGREDIENT_DESELECTED,
@@ -165,5 +133,9 @@ export {
     triggerWorkerError,
     triggerSearchEvt,
     triggerPopulate,
-    triggerCalculatePotionEvt
+    triggerCalculatePotionEvt,
+    triggerMaxSelected,
+    triggerIngredientDeselected,
+    triggerListCleared,
+    triggerIngredientSelected
 };

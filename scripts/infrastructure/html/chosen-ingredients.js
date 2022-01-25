@@ -1,4 +1,4 @@
-import { createIngredientDeselected, createListCleared } from "../events/client-side-events.js";
+import { triggerIngredientDeselected, triggerListCleared } from "../events/client-side-events.js";
 import { createListItem } from "./html.js";
 import { logger as console} from '../../infrastructure/logger.js';
 
@@ -97,8 +97,7 @@ class ChosenIngredients {
         } else {
             this.#selected.clear();
         }
-        const clearEvt = createListCleared(elementsToKeep);
-        this.#list.dispatchEvent(clearEvt);
+        triggerListCleared(this.#list, elementsToKeep);
     }
 
     /**
@@ -120,8 +119,7 @@ class ChosenIngredients {
         if (this.hasIngredient(textContent)) {
             // remove from selected and remove from list.
             this.removeIngredient(textContent);
-            const ingredientDeselected = createIngredientDeselected(textContent);
-            this.#list.dispatchEvent(ingredientDeselected);
+            triggerIngredientDeselected(this.#list, textContent);
         }
     }
 }
