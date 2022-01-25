@@ -1,5 +1,5 @@
 import { restoreHealth, restoreStamina, restoreMagicka } from './effects.js';
-import { Effect } from './ingredients.js';
+import { Effect, Ingredient } from './ingredients.js';
 import { logger as console } from '../infrastructure/logger.js';
 
 /**
@@ -159,7 +159,7 @@ function calcMagnitudeDurationCost(effect, alchemySkill = 15, alchemistLevel = 0
 }
 
 /**
- * Finds the effect with the strongest cost.
+ * Finds the effect with the highest cost.
  * 
  * @param {Effect[]} effects 
  * @returns {Effect}
@@ -220,3 +220,103 @@ export function createPotionBuilder(alchemySkill = 15, alchemistLevel = 0, hasPh
         };
     }
 }
+
+/**
+ * @template T
+ */
+class Pair {
+    /**
+     * 
+     * @param {T} first 
+     * @param {T} second 
+     */
+    constructor(first, second) {
+        this.first = first;
+        this.second = second;
+    }
+
+    toArray() {
+        return [this.first, this.second];
+    }
+
+    toString() {
+        return `${this.first}, ${this.second}`;
+    }
+}
+
+const ingredientEffectCache = new Map();
+
+/**
+ * Finds all possible ingredient combinations.
+ * @param {Ingredient[]} ingredients 
+ * @returns {Map<string, Effect[]>}
+ */
+export function findPossibleCombinations(ingredients) {
+    const recipes = new Map();
+    // Find all pairs that share an effect.
+    let pairs = [];
+    for (let i of ingredients) {
+        for (let j of ingredients) {
+            if (i.name === j.name) continue;
+            if (i.effects.some(e => j.hasEffect(e))) {
+                pairs.push(new Pair(i, j));
+            }
+        }
+    }
+
+    
+
+    // Add 2-ingredient recipes.
+    for (let {first, second} of pairs) {
+        const effects = first.mixTwo(second);
+        recipes.set(hash(first, second), effects);
+    }
+
+    // Add 3-ingredient recipes.
+    for (let x of pairs) {
+        for (let y of pairs) {
+            if (x.name === y.name) continue;
+            console.debug(`${x} - ${y}`);
+            let ingredients = findTriplets(x, y);
+            if (ingredients === null) continue;
+            console.debug(`3 Ingredient recipes: ${ingredients}`);
+            let effects = ingredients[0].mixThree(ingredients[1], ingredients[2]);
+            recipes.set(hash(...ingredients), effects);
+        }
+    }
+
+    return recipes;
+}
+
+/**
+ * 
+ * @param  {...Ingredient} ingredients 
+ * @returns {string}
+ */
+function hash(...ingredients) {
+    return ingredients.map(String).sort().join();
+}
+
+/**
+ * 
+ * @param {Pair<Ingredient>} x 
+ * @param {Pair<Ingredient>} y 
+ * @returns {Ingredient[] | null}
+ */
+function findTriplets(x, y) {
+    if (!x.first.equals(y.first) && x.first.sharesAnyWith(y.first)) {
+        return [x.first, y.second, y.second];
+    }
+    if (!x.first.equals(y.second) && x.first.sharesAnyWith(y.second)) {
+        return [x.first, x.second, y.first];
+    }
+    if (!x.second.equals(y.first) && x.second.sharesAnyWith(y.first)) {
+        return [x.first, x.second, y.second];
+    }
+    if (!x.second.equals(y.second) && x.second.sharesAnyWith(y.second)) {
+        return [x.first, x.second, y.first];
+    }
+    return null;
+}
+
+

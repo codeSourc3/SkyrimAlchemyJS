@@ -144,6 +144,15 @@ export class Ingredient {
 
     /**
      * 
+     * @param {Object} object 
+     * @returns {boolean}
+     */
+    equals(object) {
+        return object instanceof Ingredient && object.name === this.name && object.effects.every(e => this.hasEffect(e));
+    }
+
+    /**
+     * 
      * @param {Ingredient} otherIngredient - The ingredient to determine if any effects match.
      * @returns {boolean}
      */

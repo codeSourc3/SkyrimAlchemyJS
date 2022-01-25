@@ -1,6 +1,6 @@
 import { Ingredient, parseIngredientsJSON } from "../../alchemy/ingredients.js";
 import { DB_NAME, VERSION, ING_OBJ_STORE, LOGGING_LEVEL } from "../config.js";
-import { createPotionBuilder as makePotion } from "../../alchemy/alchemy.js";
+import { createPotionBuilder as makePotion, findPossibleCombinations } from "../../alchemy/alchemy.js";
 import { openDB, insertEntry, filterIngredientsByEffect, getAllIngredientNames, filterByDLC, getIngredient } from '../db/db.js';
 import {buildCalculateResultMessage, buildErrorMessage, buildPopulateResultMessage, buildSearchResultMessage, buildWorkerReadyMessage} from '../messaging.js';
 import { logger, setLogLevel } from "../logger.js";
@@ -109,19 +109,15 @@ function sortingOrderToBool(order) {
 async function processIngredients(db, { names, skill, alchemist, hasBenefactor, hasPhysician, hasPoisoner, fortifyAlchemy }) {
     const nrIngredients = names.length;
     const potionMaker = makePotion(skill, alchemist, hasPhysician, hasBenefactor, hasPoisoner, fortifyAlchemy);
-    const [firstName, secondName, thirdName] = names;
+    
     if (nrIngredients > 1) {
-        const first = await getIngredient(db, firstName);
-        const second = await getIngredient(db, secondName);
-        let results = [];
-        if (thirdName) {
-            const third = await getIngredient(db, thirdName);
-            results = first.mixThree(second, third);
-        } else {
-            results = first.mixTwo(second);
+        const ingredients = await Promise.all(names.map(name => getIngredient(db, name)));
+        let results = findPossibleCombinations(ingredients);
+        console.debug('Possible combinations: ', results);
+        for (let [key, effects] of results) {
+            results.set(key, potionMaker(effects));
         }
-        const potion = potionMaker(results);
-        postMessage(buildCalculateResultMessage(potion));
+        postMessage(buildCalculateResultMessage(results));
     } else {
         postMessage(buildErrorMessage('Needs more than one ingredient'));
     }

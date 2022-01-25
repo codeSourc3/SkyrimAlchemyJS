@@ -87,19 +87,19 @@ function onErrorMessage({detail: {payload: message}}) {
 
 /**
  * 
- * @param {CustomEvent<{payload: {name: string, didSucceed: boolean, effects?: string, gold?: number}}>} payload 
+ * @param {CustomEvent<{payload: Map<string, import('./alchemy/alchemy.js').Potion> }>} payload 
  */
 function onCalculateResult({detail: {payload}}) {
     console.info('Worker calculation results: ', payload);
     resultList.replaceChildren();
-    displayPotion(payload);
+    payload.forEach((item, combination) => displayPotion(item, combination));
 }
 
 /**
  * Displays the given potion. Does not remove any children from the parent.
  * @param {{name:string, didSucceed:boolean, effects?:string, gold?:number}} param0 
  */
-function displayPotion({name, didSucceed, effects, gold}) {
+function displayPotion({name, didSucceed, effects, gold}, combination='') {
     const frag = document.createDocumentFragment();
     // create name paragraph.
     const potionName = tag('h2', {
@@ -117,6 +117,11 @@ function displayPotion({name, didSucceed, effects, gold}) {
             content: `Gold: ${gold}`
         });
         frag.appendChild(potionSellPrice);
+
+        const recipe = tag('i', {
+            content: `Recipe: ${combination}`
+        });
+        frag.appendChild(recipe);
     }
     resultList.appendChild(frag);
 }
