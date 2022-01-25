@@ -1,28 +1,42 @@
-import { createCalculatePotionResult, createWorkerError, createPopulateIngredientList, createIngredientSearchResult, createWorkerReady, WORKER_READY, INGREDIENT_SEARCH_RESULT, POPULATE_INGREDIENT_LIST, CALCULATE_POTION_RESULT, WORKER_ERROR } from "../events/client-side-events.js";
+import { WORKER_READY, INGREDIENT_SEARCH_RESULT, POPULATE_INGREDIENT_LIST, CALCULATE_POTION_RESULT, WORKER_ERROR, triggerWorkerReady, triggerSearchEvt, triggerPopulate, triggerCalculatePotionEvt, triggerWorkerError } from "../events/client-side-events.js";
 import { buildCalculateMessage, buildPopulateMessage, buildSearchMessage } from "../messaging.js";
 
 const messageHandlerSwitch = {
     worker: null,
     ['worker-ready']() {
-        const workerReady = createWorkerReady();
-        this.worker.dispatchEvent(workerReady);
+        triggerWorkerReady(this.worker);
     },
+    /**
+     * 
+     * @param {string[]} payload 
+     */
     ['search-result'](payload) {
-        const ingredientSearchResult = createIngredientSearchResult(payload);
-        this.worker.dispatchEvent(ingredientSearchResult);
+        console.assert(Array.isArray(payload) && payload.every(item => typeof item === 'string'), 'Message handler switch docs need updating.');
+        triggerSearchEvt(this.worker, payload);
     },
+    /**
+     * 
+     * @param {string[]} payload 
+     */
     ['populate-result'](payload) {
-        const populateEvt = createPopulateIngredientList(payload);
-        this.worker.dispatchEvent(populateEvt);
+        console.assert(Array.isArray(payload) && payload.every(item => typeof item === 'string'), 'Message handler switch docs need updating.');
+        triggerPopulate(this.worker, payload);
     },
+    /**
+     * 
+     * @param {import("../../alchemy/alchemy.js").Potion} payload 
+     */
     ['calculate-result'](payload)  {
-        const calculateResult = createCalculatePotionResult(payload);
-        this.worker.dispatchEvent(calculateResult);
+        console.dir(payload);
+        triggerCalculatePotionEvt(this.worker, payload);
     },
-    ['error'](payload)  {
-        const errorResult = createWorkerError(payload);
-        this.worker.dispatchEvent(errorResult);
+    ['worker-error'](payload)  {
+        triggerWorkerError(this.worker, payload);
     },
+    /**
+     * 
+     * @param {string} type - The message type.
+     */
     ['default'](type) {
         this.onUnknownMessage(type);
     },
@@ -31,13 +45,29 @@ const messageHandlerSwitch = {
 
 export class AlchemyWorker {
     #worker
+    /**
+     * Creates a worker from the specified path and attaches an event listener
+     * to it.
+     * 
+     * @param {string | URL} aPath - The relative path to the worker script from the caller.
+     */
     constructor(aPath) {
         this.#worker = new Worker(aPath, {type: 'module', name: 'mixer'});
+        /**
+         * Called on an unknown message being sent.
+         * 
+         * @param {string} type - The message type sent to the worker.
+         * @returns {void}
+         */
         this.onUnknownMessage = (type) => console.debug(`${type} is not a valid message type.`);
         messageHandlerSwitch.worker = this.#worker;
         messageHandlerSwitch['calculate-result'].bind(this.#worker);
         messageHandlerSwitch['populate-result'].bind(this.#worker);
         messageHandlerSwitch.onUnknownMessage = this.onUnknownMessage;
+        /**
+         * 
+         * @param {MessageEvent<any>} evt - The message event sent to the worker.
+         */
         const messageHandler = (evt) => {
             const {type, payload} = evt.data;
             let strType = String(type);
@@ -87,9 +117,9 @@ export class AlchemyWorker {
     /**
      * Sends a search message to the worker. This is used to filter
      * ingredients.
-     * @param {string} effectSearchTerm 
-     * @param {string} effectOrder 
-     * @param {string[]} dlc 
+     * @param {string} effectSearchTerm - The effect search term.
+     * @param {"asc" | "desc"} effectOrder - The effect search order. "asc" | "desc"
+     * @param {string[]} dlc - An array of DLC to include. Should always have "Vanilla".
      */
     sendSearchMessage(effectSearchTerm, effectOrder, dlc) {
         const searchMsg = buildSearchMessage(effectSearchTerm, effectOrder, dlc);
@@ -106,13 +136,13 @@ export class AlchemyWorker {
 
     /**
      * Sends a calculate message to the worker.
-     * @param {string[]} ingredientNames 
-     * @param {number} skill 
-     * @param {number} alchemist 
-     * @param {boolean} hasPhysician 
-     * @param {boolean} hasBenefactor 
-     * @param {boolean} hasPoisoner 
-     * @param {number} fortifyAlchemy 
+     * @param {string[]} ingredientNames - A case-sensitive array of ingredient names.
+     * @param {number} skill - A positive integer higher than 15.
+     * @param {number} alchemist - An integer between 0 and 5 inclusive
+     * @param {boolean} hasPhysician - Whether or not the player has the Physician perk or not.
+     * @param {boolean} hasBenefactor - Whether or not the player has the Benefactor perk or not.
+     * @param {boolean} hasPoisoner - Whether or not the player has the Poisoner perk or not.
+     * @param {number} fortifyAlchemy - The total percentage from all equipment enchanted with Fortify Alchemy.
      */
     sendCalculateMessage(ingredientNames, skill=15, alchemist=0, hasPhysician=false, hasBenefactor=false, hasPoisoner=false, fortifyAlchemy=0) {
         const calculateMsg = buildCalculateMessage(ingredientNames, skill, alchemist, hasPhysician, hasBenefactor, hasPoisoner, fortifyAlchemy);

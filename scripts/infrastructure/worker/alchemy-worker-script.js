@@ -138,7 +138,7 @@ function dbCloseHandler(event) {
 /**
  * Builds an ingredient data store.
  * @param {IDBVersionChangeEvent} event 
- * @param {any} data
+ * 
  */
 function buildStructure(event) {
     /**

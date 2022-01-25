@@ -25,10 +25,11 @@ function createEventFactory(type, {bubbles = false, cancelable = false, composed
 }
 
 /**
- * Dispatches an event using the target.
+ * Dispatches an event using the target. If the detail is null it fires a normal Event,
+ * else it dispatches a CustomEvent.
  * 
  * @param {string} eventName the name of the event.
- * @param {HTMLElement} target the event target to dispatch the event.
+ * @param {EventTarget} target the event target to dispatch the event.
  * @param {object} detail the data to transmit.
  * @param {CustomEventInit | EventInit} options the options of the event. 
  * @returns {boolean}
@@ -62,21 +63,46 @@ const POPULATE_INGREDIENT_LIST = 'populate-ingredient-list';
 const INGREDIENT_SEARCH_RESULT = 'ingredient-search-result';
 const CALCULATE_POTION_RESULT = 'calculate-potion-result';
 const WORKER_ERROR = 'worker-error';
-const workerReadyFactory = createEventFactory(WORKER_READY, {bubbles: true});
+
+/**
+ * 
+ * @param {EventTarget} target 
+ * @returns {boolean}
+ */
 const triggerWorkerReady = (target) => triggerEvent(WORKER_READY, target, null, {bubbles: true});
 
+/**
+ * 
+ * @param {EventTarget} target 
+ * @param {string[]} detail 
+ * @returns {boolean}
+ */
+const triggerPopulate = (target, detail) => triggerEvent(POPULATE_INGREDIENT_LIST, target, {payload: detail}, {bubbles: true});
 
-const populateIngredientListFactory = createCustomEventFactory(POPULATE_INGREDIENT_LIST, {bubbles: true});
-const triggerPopulate = (target, detail) => triggerEvent(POPULATE_INGREDIENT_LIST, target, detail, {bubbles: true});
 
-const ingredientSearchFactory = createCustomEventFactory(INGREDIENT_SEARCH_RESULT, {bubbles: true, cancelable: true});
-const triggerSearchEvt = (target, detail) => triggerEvent(INGREDIENT_SEARCH_RESULT, target, detail, {bubbles: true, cancelable: true});
+/**
+ * 
+ * @param {EventTarget} target 
+ * @param {import("../db/db").IngredientEntry[]} detail 
+ * @returns {boolean}
+ */
+const triggerSearchEvt = (target, detail) => triggerEvent(INGREDIENT_SEARCH_RESULT, target, {payload: detail}, {bubbles: true, cancelable: true});
 
-const calculatePotionFactory = createCustomEventFactory(CALCULATE_POTION_RESULT, {bubbles: true, cancelable: true});
-const triggerCalculatePotionEvt = (target, detail) => triggerEvent(CALCULATE_POTION_RESULT, target, detail, {bubbles: true, cancelable: true});
+/**
+ * 
+ * @param {EventTarget} target 
+ * @param {import("../../alchemy/alchemy").Potion} detail 
+ * @returns {boolean}
+ */
+const triggerCalculatePotionEvt = (target, detail) => triggerEvent(CALCULATE_POTION_RESULT, target, {payload: detail}, {bubbles: true, cancelable: true});
 
-const workerErrorFactory = createCustomEventFactory(WORKER_ERROR, {bubbles: true, cancelable: true});
-const triggerWorkerError = (target, detail) => triggerEvent(WORKER_ERROR, target, detail, {bubbles: true, cancelable: true});
+/**
+ * 
+ * @param {EventTarget} target 
+ * @param {string} detail - The error message.
+ * @returns {boolean}
+ */
+const triggerWorkerError = (target, detail) => triggerEvent(WORKER_ERROR, target, {payload: detail}, {bubbles: true, cancelable: true});
 
 // Event factories for choosing ingredients
 const LIST_CLEARED = 'list-cleared';
@@ -87,6 +113,7 @@ const ingredientSelectedFactory = createCustomEventFactory(INGREDIENT_SELECTED, 
 const ingredientDeselectedFactory = createCustomEventFactory(INGREDIENT_DESELECTED, {bubbles: true, cancelable: true});
 const maxIngredientsSelectedFactory = createEventFactory(MAX_INGREDIENTS_SELECTED, {bubbles: true});
 const listClearedFactory = createCustomEventFactory(LIST_CLEARED, {bubbles: true, cancelable: true});
+
 /**
  * Creates an event of type "ingredient-selected".
  * 
@@ -95,26 +122,6 @@ const listClearedFactory = createCustomEventFactory(LIST_CLEARED, {bubbles: true
  */
 function createIngredientSelected(ingredientName) {
     return ingredientSelectedFactory({ingredientName});
-}
-
-function createWorkerReady() {
-    return workerReadyFactory();
-}
-
-function createPopulateIngredientList(payload) {
-    return populateIngredientListFactory({payload: payload});
-}
-
-function createIngredientSearchResult(payload) {
-    return ingredientSearchFactory({payload});
-}
-
-function createCalculatePotionResult(payload) {
-    return calculatePotionFactory({payload});
-}
-
-function createWorkerError(payload) {
-    return workerErrorFactory({payload});
 }
 
 /**
@@ -142,12 +149,7 @@ export {
     createIngredientSelected, 
     createIngredientDeselected, 
     createMaxIngredientsSelected,
-    createWorkerReady,
-    createPopulateIngredientList,
-    createIngredientSearchResult,
-    createCalculatePotionResult,
     createListCleared,
-    createWorkerError,
     dispatchEventAsync,
     MAX_INGREDIENTS_SELECTED,
     INGREDIENT_DESELECTED,
@@ -158,5 +160,10 @@ export {
     CALCULATE_POTION_RESULT,
     WORKER_ERROR,
     LIST_CLEARED,
-    triggerEvent
+    triggerEvent,
+    triggerWorkerReady,
+    triggerWorkerError,
+    triggerSearchEvt,
+    triggerPopulate,
+    triggerCalculatePotionEvt
 };
