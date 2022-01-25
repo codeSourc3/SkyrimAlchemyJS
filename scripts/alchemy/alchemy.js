@@ -239,6 +239,14 @@ class Pair {
         return [this.first, this.second];
     }
 
+    equals(object, predicate) {
+        if (object instanceof Pair) return false;
+        if (this !== object) return false;
+        if (!predicate(this.first, object.first) || !predicate(this.first, object.second)) return false;
+        if (!predicate(this.second, object.first) || !predicate(this.second, object.second)) return false;
+        return true;
+    }
+
     toString() {
         return `${this.first}, ${this.second}`;
     }
@@ -247,76 +255,47 @@ class Pair {
 const ingredientEffectCache = new Map();
 
 /**
- * Finds all possible ingredient combinations.
+ * Finds all possible ingredient combinations. Only handles 3 ingredients right now.
  * @param {Ingredient[]} ingredients 
  * @returns {Map<string, Effect[]>}
  */
 export function findPossibleCombinations(ingredients) {
     const recipes = new Map();
+    if (ingredients.length > 3) throw new Error('This method only works with up to 3 ingredients.');
+    // Can't have the same effect more than once!
     // Find all pairs that share an effect.
-    let pairs = [];
-    for (let i of ingredients) {
-        for (let j of ingredients) {
-            if (i.name === j.name) continue;
-            if (i.effects.some(e => j.hasEffect(e))) {
-                pairs.push(new Pair(i, j));
-            }
-        }
+    const [first, second, third, ...theRest] = ingredients;
+    if (ingredients.length === 3) {
+        const effects = first.mixThree(second, third);
+        recipes.set(hashDynamic(ingredients), effects);
+        const match2 = second.mixTwo(third);
+        const match3 = third.mixTwo(first);
+        if (match2.length > 0) recipes.set(hashStatic(second, third), match2);
+        if (match3.length > 0) recipes.set(hashStatic(third, first), match3);
     }
 
+    const match1 = first.mixTwo(second);
     
-
-    // Add 2-ingredient recipes.
-    for (let {first, second} of pairs) {
-        const effects = first.mixTwo(second);
-        recipes.set(hash(first, second), effects);
-    }
-
-    // Add 3-ingredient recipes.
-    for (let x of pairs) {
-        for (let y of pairs) {
-            if (x.name === y.name) continue;
-            console.debug(`${x} - ${y}`);
-            let ingredients = findTriplets(x, y);
-            if (ingredients === null) continue;
-            console.debug(`3 Ingredient recipes: ${ingredients}`);
-            let effects = ingredients[0].mixThree(ingredients[1], ingredients[2]);
-            recipes.set(hash(...ingredients), effects);
-        }
-    }
+    if (match1.length > 0) recipes.set(hashStatic(first, second), match1);
+    
 
     return recipes;
 }
 
-/**
- * 
- * @param  {...Ingredient} ingredients 
- * @returns {string}
- */
-function hash(...ingredients) {
-    return ingredients.map(String).sort().join();
-}
+
+
 
 /**
  * 
- * @param {Pair<Ingredient>} x 
- * @param {Pair<Ingredient>} y 
- * @returns {Ingredient[] | null}
+ * @param  {Ingredient[]} ingredients 
+ * @returns {string}
  */
-function findTriplets(x, y) {
-    if (!x.first.equals(y.first) && x.first.sharesAnyWith(y.first)) {
-        return [x.first, y.second, y.second];
-    }
-    if (!x.first.equals(y.second) && x.first.sharesAnyWith(y.second)) {
-        return [x.first, x.second, y.first];
-    }
-    if (!x.second.equals(y.first) && x.second.sharesAnyWith(y.first)) {
-        return [x.first, x.second, y.second];
-    }
-    if (!x.second.equals(y.second) && x.second.sharesAnyWith(y.second)) {
-        return [x.first, x.second, y.first];
-    }
-    return null;
+function hashDynamic(ingredients) {
+    return ingredients.map(String).sort().join();
+}
+
+function hashStatic(...elements) {
+    return elements.map(String).sort().join();
 }
 
 
