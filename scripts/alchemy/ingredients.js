@@ -33,6 +33,14 @@ export class Effect {
     get calculatedDuration() {
         return this.duration.baseDur * this.duration.multiplier;
     }
+
+    /**
+     * @override
+     * @returns {string}
+     */
+    toString() {
+        return this.name;
+    }
 }
 
 
@@ -130,6 +138,10 @@ export class Ingredient {
     hasEffect(otherEffect) {
         let effectNames = this.effects.map(effect => effect.name);
         return effectNames.includes(otherEffect.name);
+    }
+
+    toString() {
+        return this.name;
     }
 
 }
