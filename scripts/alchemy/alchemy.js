@@ -2,6 +2,14 @@ import { restoreHealth, restoreStamina, restoreMagicka } from './effects.js';
 import { Effect } from './ingredients.js';
 import { logger as console } from '../infrastructure/logger.js';
 
+/**
+ * @typedef Potion
+ * @property {string} name - The name of the potion.
+ * @property {boolean} didSucceed - Whether or not the potion succeeded.
+ * @property {string} effects - The description of the potion.
+ * @property {number} gold - The gold cost of the potion.
+ */
+
 export const MAX_CHOSEN_INGREDIENTS = 3;
 export const MIN_CHOSEN_INGREDIENTS = 2;
 
@@ -138,8 +146,10 @@ function calcMagnitudeDurationCost(effect, alchemySkill = 15, alchemistLevel = 0
 }
 
 /**
+ * Finds the effect with the strongest cost.
  * 
  * @param {Effect[]} effects 
+ * @returns {Effect}
  */
 function findStrongestEffect(effects) {
     let strongest = effects[0];
@@ -162,7 +172,7 @@ function findStrongestEffect(effects) {
  * @param {boolean} hasBenefactorPerk 
  * @param {boolean} hasPoisonerPerk 
  * @param {number} fortifyAlchemy 
- * @returns {(effects: Effect[]) => {name: string, didSucceed: boolean, effects?: string, gold?: number}}
+ * @returns {(effects: Effect[]) => Potion}
  */
 export function createPotionBuilder(alchemySkill = 15, alchemistLevel = 0, hasPhysicianPerk = false, hasBenefactorPerk = false, hasPoisonerPerk = false, fortifyAlchemy = 0) {
     return function (effects) {

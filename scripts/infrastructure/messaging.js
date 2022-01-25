@@ -1,8 +1,20 @@
 /** @module messaging */
+
 /**
+ * @template T
  * @typedef Message
  * @property {string} type the type of message.
- * @property {Object} payload the payload to send to and from the worker.
+ * @property {T} payload the payload to send to and from the worker.
+ */
+
+/**
+ * @typedef {Message<string>} WorkerReadyMessage
+ * 
+ */
+
+/**
+ * @typedef {Message<null>} PopulateMessage
+ * 
  */
 
 /**
@@ -10,6 +22,39 @@
  * @property {string} effectSearchTerm
  * @property {string} effectOrder
  * @property {string[]} dlc
+ */
+
+/**
+ * @typedef {Message<string[]>} PopulateResultMessage
+ * 
+ */
+
+/** 
+ * @typedef {Message<import("./db/db").IngredientEntry[]} SearchResultMessage
+ * 
+ */
+
+/** 
+ * @typedef CalculateMessagePayload
+ * @property {string[]} ingredientNames 
+ * @property {number} skill 
+ * @property {number} alchemist 
+ * @property {boolean} hasPhysician 
+ * @property {boolean} hasBenefactor 
+ * @property {boolean} hasPoisoner 
+ * @property {number} fortifyAlchemy 
+ */
+
+/**
+ * @typedef {Message<CalculateMessagePayload>} CalculateMessage
+ * 
+ */
+
+
+
+/** 
+ * @typedef {Message<import("../alchemy/alchemy").Potion>} CalculateResultMessage
+ * 
  */
 
 /**
@@ -55,7 +100,7 @@ function buildResultMessage(requestPrefix, result={}) {
  * @param {string} effectSearchTerm 
  * @param {string} effectOrder 
  * @param {string[]} dlc
- * @returns 
+ * @returns {SearchMessage}
  */
 export function buildSearchMessage(effectSearchTerm, effectOrder, dlc) {
     const payload = {
@@ -67,11 +112,22 @@ export function buildSearchMessage(effectSearchTerm, effectOrder, dlc) {
     return message;
 }
 
+/**
+ * 
+ * @param {import("./db/db.js").IngredientEntry[]} results 
+ * @returns {SearchResultMessage}
+ */
 export function buildSearchResultMessage(results) {
     const message = buildResultMessage('search', results);
     return message;
 }
 
+/**
+ * 
+ * @param {string} workerName 
+ * @param {number} timestamp
+ * @returns {WorkerReadyMessage}
+ */
 export function buildWorkerReadyMessage(workerName, timestamp=performance.now()) {
     const payload = {
         timestamp: timestamp,
@@ -83,12 +139,20 @@ export function buildWorkerReadyMessage(workerName, timestamp=performance.now())
 
 
 
-
+/**
+ * 
+ * @param {string[]} populateResult 
+ * @returns {PopulateResultMessage}
+ */
 export function buildPopulateResultMessage(populateResult) {
     const message = buildResultMessage('populate', populateResult);
     return message;
 }
 
+/**
+ * 
+ * @returns {PopulateMessage}
+ */
 export function buildPopulateMessage() {
     return buildMessage('populate');
 }
@@ -102,7 +166,7 @@ export function buildPopulateMessage() {
  * @param {boolean} hasBenefactor 
  * @param {boolean} hasPoisoner 
  * @param {number} fortifyAlchemy 
- * @returns {Message}
+ * @returns {CalculateMessage}
  */
 export function buildCalculateMessage(ingredientNames, skill=15, alchemist=0, hasPhysician=false, hasBenefactor=false, hasPoisoner=false, fortifyAlchemy=0) {
     const payload = {
@@ -118,6 +182,11 @@ export function buildCalculateMessage(ingredientNames, skill=15, alchemist=0, ha
     return message;
 }
 
+/**
+ * 
+ * @param {import("../alchemy/alchemy").Potion} potion 
+ * @returns {CalculateResultMessage}
+ */
 export function buildCalculateResultMessage(potion) {
     const message = buildResultMessage('calculate', potion);
     return message;

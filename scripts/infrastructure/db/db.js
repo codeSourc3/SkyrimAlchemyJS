@@ -155,11 +155,16 @@ export function getAllIngredients(db) {
 /**
  * 
  * @param {IDBDatabase} db 
+ * @returns {Promise<string[]>}
  */
 export function getAllIngredientNames(db) {
     const tx = db.transaction(ING_OBJ_STORE);
     const ingredientStore = tx.objectStore(ING_OBJ_STORE);
-    const getIngredients = ingredientStore.getAll();    
+    /** @type {IDBRequest<Ingredient[]>} */
+    const getIngredients = ingredientStore.getAll(); 
+    /**
+     * @type {Promise<string[]>}
+     */   
     const getIngredientsPromise = new Promise(resolve => {
         getIngredients.onsuccess = () => resolve(getIngredients.result.map(entry => entry.name));
     });
