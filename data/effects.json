@@ -9,16 +9,6 @@
         "variableDuration": false,
         "harmful": false
     },
-    "curePoison": {
-        "name": "Cure Poison",
-        "description": "Stops poison's continuing effects.",
-        "baseCost": 0.2,
-        "baseMag": 2,
-        "baseDur": 0,
-        "variableMagnitude": true,
-        "variableDuration": false,
-        "harmful": false
-    },
     "damageHealth": {
         "name": "Damage Health",
         "description": "Causes <mag> points of poison damage.",
