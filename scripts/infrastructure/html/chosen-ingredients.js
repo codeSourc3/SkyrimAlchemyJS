@@ -3,44 +3,62 @@ import { createListItem } from "./html.js";
 import { logger as console} from '../../infrastructure/logger.js';
 
 /**
- * 
+ * The ingredients the user has chosen. 
  */
 class ChosenIngredients {
     #list;
-    #selected;
+    #chosen;
 
     /**
+     * Attaches itself as an event listener for "click" events upon
+     * being created.
      * 
-     * @param {HTMLUListElement} listElement 
-     * @param {Set<string>} selectedSet 
+     * @param {HTMLUListElement} listElement - The HTML list element to attach to.
+     * @param {Set<string>} selectedSet - The Set to store chosen values on. Creates a new Set by default.
      */
     constructor(listElement, selectedSet = new Set()) {
         this.#list = listElement;
-        this.#selected = selectedSet;
+        this.#chosen = selectedSet;
         this.#list.addEventListener('click', this);
     }
 
     /**
-     * Checks if said ingredient has been selected.
+     * Checks if ingredientName has been selected.
      * @param {string} ingredientName the name of the ingredient.
-     * @returns {boolean}
+     * @returns {boolean} True if ingredient is chosen.
      */
     hasIngredient(ingredientName) {
-        return this.#selected.has(ingredientName);
+        return this.#chosen.has(ingredientName);
     }
 
     /**
-     * Adds the ingredient to 
-     * @param {string} ingredientName 
+     * Adds the ingredient to chosen ingredients and adds to HTML list.
+     * - Does nothing if the ingredientName is already present.
+     * 
+     * @param {string} ingredientName - The case-sensitive name of the ingredient.
      */
     addIngredient(ingredientName) {
-        //
-        this.#selected.add(ingredientName);
+        // Check that ingredientName is a string.
+        if (typeof ingredientName !== 'string') {
+            throw new TypeError(`ingredientName must be a string, not ${typeof ingredientName}`);
+        }
+
+        // check that ingredient hasn't been added already and isn't empty.
+        if (this.#chosen.has(ingredientName) && ingredientName.length === 0) return;
+
+        // Adds to chosen ingredients and adds to HTML list.
+        this.#chosen.add(ingredientName);
         this.addToList(ingredientName);
     }
 
+    /**
+     * Attempts to remove the ingredient name from the chosen ingredients.
+     * - If the ingredientName was actually removed then remove from the HTML list.
+     * 
+     * @param {string} ingredientName The case-sensitive name of the ingredient to remove.
+     */
     removeIngredient(ingredientName) {
-        let didRemove = this.#selected.delete(ingredientName);
+        let didRemove = this.#chosen.delete(ingredientName);
         if (didRemove) {
             this.removeFromList(ingredientName);
         }
@@ -74,7 +92,7 @@ class ChosenIngredients {
     }
 
     /**
-     * Adds all of the ingredients to the HTML list.
+     * Adds all of the ingredients to the HTML list and chosen ingredients.
      * @param {string[]} ingredientNames 
      */
     addAll(ingredientNames) {
@@ -83,6 +101,12 @@ class ChosenIngredients {
         }
     }
 
+    /**
+     * 
+     * @param {Object} clearOptions - The options for clearing.
+     * @param {boolean} clearOptions.retainSelected Retains the chosen ingredients 
+     * while clearing the HTML list.
+     */
     clear({retainSelected=true}={}) {
         while (this.#list.firstElementChild) {
             this.#list.removeChild(this.#list.firstElementChild);
@@ -90,17 +114,18 @@ class ChosenIngredients {
         let elementsToKeep = [];
         if (retainSelected) {
             console.debug('Retaining selected');
-            const currentElements = Array.from(this.#selected.values());
+            const currentElements = Array.from(this.#chosen.values());
             console.debug('Current elements', currentElements);
             elementsToKeep = elementsToKeep.concat(currentElements);
             console.debug('Elements to keep: ', elementsToKeep);
         } else {
-            this.#selected.clear();
+            this.#chosen.clear();
         }
         triggerListCleared(this.#list, elementsToKeep);
     }
 
     /**
+     * Handles clicks on the HTML list and fires "ingredient-deselected".
      * 
      * @param {PointerEvent} evt 
      */
