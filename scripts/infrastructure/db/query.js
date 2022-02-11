@@ -1,5 +1,5 @@
 import { logger } from "../logger.js";
-
+import { toTitleCase } from "../../strings.js";
 
 const Direction = Object.freeze({
     PREV: 'prev',
@@ -48,7 +48,7 @@ export function startsWith(objStore, prefix, direction, onFound, onFinish) {
  * @param {onFinishCb} onFinish 
  */
 export function equals(objStore, str, direction, onFound, onFinish) {
-    const cursorReq = objStore.openCursor();
+    const cursorReq = objStore.openCursor(null, direction);
     cursorReq.addEventListener('success', e => {
         const cursor = cursorReq.result;
         if (cursor) {
@@ -75,14 +75,8 @@ export function equals(objStore, str, direction, onFound, onFinish) {
  * @returns {compareFn}
  */
 function createDBComparator(direction=Direction.NEXT) {
-    if (direction === Direction.PREV) {
-        return (a, b) => {
-            return indexedDB.cmp(b, a);
-        };
-    }
-    // return 
     return (a, b) => {
-        return indexedDB.cmp(a, b);
+        return globalThis.indexedDB.cmp(a, b) * (direction === Direction.PREV ? -1 : 1);
     };
 }
 
@@ -132,21 +126,7 @@ export function equalsAnyOf(index, keysToFind, direction, onFound, onFinish) {
     })
 }
 
-/**
- * Capitalizes the first letter of every word in the provided string.
- * 
- * @param {string} string the string to turn to title case.
- * @returns 
- */
-function toTitleCase(string) {
-    if (typeof string !== 'string') {
-        throw new TypeError(`toTitleCase expected ${string} to be a string, not a ${typeof string}.`);
-    }
-    const regex = /\w\S*/g;
-    return string.replace(regex, txt => {
-        return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
-    });
-}
+
 
 
 

@@ -72,11 +72,15 @@ async function filterIngredients(db, messagePayload) {
     } else {
         const byEffect = filterIngredientsByEffect(db, effectSearchTerm, sortingOrderToBool(effectOrder));
         appliedFilters.push(byEffect);
-        console.info('Getting by Effect');
+        console.info(`Getting by Effect ${effectSearchTerm}`);
     }
     const byDLC = filterByDLC(db, dlc);
     appliedFilters.push(byDLC);
     let unprocessedResults = await Promise.all(appliedFilters);
+    console.groupCollapsed('unprocessed');
+    console.debug(effectSearchTerm === 'All' ? 'All Ingredients': `By ${effectSearchTerm}`, unprocessedResults[0]);
+    console.debug(`By DLC`, unprocessedResults[1]);
+    console.groupEnd();
     const comparator = createComparator(!sortingOrderToBool(effectOrder));
     searchResults = toArray(intersection(toSet(unprocessedResults[0]), toSet(unprocessedResults[1]))).sort(comparator);
     console.debug('Filters: ', searchResults);
