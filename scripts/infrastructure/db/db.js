@@ -1,3 +1,4 @@
+// @ts-check
 import { Ingredient } from "../../alchemy/ingredients.js";
 import { ING_OBJ_STORE } from "../config.js";
 import {equals, equalsAnyOf, startsWith} from './query.js'
@@ -27,8 +28,11 @@ import { logger } from "../logger.js";
 export function openDB(dbName, upgradeHandler,version=1) {
     return new Promise((resolve, reject) => {
         const request = globalThis.indexedDB.open(dbName, version);
-        request.onsuccess = (ev) => resolve(ev.target.result);
-        request.onerror = ev => reject(ev.target.errorCode);
+        request.onsuccess = () => resolve(request.result);
+        request.onerror = (ev) => {
+            ev.stopPropagation();
+            reject(request.error);
+        }
         request.onupgradeneeded = upgradeHandler;
     });
 }
@@ -38,7 +42,7 @@ export function openDB(dbName, upgradeHandler,version=1) {
 /**
  * Opens and closes a transaction to get an ingredient.
  * @param {IDBDatabase} db 
- * @param {string} names
+ * @param {string} name
  * @returns {Promise<Ingredient>}
  */
 export function getIngredient(db, name) {

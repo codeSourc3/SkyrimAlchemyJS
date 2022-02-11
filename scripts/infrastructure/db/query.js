@@ -34,13 +34,14 @@ export function startsWith(objStore, prefix, direction, onFound, onFinish) {
     };
     cursorReq.onerror = err => {
         logger.timeEnd('startsWith');
+        err.stopPropagation();
         onFinish(cursorReq.error);
     };
 }
 
 /**
  * 
- * @param {IDBObjectStore} objStore 
+ * @param {IDBObjectStore | IDBIndex} objStore 
  * @param {string} str 
  * @param {string} direction 
  * @param {onFoundCb} onFound 
@@ -62,7 +63,7 @@ export function equals(objStore, str, direction, onFound, onFinish) {
     });
 
     cursorReq.addEventListener('error', e => {
-        e.preventDefault();
+        e.stopPropagation();
         const error = cursorReq.error;
         onFinish(error);
     });
@@ -91,7 +92,7 @@ function simpleComparator(a, b) {
 
 /**
  * 
- * @param {IDBObjectStore} index 
+ * @param {IDBObjectStore | IDBIndex} index 
  * @param {any[]} keysToFind 
  * @param {string} direction 
  * @param {onFoundCb} onFound 
@@ -125,7 +126,7 @@ export function equalsAnyOf(index, keysToFind, direction, onFound, onFinish) {
         }
     });
     cursorReq.addEventListener('error', e => {
-        e.preventDefault();
+        e.stopPropagation();
         const error = cursorReq.error;
         onFinish(error);
     })
