@@ -6,6 +6,7 @@ import { IngredientList } from './infrastructure/html/ingredient-list.js';
 import { ChosenIngredients } from './infrastructure/html/chosen-ingredients.js';
 import { logger, setLogLevel } from './infrastructure/logger.js';
 import { LOGGING_LEVEL } from './infrastructure/config.js';
+import { formatListLocalized } from './infrastructure/strings.js';
 
 const console = logger;
 document.addEventListener('DOMContentLoaded', e => {
@@ -156,7 +157,7 @@ function onSearchResult({detail: {payload}}) {
  * @returns {string}
  */
 function stringifyQuery(effectToSearch, effectOrder, dlc) {
-    return `Showing ingredients sharing "${effectToSearch}", sorted by ${effectOrder}, and part of ${dlc}`;
+    return `Showing ingredients sharing "${effectToSearch}", sorted by ${effectOrder}, and part of ${formatListLocalized(dlc)}`;
 }
 
 /**

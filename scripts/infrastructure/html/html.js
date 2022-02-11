@@ -14,9 +14,8 @@ export function tag(tagName, {content='', classes=[], id='', parent, children=[]
 }
 
 export class DomCache {
-    constructor() {
-        this._elMap = new Map();
-    }
+    #idMap = new Map();
+    
 
     /**
      * 
@@ -24,11 +23,11 @@ export class DomCache {
      * @returns {HTMLElement}
      */
     id(stringId) {
-        if (this._elMap.has(stringId)) {
-            return this._elMap.get(stringId);
+        if (this.#idMap.has(stringId)) {
+            return this.#idMap.get(stringId);
         } else {
             const el = document.getElementById(stringId);
-            this._elMap.set(stringId, el);
+            this.#idMap.set(stringId, el);
             return el;
         }
     }
@@ -53,6 +52,7 @@ export function createList(elements=[]) {
 
 /**
  * Creates an unconnected list item element
+ * 
  * @param {string} textContent the text node to place inside.
  * @returns {HTMLLIElement} an unattached list item element.
  */
@@ -64,6 +64,7 @@ export function createListItem(textContent = '') {
 
 /**
  * 
+ * @deprecated
  * @param {HTMLElement} parent 
  */
 export function removeAllChildren(parent) {

@@ -1,5 +1,5 @@
 import { logger } from "../logger.js";
-import { toTitleCase } from "../../strings.js";
+import { toTitleCase } from "../strings.js";
 
 const Direction = Object.freeze({
     PREV: 'prev',
