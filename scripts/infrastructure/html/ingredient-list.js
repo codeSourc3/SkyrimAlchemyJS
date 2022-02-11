@@ -1,9 +1,11 @@
 import { MAX_CHOSEN_INGREDIENTS } from "../../alchemy/alchemy.js";
 import { triggerIngredientDeselected, triggerIngredientSelected, triggerListCleared, triggerMaxSelected } from "../events/client-side-events.js";
-import { createListItem } from "./html.js";
+import { createListItem, tag } from "./html.js";
 
 
-
+/**
+ * A list of ingredients. Remembers what the user selected even if cleared.
+ */
 class IngredientList {
     #currentSelectedIngredients
     #ulList
@@ -28,27 +30,23 @@ class IngredientList {
         return this.#currentSelectedIngredients;
     }
 
-    clear({retainSelected=true}={}) {
-        while (this.#ulList.firstElementChild) {
-            this.#ulList.removeChild(this.#ulList.firstElementChild);
-        }
-        let elementsToKeep = [];
-        if (retainSelected) {
-            // keep selected elements.
-            const currentElements = Array.from(this.#currentSelectedIngredients.values());
-            elementsToKeep = elementsToKeep.concat(currentElements);
-        } else {
-            this.#currentSelectedIngredients.clear();
-        }
+    clearList() {
+        this.#ulList.replaceChildren();
+        const currentElements = Array.from(this.#currentSelectedIngredients.values());
+        let elementsToKeep = currentElements;
         triggerListCleared(this.#ulList, elementsToKeep);
+    }
+
+    reset() {
+        this.#ulList.replaceChildren();
+        this.#currentSelectedIngredients.clear();
     }
 
     replaceWithNoResults() {
         const domFrag = document.createDocumentFragment();
-        const noResultsP = document.createElement('p');
-        noResultsP.textContent = `No results.`;
+        const noResultsP = tag('p', {content: `No results.`});
         domFrag.appendChild(noResultsP);
-        this.clear();
+        this.clearList();
         this.#ulList.appendChild(domFrag);
     }
 
@@ -76,12 +74,12 @@ class IngredientList {
             const listEl = createListItem(element);
             // highlight selected elements.
             if (this.#currentSelectedIngredients.has(element)) {
-                listEl.classList.toggle('selected-ingredient');
+                listEl.classList.add('selected-ingredient');
             }
             frag.appendChild(listEl);
         }
         if (this.#ulList.children.length > 0) {
-            this.clear();
+            this.clearList();
         }
         this.#ulList.appendChild(frag);
     }

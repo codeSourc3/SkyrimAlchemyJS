@@ -135,9 +135,10 @@ function onSearchResult({detail: {payload}}) {
         
         if (payload.length > 0) {
             // We have search results.
+            ingredientList.clearList();
             ingredientList.addAll(payload);
             setHitCount(payload.length);
-            chosenIngredients.clear();
+            
         } else {
             // Query turned up nothing.
             ingredientList.replaceWithNoResults();
