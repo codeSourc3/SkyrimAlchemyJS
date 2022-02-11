@@ -8,6 +8,10 @@
     content: '>';
 }
 
+.search-stats {
+    display: block;
+}
+
 #ingredient-list {
     list-style: none;
     max-height: 30vh;

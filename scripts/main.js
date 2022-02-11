@@ -38,6 +38,7 @@ brewPotionForm.addEventListener('submit', handleBrewPotionFormSubmit);
  */
 const ingredientSearchBar = domCache.id('ingredient-filter');
 ingredientSearchBar.addEventListener('submit', onSearchFormSubmit);
+const queryInterpretation = domCache.id('query-interpretation');
 const brewingErrorOutput = domCache.id('brewing-error-message');
 const ingredientListElem = domCache.id('ingredient-list');
 const chosenIngredientsElem = domCache.id('chosen-ingredients');
@@ -148,6 +149,17 @@ function onSearchResult({detail: {payload}}) {
 }
 
 /**
+ * 
+ * @param {string} effectToSearch 
+ * @param {"asc" | "desc"} effectOrder 
+ * @param {string[]} dlc 
+ * @returns {string}
+ */
+function stringifyQuery(effectToSearch, effectOrder, dlc) {
+    return `Showing ingredients sharing "${effectToSearch}", sorted by ${effectOrder}, and part of ${dlc}`;
+}
+
+/**
  * Search for ingredients.
  * @param {SubmitEvent} event 
  */
@@ -160,6 +172,8 @@ function onSearchFormSubmit(event) {
     if (formData.has('dragonborn-dlc')) dlc.push('Dragonborn');
     if (formData.has('dawnguard-dlc')) dlc.push('Dawnguard');
     if (formData.has('hearthfire-dlc')) dlc.push('Hearthfire');
+    // Showing what the user last searched for.
+    queryInterpretation.textContent = stringifyQuery(effectSearch, effOrder, dlc);
     alchemyWorker.sendSearchMessage(effectSearch, effOrder, dlc);
 }
 
