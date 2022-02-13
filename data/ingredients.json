@@ -129,7 +129,7 @@
             },
             {
                 "name": "Damage Magicka Regen",
-                "description": "",
+                "description": "Decrease the target's Magicka regeneration by <mag>% for <dur> seconds.",
                 "cost": {
                     "baseCost": 0.5,
                     "multiplier": 1
@@ -484,7 +484,7 @@
             },
             {
                 "name": "Damage Magicka Regen",
-                "description": "",
+                "description": "Decrease the target's Magicka regeneration by <mag>% for <dur> seconds.",
                 "cost": {
                     "baseCost": 0.5,
                     "multiplier": 1
@@ -885,7 +885,7 @@
             },
             {
                 "name": "Damage Magicka Regen",
-                "description": "",
+                "description": "Decrease the target's Magicka regeneration by <mag>% for <dur> seconds.",
                 "cost": {
                     "baseCost": 0.5,
                     "multiplier": 1
@@ -1072,7 +1072,7 @@
             },
             {
                 "name": "Damage Magicka Regen",
-                "description": "",
+                "description": "Decrease the target's Magicka regeneration by <mag>% for <dur> seconds.",
                 "cost": {
                     "baseCost": 0.5,
                     "multiplier": 1
@@ -1389,7 +1389,7 @@
             },
             {
                 "name": "Damage Magicka Regen",
-                "description": "",
+                "description": "Decrease the target's Magicka regeneration by <mag>% for <dur> seconds.",
                 "cost": {
                     "baseCost": 0.5,
                     "multiplier": 1
@@ -1809,7 +1809,7 @@
             },
             {
                 "name": "Damage Magicka Regen",
-                "description": "",
+                "description": "Decrease the target's Magicka regeneration by <mag>% for <dur> seconds.",
                 "cost": {
                     "baseCost": 0.5,
                     "multiplier": 1
@@ -1874,7 +1874,7 @@
             },
             {
                 "name": "Damage Magicka Regen",
-                "description": "",
+                "description": "Decrease the target's Magicka regeneration by <mag>% for <dur> seconds.",
                 "cost": {
                     "baseCost": 0.5,
                     "multiplier": 1
@@ -2026,7 +2026,7 @@
                 "description": "Causes <mag> points of poison damage.",
                 "cost": {
                     "baseCost": 3,
-                    "multiplier": 1
+                    "multiplier": 3.3
                 },
                 "magnitude": {
                     "baseMag": 2,
@@ -2278,7 +2278,7 @@
                 "description": "Causes <mag> points of poison damage.",
                 "cost": {
                     "baseCost": 3,
-                    "multiplier": 1
+                    "multiplier": 1.6
                 },
                 "magnitude": {
                     "baseMag": 2,
@@ -2698,11 +2698,11 @@
                 "description": "Causes <mag> points of poison damage.",
                 "cost": {
                     "baseCost": 3,
-                    "multiplier": 1
+                    "multiplier": 19.7
                 },
                 "magnitude": {
                     "baseMag": 2,
-                    "multiplier": 1
+                    "multiplier": 1.5
                 },
                 "duration": {
                     "baseDur": 1,
@@ -2778,8 +2778,8 @@
         "dlc": "Vanilla",
         "effects": [
             {
-                "name": "Damage Health",
-                "description": "Causes <mag> points of poison damage.",
+                "name": "Restore Stamina",
+                "description": "Restore <mag> Stamina.",
                 "cost": {
                     "baseCost": 3,
                     "multiplier": 1
@@ -2794,32 +2794,51 @@
                 },
                 "variableMagnitude": true,
                 "variableDuration": false,
-                "harmful": true
+                "harmful": false
             },
             {
-                "name": "Fortify Magicka",
-                "description": "Magicka is increased by <mag> points for <dur> seconds.",
+                "name": "Ravage Health",
+                "description": " Causes <mag> points of concentrated poison damage.",
                 "cost": {
-                    "baseCost": 0.3,
+                    "baseCost": 0.4,
                     "multiplier": 1
                 },
                 "magnitude": {
-                    "baseMag": 4,
+                    "baseMag": 2,
                     "multiplier": 1
                 },
                 "duration": {
-                    "baseDur": 60,
+                    "baseDur": 10,
                     "multiplier": 1
                 },
                 "variableMagnitude": true,
                 "variableDuration": false,
-                "harmful": false
+                "harmful": true
             },
             {
-                "name": "Regenerate Health",
-                "description": "Health regenerates <mag>% faster for <dur> seconds.",
+                "name": "Damage Magicka",
+                "description": "Drains the target's Magicka by <mag> points.",
                 "cost": {
-                    "baseCost": 0.1,
+                    "baseCost": 2.2,
+                    "multiplier": 1
+                },
+                "magnitude": {
+                    "baseMag": 3,
+                    "multiplier": 1
+                },
+                "duration": {
+                    "baseDur": 0,
+                    "multiplier": 1
+                },
+                "variableMagnitude": true,
+                "variableDuration": false,
+                "harmful": true
+            },
+            {
+                "name": "Restore Health",
+                "description": "Restore <mag> points of Health.",
+                "cost": {
+                    "baseCost": 0.5,
                     "multiplier": 1
                 },
                 "magnitude": {
@@ -2827,26 +2846,7 @@
                     "multiplier": 1
                 },
                 "duration": {
-                    "baseDur": 300,
-                    "multiplier": 1
-                },
-                "variableMagnitude": true,
-                "variableDuration": false,
-                "harmful": false
-            },
-            {
-                "name": "Fortify Two-handed",
-                "description": "Two-handed weapons do <mag>% more damage for <dur> seconds.",
-                "cost": {
-                    "baseCost": 0.5,
-                    "multiplier": 1
-                },
-                "magnitude": {
-                    "baseMag": 4,
-                    "multiplier": 1
-                },
-                "duration": {
-                    "baseDur": 60,
+                    "baseDur": 0,
                     "multiplier": 1
                 },
                 "variableMagnitude": true,
@@ -3020,6 +3020,90 @@
                 "variableMagnitude": true,
                 "variableDuration": false,
                 "harmful": false
+            }
+        ]
+    },
+    "jarrinRoot": {
+        "name": "Jarrin Root",
+        "goldValue": 10,
+        "weight": 0.5,
+        "dlc": "Vanilla",
+        "effects": [
+            {
+                "name": "Damage Health",
+                "description": "Causes <mag> points of poison damage.",
+                "cost": {
+                    "baseCost": 3,
+                    "multiplier": 158.5
+                },
+                "magnitude": {
+                    "baseMag": 2,
+                    "multiplier": 100
+                },
+                "duration": {
+                    "baseDur": 1,
+                    "multiplier": 1
+                },
+                "variableMagnitude": true,
+                "variableDuration": false,
+                "harmful": true
+            },
+            {
+                "name": "Damage Magicka",
+                "description": "Drains the target's Magicka by <mag> points.",
+                "cost": {
+                    "baseCost": 2.2,
+                    "multiplier": 1
+                },
+                "magnitude": {
+                    "baseMag": 3,
+                    "multiplier": 1
+                },
+                "duration": {
+                    "baseDur": 0,
+                    "multiplier": 1
+                },
+                "variableMagnitude": true,
+                "variableDuration": false,
+                "harmful": true
+            },
+            {
+                "name": "Damage Stamina",
+                "description": "Drains the target's Magicka by <mag> points.",
+                "cost": {
+                    "baseCost": 1.8,
+                    "multiplier": 1
+                },
+                "magnitude": {
+                    "baseMag": 3,
+                    "multiplier": 1
+                },
+                "duration": {
+                    "baseDur": 0,
+                    "multiplier": 1
+                },
+                "variableMagnitude": true,
+                "variableDuration": false,
+                "harmful": true
+            },
+            {
+                "name": "Damage Magicka Regen",
+                "description": "Decrease the target's Magicka regeneration by <mag>% for <dur> seconds.",
+                "cost": {
+                    "baseCost": 0.5,
+                    "multiplier": 1
+                },
+                "magnitude": {
+                    "baseMag": 100,
+                    "multiplier": 1
+                },
+                "duration": {
+                    "baseDur": 5,
+                    "multiplier": 1
+                },
+                "variableMagnitude": false,
+                "variableDuration": true,
+                "harmful": true
             }
         ]
     },
@@ -3722,7 +3806,7 @@
             },
             {
                 "name": "Damage Magicka Regen",
-                "description": "",
+                "description": "Decrease the target's Magicka regeneration by <mag>% for <dur> seconds.",
                 "cost": {
                     "baseCost": 0.5,
                     "multiplier": 1
@@ -4161,7 +4245,7 @@
             },
             {
                 "name": "Damage Magicka Regen",
-                "description": "",
+                "description": "Decrease the target's Magicka regeneration by <mag>% for <dur> seconds.",
                 "cost": {
                     "baseCost": 0.5,
                     "multiplier": 1
@@ -4394,7 +4478,7 @@
             },
             {
                 "name": "Damage Magicka Regen",
-                "description": "",
+                "description": "Decrease the target's Magicka regeneration by <mag>% for <dur> seconds.",
                 "cost": {
                     "baseCost": 0.5,
                     "multiplier": 1
@@ -4749,7 +4833,7 @@
             },
             {
                 "name": "Damage Magicka Regen",
-                "description": "",
+                "description": "Decrease the target's Magicka regeneration by <mag>% for <dur> seconds.",
                 "cost": {
                     "baseCost": 0.5,
                     "multiplier": 1
@@ -4814,7 +4898,7 @@
             },
             {
                 "name": "Fortify Heavy Armor",
-                "description": "",
+                "description": "Increase Heavy Armor skill by <mag> points for <dur> seconds.",
                 "cost": {
                     "baseCost": 0.5,
                     "multiplier": 1
@@ -5822,7 +5906,7 @@
             },
             {
                 "name": "Damage Magicka Regen",
-                "description": "",
+                "description": "Decrease the target's Magicka regeneration by <mag>% for <dur> seconds.",
                 "cost": {
                     "baseCost": 0.5,
                     "multiplier": 1
@@ -6830,7 +6914,7 @@
             },
             {
                 "name": "Fortify Heavy Armor",
-                "description": "",
+                "description": "Increase Heavy Armor skill by <mag> points for <dur> seconds.",
                 "cost": {
                     "baseCost": 0.5,
                     "multiplier": 1
@@ -7521,7 +7605,7 @@
             },
             {
                 "name": "Fortify Heavy Armor",
-                "description": "",
+                "description": "Increase Heavy Armor skill by <mag> points for <dur> seconds.",
                 "cost": {
                     "baseCost": 0.5,
                     "multiplier": 1
@@ -7987,7 +8071,7 @@
         "effects": [
             {
                 "name": "Damage Magicka Regen",
-                "description": "",
+                "description": "Decrease the target's Magicka regeneration by <mag>% for <dur> seconds.",
                 "cost": {
                     "baseCost": 0.5,
                     "multiplier": 1
@@ -8296,7 +8380,7 @@
             },
             {
                 "name": "Fortify Heavy Armor",
-                "description": "",
+                "description": "Increase Heavy Armor skill by <mag> points for <dur> seconds.",
                 "cost": {
                     "baseCost": 0.5,
                     "multiplier": 1
@@ -8930,7 +9014,7 @@
             },
             {
                 "name": "Fortify Heavy Armor",
-                "description": "",
+                "description": "Increase Heavy Armor skill by <mag> points for <dur> seconds.",
                 "cost": {
                     "baseCost": 0.5,
                     "multiplier": 1
