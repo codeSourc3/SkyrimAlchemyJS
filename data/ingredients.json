@@ -277,7 +277,7 @@
                 "harmful": false
             },
             {
-                "name": "Fortify Illusion Armor",
+                "name": "Fortify Light Armor",
                 "description": "Increases Light Armor skill by <mag> points for <dur> seconds.",
                 "cost": {
                     "baseCost": 0.5,
@@ -613,7 +613,7 @@
                 "harmful": false
             },
             {
-                "name": "Fortify Illusion Armor",
+                "name": "Fortify Light Armor",
                 "description": "Increases Light Armor skill by <mag> points for <dur> seconds.",
                 "cost": {
                     "baseCost": 0.5,
@@ -2278,7 +2278,7 @@
                 "description": "Causes <mag> points of poison damage.",
                 "cost": {
                     "baseCost": 3,
-                    "multiplier": 1.6
+                    "multiplier": 1
                 },
                 "magnitude": {
                     "baseMag": 2,
@@ -2798,7 +2798,7 @@
             },
             {
                 "name": "Ravage Health",
-                "description": " Causes <mag> points of concentrated poison damage.",
+                "description": "Causes <mag> points of concentrated poison damage.",
                 "cost": {
                     "baseCost": 0.4,
                     "multiplier": 1
@@ -2965,7 +2965,7 @@
                 "harmful": false
             },
             {
-                "name": "Fortify Illusion Armor",
+                "name": "Fortify Light Armor",
                 "description": "Increases Light Armor skill by <mag> points for <dur> seconds.",
                 "cost": {
                     "baseCost": 0.5,
@@ -4393,7 +4393,7 @@
                 "harmful": false
             },
             {
-                "name": "Fortify Illusion Armor",
+                "name": "Fortify Light Armor",
                 "description": "Increases Light Armor skill by <mag> points for <dur> seconds.",
                 "cost": {
                     "baseCost": 0.5,
@@ -4664,7 +4664,7 @@
                 "harmful": false
             },
             {
-                "name": "Fortify Illusion Armor",
+                "name": "Fortify Light Armor",
                 "description": "Increases Light Armor skill by <mag> points for <dur> seconds.",
                 "cost": {
                     "baseCost": 0.5,
@@ -5401,7 +5401,7 @@
                 "harmful": true
             },
             {
-                "name": "Fortify Illusion Armor",
+                "name": "Fortify Light Armor",
                 "description": "Increases Light Armor skill by <mag> points for <dur> seconds.",
                 "cost": {
                     "baseCost": 0.5,
@@ -7455,7 +7455,7 @@
                 "harmful": true
             },
             {
-                "name": "Fortify Illusion Armor",
+                "name": "Fortify Light Armor",
                 "description": "Increases Light Armor skill by <mag> points for <dur> seconds.",
                 "cost": {
                     "baseCost": 0.5,
