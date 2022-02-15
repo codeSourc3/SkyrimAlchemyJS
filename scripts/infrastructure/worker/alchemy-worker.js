@@ -153,4 +153,24 @@ export class AlchemyWorker {
     terminate() {
         this.#worker.terminate();
     }
+
+    static get WORKER_READY() {
+        return 'worker-ready';
+    }
+
+    static get POPULATE_INGREDIENT_LIST() {
+        return 'populate-ingredient-list';
+    }
+
+    static get INGREDIENT_SEARCH_RESULT() {
+        return 'ingredient-search-result';
+    }
+
+    static get CALCULATE_POTION_RESULT() {
+        return 'calculate-potion-result';
+    }
+
+    static get WORKER_ERROR() {
+        return 'worker-error';
+    }
 }

@@ -3,10 +3,10 @@ import { DB_NAME, VERSION, ING_OBJ_STORE, LOGGING_LEVEL } from "../config.js";
 import { createPotionBuilder as makePotion, findPossibleCombinations } from "../../alchemy/alchemy.js";
 import { openDB, insertEntry, filterIngredientsByEffect, getAllIngredientNames, filterByDLC, getIngredient } from '../db/db.js';
 import {buildCalculateResultMessage, buildErrorMessage, buildPopulateResultMessage, buildSearchResultMessage, buildWorkerReadyMessage} from '../messaging.js';
-import { logger, setLogLevel } from "../logger.js";
+import { logger as console, setLogLevel } from "../logger.js";
 import { intersection, toArray, toSet } from "../array-helpers.js";
 
-const console = logger;
+//const console = logger;
 
 /**
  * @type {IDBDatabase}
@@ -19,8 +19,8 @@ setupIndexedDB().then(() => {
     setLogLevel(LOGGING_LEVEL);
     postMessage(buildWorkerReadyMessage(self.name));
     self.addEventListener('message', handleMessage);
-    logger.debug('Alchemy worker event listener set up.');
-    logger.assert(typeof db !== 'undefined');
+    console.debug('Alchemy worker event listener set up.');
+    console.assert(typeof db !== 'undefined');
 });
 
 
@@ -31,9 +31,9 @@ setupIndexedDB().then(() => {
 async function handleMessage(msg) {
     const start = self.performance.now();
     const msgData = msg.data;
-    logger.info('From main thread to worker thread: ', { msgData });
+    console.info('From main thread to worker thread: ', { msgData });
     const end = self.performance.now();
-    logger.debug('Time taken is %d', end - start);
+    console.debug('Time taken is %d', end - start);
     switch (msgData.type) {
         case 'calculate':
             await processIngredients(db, msgData.payload);
@@ -132,7 +132,7 @@ async function processIngredients(db, { names, skill, alchemist, hasBenefactor, 
  * @param {Event} event 
  */
 function dbCloseHandler(event) {
-    
+    console.log('Database closed');
 }
 
 /**
@@ -145,7 +145,7 @@ function buildStructure(event) {
      * @type {IDBDatabase}
      */
     const db = event.target.result;
-    db.addEventListener('close', dbCloseHandler)
+    db.addEventListener('close', dbCloseHandler);
     
     shouldUpgrade = true;
     console.time('building structure');

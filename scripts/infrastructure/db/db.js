@@ -1,8 +1,8 @@
-// @ts-check
 import { Ingredient } from "../../alchemy/ingredients.js";
 import { ING_OBJ_STORE } from "../config.js";
 import {equals, equalsAnyOf, startsWith} from './query.js'
 import { logger } from "../logger.js";
+import { defaultIDBRequestHandler } from "./handlers.js";
 /**
  * @typedef IngredientEntry
  * @property {string} dlc the downloadable content the ingredient belongs to.
@@ -26,15 +26,11 @@ import { logger } from "../logger.js";
  * @returns {Promise<IDBDatabase>}
  */
 export function openDB(dbName, upgradeHandler,version=1) {
-    return new Promise((resolve, reject) => {
-        const request = globalThis.indexedDB.open(dbName, version);
-        request.onsuccess = () => resolve(request.result);
-        request.onerror = (ev) => {
-            ev.stopPropagation();
-            reject(request.error);
-        }
-        request.onupgradeneeded = upgradeHandler;
-    });
+    const request = globalThis.indexedDB.open(dbName, version);
+    request.onupgradeneeded = upgradeHandler;
+    /** @type {Promise<IDBDatabase>} */
+    const openDBPromise = defaultIDBRequestHandler(request);
+    return openDBPromise;
 }
 
 
@@ -149,9 +145,7 @@ export function getAllIngredients(db) {
     const tx = db.transaction(ING_OBJ_STORE, 'readonly');
     const ingredientStore = tx.objectStore(ING_OBJ_STORE);
     const getIngredients = ingredientStore.getAll();
-    const getIngredientsPromise = new Promise(resolve => {
-        getIngredients.onsuccess = () => resolve(getIngredients.result);
-    });
+    const getIngredientsPromise = defaultIDBRequestHandler(getIngredients);
 
     return getIngredientsPromise;
 }
@@ -190,11 +184,9 @@ export function getAllIngredientNames(db) {
  * @returns {Promise<IDBValidKey>}
  */
 export function addEntry(objStore, value) {
-    return new Promise((resolve, reject) => {
-        const request = objStore.add(value);
-        request.onsuccess = () => resolve(request.result);
-        request.onerror = () => reject(request.error);
-    });
+    const request = objStore.add(value);
+    const promise = defaultIDBRequestHandler(request);
+    return promise;
 }
 
 
@@ -207,11 +199,22 @@ export function addEntry(objStore, value) {
  * @returns {Promise<IDBValidKey>}
  */
 export function insertEntry(objStore, value) {
-    return new Promise((resolve, reject) => {
-        const request = objStore.put(value);
-        request.onsuccess = () => resolve(request.result);
-        request.onerror = () => reject(request.error);
-    });
+    const request = objStore.put(value);
+    const promise = defaultIDBRequestHandler(request);
+    return promise;
 }
 
+
+/**
+ * 
+ * @param {IDBObjectStore} objStore the object store.
+ * @param {IDBValidKey | IDBKeyRange} key the key or key range.
+ * 
+ * @returns {Promise<number>}
+ */
+export function getCount(objStore, key) {
+    const request = objStore.count(key);
+    const promise = defaultIDBRequestHandler(request);
+    return promise;
+}
 
