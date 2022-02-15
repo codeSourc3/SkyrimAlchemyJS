@@ -1,6 +1,5 @@
 import { restoreHealth, restoreStamina, restoreMagicka } from './effects.js';
 import { Effect, Ingredient } from './ingredients.js';
-import { logger as console } from '../infrastructure/logger.js';
 
 /**
  * @typedef Potion
@@ -145,10 +144,7 @@ function calcMagnitudeDurationCost(effect, alchemySkill = 15, alchemistLevel = 0
     if (magnitude > 0) magnitudeFactor = magnitude;
     durationFactor = 1;
     if (duration > 0) durationFactor = duration / 10;
-    console.debug(effect instanceof Effect);
-    console.debug('Base Cost: ', effect.cost);
     let goldValue = Math.floor(effect.cost.baseCost * (magnitudeFactor * durationFactor) ** 1.1);
-    console.debug(`Magnitude: ${magnitude}, Duration: ${duration}, Gold Value: ${goldValue}`);
     return {
         name: effect.name,
         description: effect.description,

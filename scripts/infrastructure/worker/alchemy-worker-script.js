@@ -1,9 +1,8 @@
 import { Ingredient, parseIngredientsJSON } from "../../alchemy/ingredients.js";
-import { DB_NAME, VERSION, ING_OBJ_STORE, LOGGING_LEVEL } from "../config.js";
+import { DB_NAME, VERSION, ING_OBJ_STORE } from "../config.js";
 import { createPotionBuilder as makePotion, findPossibleCombinations } from "../../alchemy/alchemy.js";
 import { openDB, insertEntry, filterIngredientsByEffect, getAllIngredientNames, filterByDLC, getIngredient } from '../db/db.js';
 import {buildCalculateResultMessage, buildErrorMessage, buildPopulateResultMessage, buildSearchResultMessage, buildWorkerReadyMessage} from '../messaging.js';
-import { logger as console, setLogLevel } from "../logger.js";
 import { intersection, toArray, toSet } from "../array-helpers.js";
 
 //const console = logger;
@@ -16,7 +15,6 @@ let db;
 let shouldUpgrade = false;
 
 setupIndexedDB().then(() => {
-    setLogLevel(LOGGING_LEVEL);
     postMessage(buildWorkerReadyMessage(self.name));
     self.addEventListener('message', handleMessage);
     console.debug('Alchemy worker event listener set up.');

@@ -1,4 +1,3 @@
-import { logger } from "../logger.js";
 import { toTitleCase } from "../strings.js";
 
 const Direction = Object.freeze({
@@ -16,7 +15,7 @@ const Direction = Object.freeze({
  * @param {onFinishCb} onFinish a function to call when we're finished searching.
  */
 export function startsWith(objStore, prefix, direction, onFound, onFinish) {
-    logger.time('startsWith');
+    console.time('startsWith');
     const titleCasePrefix = toTitleCase(prefix);
     const keyRange = IDBKeyRange.bound(titleCasePrefix, titleCasePrefix + '\uffff', false, false);
     const cursorReq = objStore.openCursor(keyRange, direction);
@@ -25,15 +24,15 @@ export function startsWith(objStore, prefix, direction, onFound, onFinish) {
         if (cursor) {
             
             onFound(cursor.value, cursor.key);
-            logger.debug('Is source an index', cursor.source instanceof IDBIndex);
+            console.debug('Is source an index', cursor.source instanceof IDBIndex);
             cursor.continue();
         } else {
-            logger.timeEnd('startsWith');
+            console.timeEnd('startsWith');
             onFinish();
         }
     };
     cursorReq.onerror = err => {
-        logger.timeEnd('startsWith');
+        console.timeEnd('startsWith');
         err.stopPropagation();
         onFinish(cursorReq.error);
     };

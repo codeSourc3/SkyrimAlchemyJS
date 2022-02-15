@@ -4,14 +4,9 @@ import { INGREDIENT_DESELECTED, INGREDIENT_SELECTED, LIST_CLEARED, MAX_INGREDIEN
 import { AlchemyWorker } from './infrastructure/worker/alchemy-worker.js';
 import { IngredientList } from './infrastructure/html/ingredient-list.js';
 import { ChosenIngredients } from './infrastructure/html/chosen-ingredients.js';
-import { logger, setLogLevel } from './infrastructure/logger.js';
-import { LOGGING_LEVEL } from './infrastructure/config.js';
+
 import { formatListLocalized } from './infrastructure/strings.js';
 
-const console = logger;
-document.addEventListener('DOMContentLoaded', e => {
-    setLogLevel(LOGGING_LEVEL);
-}, {once: true});
 const alchemyWorker = new AlchemyWorker('scripts/infrastructure/worker/alchemy-worker-script.js');
 const domCache = new DomCache();
 alchemyWorker.onWorkerReady(onWorkerReady);

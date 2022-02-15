@@ -1,7 +1,6 @@
 import { Ingredient } from "../../alchemy/ingredients.js";
 import { ING_OBJ_STORE } from "../config.js";
 import {equals, equalsAnyOf, startsWith} from './query.js'
-import { logger } from "../logger.js";
 import { defaultIDBRequestHandler } from "./handlers.js";
 /**
  * @typedef IngredientEntry
@@ -72,7 +71,7 @@ export function filterByDLC(db, dlc=['Vanilla'], asc=true) {
             if (err) {
                 reject(err);
             } else {
-                logger.info('Filter by DLC: ', results);
+                console.info('Filter by DLC: ', results);
                 resolve(results);
             }
         })
@@ -87,17 +86,17 @@ export function filterByDLC(db, dlc=['Vanilla'], asc=true) {
  */
 export function filterIngredientsByName(db, searchText, asc=true) {
     return new Promise((resolve, reject) => {
-        logger.debug('Filtering ingredients by name');
+        console.debug('Filtering ingredients by name');
 
         const transaction = db.transaction([ING_OBJ_STORE], 'readonly');
         const objectStore = transaction.objectStore(ING_OBJ_STORE);
         let results = [];
         startsWith(objectStore, searchText, asc ? 'next': 'prev', (item, key) => {
             results.push(item.name);
-            logger.info(`${searchText} matched ${key}`);
+            console.info(`${searchText} matched ${key}`);
         }, (err) => {
             if (err) {
-                logger.debug('Error name: ', err.name);
+                console.debug('Error name: ', err.name);
                 reject(err);
             } else {
                 resolve(results);
@@ -116,7 +115,7 @@ export function filterIngredientsByName(db, searchText, asc=true) {
  */
 export function filterIngredientsByEffect(db, searchText, asc=true) {
     return new Promise((resolve, reject) => {
-        logger.debug('Filtering ingredients by effect.');
+        console.debug('Filtering ingredients by effect.');
 
         const transaction = db.transaction(ING_OBJ_STORE, 'readonly');
         const objectStore = transaction.objectStore(ING_OBJ_STORE);
@@ -126,7 +125,7 @@ export function filterIngredientsByEffect(db, searchText, asc=true) {
             results.push(item.name);
         }, err => {
             if (err) {
-                logger.debug('Error name: ', err.name);
+                console.debug('Error name: ', err.name);
                 reject(err);
             } else {
                 resolve(results);
