@@ -102,25 +102,13 @@ class ChosenIngredients {
 
     /**
      * 
-     * @param {Object} clearOptions - The options for clearing.
-     * @param {boolean} clearOptions.retainSelected Retains the chosen ingredients 
-     * while clearing the HTML list.
+     *
      */
-    clear({retainSelected=true}={}) {
-        while (this.#list.firstElementChild) {
-            this.#list.removeChild(this.#list.firstElementChild);
-        }
-        let elementsToKeep = [];
-        if (retainSelected) {
-            console.debug('Retaining selected');
-            const currentElements = Array.from(this.#chosen.values());
-            console.debug('Current elements', currentElements);
-            elementsToKeep = elementsToKeep.concat(currentElements);
-            console.debug('Elements to keep: ', elementsToKeep);
-        } else {
-            this.#chosen.clear();
-        }
-        triggerListCleared(this.#list, elementsToKeep);
+    clear() {
+        this.#list.replaceChildren();
+        this.#chosen.clear();
+        
+        triggerListCleared(this.#list, []);
     }
 
     /**

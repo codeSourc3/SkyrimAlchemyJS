@@ -48,6 +48,15 @@ const currentSelectedIngredients = new Set();
 const ingredientList = new IngredientList(ingredientListElem, currentSelectedIngredients);
 const chosenIngredients = new ChosenIngredients(chosenIngredientsElem);
 
+ingredientSearchBar.addEventListener('reset', evt => {
+    // on Search form reset, remove all chosen ingredients. Remove all selected ingredients as well.
+    ingredientList.selectedIngredients.clear();
+    chosenIngredients.clear();
+    console.debug('Submitting search.');
+    // Done because the submit handler runs before the form has a chance to reset.
+    setTimeout(() => ingredientSearchBar.requestSubmit(), 0);
+}, {passive: true});
+
 // Adds selected ingredient to chosen ingredients.
 ingredientListElem.addEventListener(INGREDIENT_SELECTED, (evt) => {
     const ingredientName = evt.detail.ingredientName;
@@ -88,8 +97,12 @@ function onErrorMessage({detail: {payload: message}}) {
  */
 function onCalculateResult({detail: {payload}}) {
     console.info('Worker calculation results: ', payload);
-    resultList.replaceChildren();
-    payload.forEach((item, combination) => displayPotion(item, combination));
+    let nodes = [];
+    payload.forEach((item, combination) => {
+        let node = displayPotion(item, combination);
+        nodes.push(node);
+    });
+    resultList.replaceChildren(...nodes);
 }
 
 /**
@@ -120,7 +133,7 @@ function displayPotion({name, didSucceed, effects, gold}, combination='') {
         });
         frag.appendChild(recipe);
     }
-    resultList.appendChild(frag);
+    return frag;
 }
 
 /**
@@ -128,12 +141,12 @@ function displayPotion({name, didSucceed, effects, gold}, combination='') {
  * @param {CustomEvent<{payload: string[]}>} payload 
  */
 function onSearchResult({detail: {payload}}) {
+    console.debug('Search result incoming', payload);
     if (Array.isArray(payload)) {
         
         if (payload.length > 0) {
             // We have search results.
-            ingredientList.clearList();
-            ingredientList.addAll(payload);
+            ingredientList.replaceChildrenWith(payload);
             setHitCount(payload.length);
             
         } else {
@@ -161,6 +174,8 @@ function stringifyQuery(effectToSearch, effectOrder, dlc) {
  */
 function onSearchFormSubmit(event) {
     event.preventDefault();
+    console.assert(event.defaultPrevented);
+    console.debug('Ingredient Search submitted.');
     const formData = new FormData(ingredientSearchBar);
     let dlc = ['Vanilla'];
     let effectSearch = formData.get('by-effect');
@@ -168,6 +183,7 @@ function onSearchFormSubmit(event) {
     if (formData.has('dragonborn-dlc')) dlc.push('Dragonborn');
     if (formData.has('dawnguard-dlc')) dlc.push('Dawnguard');
     if (formData.has('hearthfire-dlc')) dlc.push('Hearthfire');
+    console.debug('Ingredient search form submitting ', Array.from(formData.entries()));
     // Showing what the user last searched for.
     queryInterpretation.textContent = stringifyQuery(effectSearch, effOrder, dlc);
     alchemyWorker.sendSearchMessage(effectSearch, effOrder, dlc);
