@@ -3,7 +3,7 @@ import { MIN_CHOSEN_INGREDIENTS } from './alchemy/alchemy.js';
 import { INGREDIENT_DESELECTED, INGREDIENT_SELECTED, LIST_CLEARED, MAX_INGREDIENTS_SELECTED } from './infrastructure/events/client-side-events.js';
 import { AlchemyWorker } from './infrastructure/worker/alchemy-worker.js';
 import { IngredientList } from './infrastructure/models/ingredient-list.js';
-import { ChosenIngredients } from './infrastructure/html/chosen-ingredients.js';
+import { ChosenIngredients } from './infrastructure/models/chosen-ingredients.js';
 
 import { formatListLocalized } from './infrastructure/strings.js';
 import { IngredientListView } from './infrastructure/views/ingredient-list-view.js';
@@ -108,10 +108,16 @@ function onErrorMessage({detail: {payload: message}}) {
 function onCalculateResult({detail: {payload}}) {
     console.info('Worker calculation results: ', payload);
     let nodes = [];
-    payload.forEach((item, combination) => {
-        let node = displayPotion(item, combination);
-        nodes.push(node);
-    });
+    if (payload.size > 0) {
+        payload.forEach((item, combination) => {
+            let node = displayPotion(item, combination);
+            nodes.push(node);
+        });
+    } else {
+        const noResults = displayPotion({name: 'Potion Failed', didSucceed: false});
+        nodes.push(noResults);
+    }
+    
     resultList.replaceChildren(...nodes);
 }
 

@@ -1,5 +1,5 @@
 import { triggerIngredientDeselected, triggerListCleared } from "../events/client-side-events.js";
-import { createListItem } from "./html.js";
+import { createListItem } from "../html/html.js";
 
 /**
  * The ingredients the user has chosen. 
