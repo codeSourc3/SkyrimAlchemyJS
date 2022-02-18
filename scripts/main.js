@@ -52,7 +52,6 @@ ingredientSearchBar.addEventListener('reset', evt => {
     // on Search form reset, remove all chosen ingredients. Remove all selected ingredients as well.
     ingredientList.selectedIngredients.clear();
     chosenIngredients.clear();
-    console.debug('Submitting search.');
     // Done because the submit handler runs before the form has a chance to reset.
     setTimeout(() => ingredientSearchBar.requestSubmit(), 0);
 }, {passive: true});

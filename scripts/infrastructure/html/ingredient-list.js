@@ -21,6 +21,15 @@ function select(li) {
 }
 
 /**
+ * 
+ * @param {HTMLLIElement} li 
+ * @returns {boolean}
+ */
+function isSelected(li) {
+    return 'selected' in li.dataset;
+}
+
+/**
  * @param {HTMLLIElement} li 
  */
 function unselect(li) {
