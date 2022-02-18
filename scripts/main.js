@@ -2,10 +2,11 @@ import {DomCache, tag} from './infrastructure/html/html.js';
 import { MIN_CHOSEN_INGREDIENTS } from './alchemy/alchemy.js';
 import { INGREDIENT_DESELECTED, INGREDIENT_SELECTED, LIST_CLEARED, MAX_INGREDIENTS_SELECTED } from './infrastructure/events/client-side-events.js';
 import { AlchemyWorker } from './infrastructure/worker/alchemy-worker.js';
-import { IngredientList } from './infrastructure/html/ingredient-list.js';
+import { IngredientList } from './infrastructure/models/ingredient-list.js';
 import { ChosenIngredients } from './infrastructure/html/chosen-ingredients.js';
 
 import { formatListLocalized } from './infrastructure/strings.js';
+import { IngredientListView } from './infrastructure/views/ingredient-list-view.js';
 
 const alchemyWorker = new AlchemyWorker('scripts/infrastructure/worker/alchemy-worker-script.js');
 const domCache = new DomCache();
@@ -44,13 +45,13 @@ const hitCount = domCache.id('hit-count');
 
 
 // Used to avoid querying the DOM to get the name of the ingredient.
-const currentSelectedIngredients = new Set();
-const ingredientList = new IngredientList(ingredientListElem, currentSelectedIngredients);
+const ingredientList = new IngredientList();
+const ingredientListView = new IngredientListView(ingredientListElem, ingredientList);
 const chosenIngredients = new ChosenIngredients(chosenIngredientsElem);
 
 ingredientSearchBar.addEventListener('reset', evt => {
     // on Search form reset, remove all chosen ingredients. Remove all selected ingredients as well.
-    ingredientList.selectedIngredients.clear();
+    ingredientListView.reset();
     chosenIngredients.clear();
     // Done because the submit handler runs before the form has a chance to reset.
     setTimeout(() => ingredientSearchBar.requestSubmit(), 0);
@@ -63,7 +64,7 @@ ingredientListElem.addEventListener(INGREDIENT_SELECTED, (evt) => {
      * @type {HTMLLIElement}
      */
     let liElem = evt.target;
-    liElem.dataset.selected = true;
+    ingredientListView.select(liElem);
     console.info(`${ingredientName} selected`);
     chosenIngredients.addIngredient(ingredientName);
 });
@@ -75,7 +76,7 @@ ingredientListElem.addEventListener(INGREDIENT_DESELECTED, (evt) => {
      * @type {HTMLLIElement}
      */
     let liElem = evt.target;
-    delete liElem.dataset.selected;
+    ingredientListView.deselect(liElem);
     console.info(`${ingredientName} deselected`);
     chosenIngredients.removeIngredient(ingredientName);
 });
@@ -90,7 +91,7 @@ chosenIngredientsElem.addEventListener(LIST_CLEARED, evt => {
 // Unselects ingredient from ingredient list if chosen ingredients is clicked on.
 chosenIngredientsElem.addEventListener(INGREDIENT_DESELECTED, evt => {
     const ingredientName = evt.detail.ingredientName;
-    ingredientList.unselectIngredient(ingredientName);
+    ingredientListView.unselectIngredient(ingredientName);
 })
 
 ingredientListElem.addEventListener(MAX_INGREDIENTS_SELECTED, displayTooManyIngredientsMessage);
@@ -155,12 +156,12 @@ function onSearchResult({detail: {payload}}) {
         
         if (payload.length > 0) {
             // We have search results.
-            ingredientList.replaceChildrenWith(payload);
+            ingredientListView.replaceChildrenWith(payload);
             setHitCount(payload.length);
             
         } else {
             // Query turned up nothing.
-            ingredientList.replaceWithNoResults();
+            ingredientListView.replaceWithNoResults();
         }
         
     }
@@ -204,7 +205,7 @@ function onSearchFormSubmit(event) {
  */
 function onPopulateResult({detail: {payload}}) {
     console.assert(Array.isArray(payload), 'Populate results payload was not an array');
-    ingredientList.replaceChildrenWith(payload);
+    ingredientListView.replaceChildrenWith(payload);
     setHitCount(payload.length);
     
 }
@@ -232,17 +233,14 @@ function onWorkerReady() {
 function handleBrewPotionFormSubmit(event) {
     // Prevents the form from redirecting to a URL.
     event.preventDefault();
-    let selectedIngredients = Array.from(currentSelectedIngredients);
+    let selectedIngredients = Array.from(ingredientList.selectedIngredients);
     if (selectedIngredients.length < MIN_CHOSEN_INGREDIENTS) {
         brewPotionForm.reset();
         brewingErrorOutput.textContent = `Expected 2 to 3 ingredients to be selected.`;
         return;
     }
     const formData = new FormData(brewPotionForm);
-    formData.set('selected-ingredients', Array.from(currentSelectedIngredients).join());
-    for (const [key, value] of formData.entries()) {
-        console.debug(`Key: ${key}, Value: ${value}`);
-    }
+    formData.set('selected-ingredients', Array.from(ingredientList.selectedIngredients).join());
     sendCalculateMessage(formData);
     
     // Assuming we still have the paragraph element.
