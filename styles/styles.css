@@ -1,10 +1,10 @@
 
-.selected-ingredient {
+li[data-selected='true'] {
     background-color: burlywood;
     font-size: large;
 }
 
-.selected-ingredient::before {
+li[data-selected='true']::before {
     content: '>';
 }
 

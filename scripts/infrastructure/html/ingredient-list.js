@@ -13,6 +13,21 @@ function saveAndFireListCleared(aSet, olList) {
 }
 
 /**
+ * 
+ * @param {HTMLLIElement} li 
+ */
+function select(li) {
+    li.dataset.selected = true;
+}
+
+/**
+ * @param {HTMLLIElement} li 
+ */
+function unselect(li) {
+    delete li.dataset.selected;
+}
+
+/**
  * A list of ingredients. Remembers what the user selected even if cleared.
  */
 class IngredientList {
@@ -58,7 +73,7 @@ class IngredientList {
 
     replaceWithNoResults() {
         const domFrag = document.createDocumentFragment();
-        const noResultsP = tag('p', {content: `No results.`});
+        const noResultsP = tag('p', { content: `No results.` });
         domFrag.appendChild(noResultsP);
         this.#olList.replaceChildren(domFrag);
     }
@@ -68,9 +83,12 @@ class IngredientList {
         if (didSucceed) {
             const len = this.#olList.children.length;
             for (let i = 0; i < len; i++) {
+                /**
+                 * @type {HTMLElement}
+                 */
                 const child = this.#olList.children[i];
                 if (child.textContent === ingredientName) {
-                    child.classList.remove('selected-ingredient');
+                    unselect(child);
                     break;
                 }
             }
@@ -87,7 +105,7 @@ class IngredientList {
             const listEl = createListItem(element);
             // highlight selected elements.
             if (this.#currentSelectedIngredients.has(element)) {
-                listEl.classList.add('selected-ingredient');
+                select(listEl);
             }
             frag.appendChild(listEl);
         }
@@ -95,20 +113,24 @@ class IngredientList {
         this.#olList.appendChild(frag);
     }
 
-    replaceChildrenWith(elements=[]) {
+    replaceChildrenWith(elements = []) {
         const frag = new DocumentFragment();
         for (let element of elements) {
             const listEl = createListItem(element);
             // highlight selected elements.
             if (this.#currentSelectedIngredients.has(element)) {
-                listEl.classList.add('selected-ingredient');
+                select(listEl);
             }
             frag.appendChild(listEl);
         }
         saveAndFireListCleared(this.#currentSelectedIngredients, this.#olList);
         this.#olList.replaceChildren(frag);
     }
-    
+
+    canSelectMore() {
+        return this.#currentSelectedIngredients.size < IngredientList.MAX_INGREDIENTS;
+    }
+
 
     /**
      * Using handleEvent property.
@@ -120,33 +142,23 @@ class IngredientList {
         /**
              * @type {HTMLElement}
              */
-         const selectedElement = evt.target;
-         const {textContent} = selectedElement;
-         const li = selectedElement.closest('li');
-         // no li element.
-         if (!li) return;
-         // li not in UL element.
-         if (!this.#olList.contains(li)) return;
-         if (!this.#currentSelectedIngredients.has(textContent) && this.#currentSelectedIngredients.size < IngredientList.MAX_INGREDIENTS) {
-             /*
-             Doesn't have ingredient and can at least select
-             one more.
-             */
+        const selectedElement = evt.target;
+        const { textContent } = selectedElement;
+        const li = selectedElement.closest('li');
+        // no li element.
+        if (!li) return;
+        // li not in UL element.
+        if (!this.#olList.contains(li)) return;
+        if (!this.#currentSelectedIngredients.has(textContent) && this.canSelectMore()) {
             this.#currentSelectedIngredients.add(textContent);
             triggerIngredientSelected(selectedElement, textContent);
-            selectedElement.classList.toggle('selected-ingredient');
-         } else if (this.#currentSelectedIngredients.has(textContent)) {
-             // Was previously selected and can be deselected.
-             this.#currentSelectedIngredients.delete(textContent);
-             selectedElement.classList.toggle('selected-ingredient');
-
-             // create and dispatch ingredient-deselected.
-             triggerIngredientDeselected(selectedElement, textContent);
-         } else {
-             // Cannot select more ingredients.
-             triggerMaxSelected(selectedElement);
-         }
+        } else if (this.#currentSelectedIngredients.has(textContent)) {
+            this.#currentSelectedIngredients.delete(textContent);
+            triggerIngredientDeselected(selectedElement, textContent);
+        } else {
+            triggerMaxSelected(selectedElement);
+        }
     }
 }
 
-export {IngredientList};
+export { IngredientList };

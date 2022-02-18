@@ -60,6 +60,11 @@ ingredientSearchBar.addEventListener('reset', evt => {
 // Adds selected ingredient to chosen ingredients.
 ingredientListElem.addEventListener(INGREDIENT_SELECTED, (evt) => {
     const ingredientName = evt.detail.ingredientName;
+    /**
+     * @type {HTMLLIElement}
+     */
+    let liElem = evt.target;
+    liElem.dataset.selected = true;
     console.info(`${ingredientName} selected`);
     chosenIngredients.addIngredient(ingredientName);
 });
@@ -67,6 +72,11 @@ ingredientListElem.addEventListener(INGREDIENT_SELECTED, (evt) => {
 // Removes unselected ingredient from chosen ingredients.
 ingredientListElem.addEventListener(INGREDIENT_DESELECTED, (evt) => {
     const ingredientName = evt.detail.ingredientName;
+    /**
+     * @type {HTMLLIElement}
+     */
+    let liElem = evt.target;
+    delete liElem.dataset.selected;
     console.info(`${ingredientName} deselected`);
     chosenIngredients.removeIngredient(ingredientName);
 });
@@ -195,7 +205,7 @@ function onSearchFormSubmit(event) {
  */
 function onPopulateResult({detail: {payload}}) {
     console.assert(Array.isArray(payload), 'Populate results payload was not an array');
-    ingredientList.addAll(payload);
+    ingredientList.replaceChildrenWith(payload);
     setHitCount(payload.length);
     
 }
