@@ -1,3 +1,5 @@
+import { openDB, deleteDB } from 'https://cdn.jsdelivr.net/npm/idb@7/+esm';
+
 import {DomCache, tag} from './infrastructure/html/html.js';
 import { MIN_CHOSEN_INGREDIENTS } from './alchemy/alchemy.js';
 import { INGREDIENT_DESELECTED, INGREDIENT_SELECTED, LIST_CLEARED, MAX_INGREDIENTS_SELECTED } from './infrastructure/events/client-side-events.js';
@@ -20,6 +22,10 @@ window.addEventListener('beforeunload', (e) => {
     console.info('Terminating Worker');
     alchemyWorker.terminate();
 });
+
+(async () => {
+    await openDB('test');
+})();
 
 /**
  * The form responsible for calculating the potion resulting from

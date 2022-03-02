@@ -1,0 +1,8 @@
+{
+    "compilerOptions": {
+        "baseUrl": ".",
+        "paths": {
+            "https://cdn.jsdelivr.net/npm/idb@7/+esm": ["./node_modules/idb"]
+        }
+    }
+}
