@@ -71,7 +71,7 @@ export class AlchemyWorker {
         const messageHandler = (evt) => {
             const {type, payload} = evt.data;
             let strType = String(type);
-            if (strType in messageHandlerSwitch) {
+            if (strType in eventDelegator) {
                 eventDelegator[strType](payload);
             } else {
                 eventDelegator['default'](type);
