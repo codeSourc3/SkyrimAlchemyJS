@@ -2,9 +2,9 @@ import { WORKER_READY, INGREDIENT_SEARCH_RESULT, POPULATE_INGREDIENT_LIST, CALCU
 import { buildCalculateMessage, buildPopulateMessage, buildSearchMessage } from "../messaging.js";
 
 const eventDelegator = {
-    source: null,
+    target: null,
     ['worker-ready']() {
-        triggerWorkerReady(this.source);
+        triggerWorkerReady(this.target);
     },
     /**
      * 
@@ -12,7 +12,7 @@ const eventDelegator = {
      */
     ['search-result'](payload) {
         console.assert(Array.isArray(payload) && payload.every(item => typeof item === 'string'), 'Message handler switch docs need updating.');
-        triggerSearchEvt(this.source, payload);
+        triggerSearchEvt(this.target, payload);
     },
     /**
      * 
@@ -20,7 +20,7 @@ const eventDelegator = {
      */
     ['populate-result'](payload) {
         console.assert(Array.isArray(payload) && payload.every(item => typeof item === 'string'), 'Message handler switch docs need updating.');
-        triggerPopulate(this.source, payload);
+        triggerPopulate(this.target, payload);
     },
     /**
      * 
@@ -28,10 +28,10 @@ const eventDelegator = {
      */
     ['calculate-result'](payload)  {
         console.dir(payload);
-        triggerCalculatePotionEvt(this.source, payload);
+        triggerCalculatePotionEvt(this.target, payload);
     },
     ['worker-error'](payload)  {
-        triggerWorkerError(this.source, payload);
+        triggerWorkerError(this.target, payload);
     },
     /**
      * 
@@ -60,12 +60,12 @@ export class AlchemyWorker {
          * @returns {void}
          */
         this.onUnknownMessage = (type) => console.debug(`${type} is not a valid message type.`);
-        eventDelegator.source = this.#worker;
+        eventDelegator.target = this.#worker;
         eventDelegator['calculate-result'].bind(this.#worker);
         eventDelegator['populate-result'].bind(this.#worker);
         eventDelegator.onUnknownMessage = this.onUnknownMessage;
         /**
-         * 
+         * Converts MessageEvent data to CustomEvents and dispatches them on the worker.
          * @param {MessageEvent<any>} evt - The message event sent to the worker.
          */
         const messageHandler = (evt) => {
