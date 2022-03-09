@@ -2,9 +2,9 @@ import { WORKER_READY, INGREDIENT_SEARCH_RESULT, POPULATE_INGREDIENT_LIST, CALCU
 import { buildCalculateMessage, buildPopulateMessage, buildSearchMessage } from "../messaging.js";
 
 const eventDelegator = {
-    worker: null,
+    source: null,
     ['worker-ready']() {
-        triggerWorkerReady(this.worker);
+        triggerWorkerReady(this.source);
     },
     /**
      * 
@@ -12,7 +12,7 @@ const eventDelegator = {
      */
     ['search-result'](payload) {
         console.assert(Array.isArray(payload) && payload.every(item => typeof item === 'string'), 'Message handler switch docs need updating.');
-        triggerSearchEvt(this.worker, payload);
+        triggerSearchEvt(this.source, payload);
     },
     /**
      * 
@@ -20,7 +20,7 @@ const eventDelegator = {
      */
     ['populate-result'](payload) {
         console.assert(Array.isArray(payload) && payload.every(item => typeof item === 'string'), 'Message handler switch docs need updating.');
-        triggerPopulate(this.worker, payload);
+        triggerPopulate(this.source, payload);
     },
     /**
      * 
@@ -28,10 +28,10 @@ const eventDelegator = {
      */
     ['calculate-result'](payload)  {
         console.dir(payload);
-        triggerCalculatePotionEvt(this.worker, payload);
+        triggerCalculatePotionEvt(this.source, payload);
     },
     ['worker-error'](payload)  {
-        triggerWorkerError(this.worker, payload);
+        triggerWorkerError(this.source, payload);
     },
     /**
      * 
@@ -60,7 +60,7 @@ export class AlchemyWorker {
          * @returns {void}
          */
         this.onUnknownMessage = (type) => console.debug(`${type} is not a valid message type.`);
-        eventDelegator.worker = this.#worker;
+        eventDelegator.source = this.#worker;
         eventDelegator['calculate-result'].bind(this.#worker);
         eventDelegator['populate-result'].bind(this.#worker);
         eventDelegator.onUnknownMessage = this.onUnknownMessage;
