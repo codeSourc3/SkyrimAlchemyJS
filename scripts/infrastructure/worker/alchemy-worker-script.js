@@ -4,6 +4,7 @@ import { createPotionBuilder as makePotion, findPossibleCombinations } from "../
 import { openDB, insertEntry, filterIngredientsByEffect, getAllIngredientNames, filterByDLC, getIngredient } from '../db/db.js';
 import {buildCalculateResultMessage, buildErrorMessage, buildPopulateResultMessage, buildSearchResultMessage, buildWorkerReadyMessage} from '../messaging.js';
 import { intersection, toArray, toSet } from "../array-helpers.js";
+import {isNullish} from '../utils.js';
 
 //const console = logger;
 
@@ -12,42 +13,51 @@ import { intersection, toArray, toSet } from "../array-helpers.js";
  */
 let db;
 
+let port2;
+
 let shouldUpgrade = false;
-
-setupIndexedDB().then(() => {
-    postMessage(buildWorkerReadyMessage(self.name));
-    self.addEventListener('message', handleMessage);
-    console.debug('Alchemy worker event listener set up.');
-    console.assert(typeof db !== 'undefined');
-});
-
+globalThis.addEventListener('message', async e => {
+    if (e.data.type === 'init') {
+        console.info('initializing');
+        port2 = e.ports[0];
+        console.assert(!isNullish(port2), 'Port 2 did not transfer.');
+    }
+    await setupIndexedDB();
+    port2.postMessage(buildWorkerReadyMessage(self.name));
+    listenToEvents(port2);
+}, {once: true});
 
 /**
  * 
- * @param {MessageEvent} msg the message from the main thread.
+ * @param { MessagePort} source 
  */
-async function handleMessage(msg) {
-    const start = self.performance.now();
-    const msgData = msg.data;
-    console.info('From main thread to worker thread: ', { msgData });
-    const end = self.performance.now();
-    console.debug('Time taken is %d', end - start);
-    switch (msgData.type) {
-        case 'calculate':
-            await processIngredients(db, msgData.payload);
-            break;
-        case 'search': 
-            const searchResults = await filterIngredients(db, msgData.payload);
-            postMessage(buildSearchResultMessage(searchResults));
-            break;
-        case 'populate':
+function listenToEvents(source) {
+    source.addEventListener('message', async e => {
+        if (e.data.type === 'calculate') {
+            try {
+                const results = await processIngredients(db, e.data.payload);
+                source.postMessage(buildCalculateResultMessage(results));
+            } catch (err) {
+                source.postMessage(buildErrorMessage(err.message));
+            }
+        }
+    });
+    source.addEventListener('message', async e => {
+        if (e.data.type === 'search') {
+            const searchResults = await filterIngredients(db, e.data.payload);
+            source.postMessage(buildSearchResultMessage(searchResults));
+        }
+    });
+    source.addEventListener('message', async e => {
+        if (e.data.type === 'populate') {
             const ingredients = await getAllIngredientNames(db);
-            postMessage(buildPopulateResultMessage(ingredients));
-            break;
-        default:
-            postMessage(buildErrorMessage('Message type not recognized!'));
-    }
+            source.postMessage(buildPopulateResultMessage(ingredients));
+        }
+    });
+    source.start();
 }
+
+
 
 /**
  * Attempts to search for any ingredients by effect or ingredient names.
@@ -107,6 +117,7 @@ function sortingOrderToBool(order) {
  * 
  * @param {IDBDatabase} db the database.
  * @param {{names: string[], skill: number, alchemist: number, hasBenefactor: boolean, hasPhysician: boolean, hasPoisoner: boolean, fortifyAlchemy: number}} nrIngredients 
+ * @returns {Map<string, import("../../alchemy/alchemy.js").Potion>}
  */
 async function processIngredients(db, { names, skill, alchemist, hasBenefactor, hasPhysician, hasPoisoner, fortifyAlchemy }) {
     const nrIngredients = names.length;
@@ -114,14 +125,18 @@ async function processIngredients(db, { names, skill, alchemist, hasBenefactor, 
     
     if (nrIngredients > 1) {
         const ingredients = await Promise.all(names.map(name => getIngredient(db, name)));
-        let results = findPossibleCombinations(ingredients);
-        console.debug('Possible combinations: ', results);
-        for (let [key, effects] of results) {
+        let combinations = findPossibleCombinations(ingredients);
+        /**
+         * @type {Map<string, import("../../alchemy/alchemy.js").Potion>}
+         */
+        let results = new Map();
+        console.debug('Possible combinations: ', combinations);
+        for (let [key, effects] of combinations) {
             results.set(key, potionMaker(effects));
         }
-        postMessage(buildCalculateResultMessage(results));
+        return results;
     } else {
-        postMessage(buildErrorMessage('Needs more than one ingredient'));
+        throw new Error('Need more than one ingredient.');
     }
 }
 

@@ -44,7 +44,8 @@ const eventDelegator = {
 };
 
 export class AlchemyWorker {
-    #worker
+    #worker;
+    #port;
     /**
      * Creates a worker from the specified path and attaches an event listener
      * to it.
@@ -53,6 +54,8 @@ export class AlchemyWorker {
      */
     constructor(aPath) {
         this.#worker = new Worker(aPath, {type: 'module', name: 'mixer'});
+        const channel = new MessageChannel();
+        this.#port = channel.port1;
         /**
          * Called on an unknown message being sent.
          * 
@@ -60,15 +63,16 @@ export class AlchemyWorker {
          * @returns {void}
          */
         this.onUnknownMessage = (type) => console.debug(`${type} is not a valid message type.`);
-        eventDelegator.target = this.#worker;
-        eventDelegator['calculate-result'].bind(this.#worker);
-        eventDelegator['populate-result'].bind(this.#worker);
+        eventDelegator.target = this.#port;
+        eventDelegator['calculate-result'].bind(this.#port);
+        eventDelegator['populate-result'].bind(this.#port);
         eventDelegator.onUnknownMessage = this.onUnknownMessage;
         /**
          * Converts MessageEvent data to CustomEvents and dispatches them on the worker.
          * @param {MessageEvent<any>} evt - The message event sent to the worker.
          */
         const messageHandler = (evt) => {
+            console.log(`Message ${evt.type}`);
             const {type, payload} = evt.data;
             let strType = String(type);
             if (strType in eventDelegator) {
@@ -77,41 +81,43 @@ export class AlchemyWorker {
                 eventDelegator['default'](type);
             }
         };
-        this.#worker.addEventListener('message', messageHandler);
+        this.#port.addEventListener('message', messageHandler);
+        this.#port.start();
+        this.#worker.postMessage({type: 'init'}, [channel.port2]);
     }
 
     onWorkerReady(callback) {
         if (typeof callback === 'function') {
-            this.#worker.addEventListener(WORKER_READY, callback);
+            this.#port.addEventListener(WORKER_READY, callback);
         }
     }
 
     onIngredientSearchResult(callback) {
         if (typeof callback === 'function') {
-            this.#worker.addEventListener(INGREDIENT_SEARCH_RESULT, callback);
+            this.#port.addEventListener(INGREDIENT_SEARCH_RESULT, callback);
         }
     }
 
     onPopulateIngredientList(callback) {
         if (typeof callback === 'function') {
-            this.#worker.addEventListener(POPULATE_INGREDIENT_LIST, callback);
+            this.#port.addEventListener(POPULATE_INGREDIENT_LIST, callback);
         }
     }
 
     onCalculateResult(callback) {
         if (typeof callback === 'function') {
-            this.#worker.addEventListener(CALCULATE_POTION_RESULT, callback);
+            this.#port.addEventListener(CALCULATE_POTION_RESULT, callback);
         }
     }
 
     onWorkerError(callback) {
         if (typeof callback === 'function') {
-            this.#worker.addEventListener(WORKER_ERROR, callback);
+            this.#port.addEventListener(WORKER_ERROR, callback);
         }
     }
 
     postMessage(message) {
-        this.#worker.postMessage(message);
+        this.#port.postMessage(message);
     }
 
     /**
@@ -123,7 +129,7 @@ export class AlchemyWorker {
      */
     sendSearchMessage(effectSearchTerm, effectOrder, dlc) {
         const searchMsg = buildSearchMessage(effectSearchTerm, effectOrder, dlc);
-        this.#worker.postMessage(searchMsg);
+        this.#port.postMessage(searchMsg);
     }
 
     /**
@@ -131,7 +137,7 @@ export class AlchemyWorker {
      */
     sendPopulateMessage() {
         const populateMsg = buildPopulateMessage();
-        this.#worker.postMessage(populateMsg);
+        this.#port.postMessage(populateMsg);
     }
 
     /**
@@ -146,7 +152,7 @@ export class AlchemyWorker {
      */
     sendCalculateMessage(ingredientNames, skill=15, alchemist=0, hasPhysician=false, hasBenefactor=false, hasPoisoner=false, fortifyAlchemy=0) {
         const calculateMsg = buildCalculateMessage(ingredientNames, skill, alchemist, hasPhysician, hasBenefactor, hasPoisoner, fortifyAlchemy);
-        this.#worker.postMessage(calculateMsg);
+        this.#port.postMessage(calculateMsg);
     }
 
 
