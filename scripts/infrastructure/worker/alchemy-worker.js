@@ -1,7 +1,7 @@
 import { WORKER_READY, INGREDIENT_SEARCH_RESULT, POPULATE_INGREDIENT_LIST, CALCULATE_POTION_RESULT, WORKER_ERROR, triggerWorkerReady, triggerSearchEvt, triggerPopulate, triggerCalculatePotionEvt, triggerWorkerError } from "../events/client-side-events.js";
 import { buildCalculateMessage, buildPopulateMessage, buildSearchMessage } from "../messaging.js";
 
-const messageHandlerSwitch = {
+const eventDelegator = {
     worker: null,
     ['worker-ready']() {
         triggerWorkerReady(this.worker);
@@ -60,10 +60,10 @@ export class AlchemyWorker {
          * @returns {void}
          */
         this.onUnknownMessage = (type) => console.debug(`${type} is not a valid message type.`);
-        messageHandlerSwitch.worker = this.#worker;
-        messageHandlerSwitch['calculate-result'].bind(this.#worker);
-        messageHandlerSwitch['populate-result'].bind(this.#worker);
-        messageHandlerSwitch.onUnknownMessage = this.onUnknownMessage;
+        eventDelegator.worker = this.#worker;
+        eventDelegator['calculate-result'].bind(this.#worker);
+        eventDelegator['populate-result'].bind(this.#worker);
+        eventDelegator.onUnknownMessage = this.onUnknownMessage;
         /**
          * 
          * @param {MessageEvent<any>} evt - The message event sent to the worker.
@@ -72,9 +72,9 @@ export class AlchemyWorker {
             const {type, payload} = evt.data;
             let strType = String(type);
             if (strType in messageHandlerSwitch) {
-                messageHandlerSwitch[strType](payload);
+                eventDelegator[strType](payload);
             } else {
-                messageHandlerSwitch['default'](type);
+                eventDelegator['default'](type);
             }
         };
         this.#worker.addEventListener('message', messageHandler);
