@@ -10,7 +10,6 @@ import { IngredientListView } from './infrastructure/views/ingredient-list-view.
 
 const alchemyWorker = new AlchemyWorker('scripts/infrastructure/worker/alchemy-worker-script.js');
 const domCache = new DomCache();
-alchemyWorker.postMessage('init');
 alchemyWorker.onWorkerReady(onWorkerReady);
 alchemyWorker.onIngredientSearchResult( onSearchResult);
 alchemyWorker.onPopulateIngredientList(onPopulateResult);
