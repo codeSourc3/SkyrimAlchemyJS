@@ -8,7 +8,6 @@ Can currently do the following:
 * Displaying other possible combinations (if you select three ingredients).
 
 What I'm working on:
-* Allowing the user to reset the forms instead of trying to find the ingredient you selected.
 * Styling the website.
 * Making the website into a webapp.
 * Allowing the user to filter ingredients by the location they're found.
