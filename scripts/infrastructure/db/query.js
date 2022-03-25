@@ -1,4 +1,5 @@
 import { toTitleCase } from "../strings.js";
+import { isNullish } from "../utils.js";
 
 const Direction = Object.freeze({
     PREV: 'prev',
@@ -54,6 +55,39 @@ export function equals(objStore, str, direction, onFound, onFinish) {
             let potentialMatch = cursor.key;
             if (potentialMatch === str) {
                 onFound(cursor.value, potentialMatch);
+            }
+            cursor.continue();
+        } else {
+            onFinish();
+        }
+    });
+
+    cursorReq.addEventListener('error', e => {
+        e.stopPropagation();
+        const error = cursorReq.error;
+        onFinish(error);
+    });
+}
+
+/**
+ * 
+ * @param {IDBObjectStore | IDBIndex} objStore 
+ * @param {IDBKeyRange} keyRange 
+ * @param {"next" | "prev"} direction
+ * @param {predicateCB} predicate 
+ * @param {onFoundCb} onFound 
+ * @param {onFinishCb} onFinish 
+ */
+export function filterBy(objStore, keyRange, direction, predicate, onFound, onFinish) {
+    let range = !isNullish(keyRange) ? keyRange : null;
+    const cursorReq = objStore.openCursor(range, direction);
+    cursorReq.addEventListener('success', e => {
+        const cursor = cursorReq.result;
+        if (cursor) {
+            let currentKey = cursor.key;
+            let currentValue = cursor.value;
+            if (predicate(currentValue, currentKey)) {
+                onFound(currentValue, currentKey);
             }
             cursor.continue();
         } else {
@@ -146,4 +180,11 @@ export function equalsAnyOf(index, keysToFind, direction, onFound, onFinish) {
  * @param {*} a
  * @param {*} b
  * @returns {number}
+ */
+
+/**
+ * @callback predicateCB
+ * @param {*} value the value of the cursor entry.
+ * @param {IDBValidKey} key the key of the cursor entry.
+ * @returns {boolean} true if the predicate matches and false otherwise.
  */

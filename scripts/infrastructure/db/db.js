@@ -1,11 +1,12 @@
 import { Ingredient } from "../../alchemy/ingredients.js";
 import { ING_OBJ_STORE } from "../config.js";
-import {equals, equalsAnyOf, startsWith} from './query.js'
+import {equals, equalsAnyOf, filterBy, startsWith} from './query.js'
 import { defaultIDBRequestHandler } from "./handlers.js";
 /**
  * @typedef IngredientEntry
  * @property {string} dlc the downloadable content the ingredient belongs to.
  * @property {number[]} effects an array of IDs for the effects.
+ * @property {string[]} effectNames an array of names of effects for use by IndexedDB indexes.
  * @property {number} goldValue the amount of gold the ingredient is worth.
  * @property {string} name the name of the ingredient.
  * @property {number} weight the weight of the ingredient.
@@ -32,6 +33,15 @@ export function openDB(dbName, upgradeHandler,version=1) {
     return openDBPromise;
 }
 
+/**
+ * 
+ * @param {IDBValidKey} key 
+ * @param {*} value the value of the cursor.
+ * @returns {boolean} always returns true for the default predicate.
+ */
+const defaultPredicate = (key, value) => {
+    return true;
+};
 
 
 /**
@@ -82,7 +92,7 @@ export function filterByDLC(db, dlc=['Vanilla'], asc=true) {
  * Tries to filter ingredients by name
  * @param {IDBDatabase} db the database
  * @param {string} searchText the search text.
- * @returns {Promise<Ingredient[]>}
+ * @returns {Promise<string[]>}
  */
 export function filterIngredientsByName(db, searchText, asc=true) {
     return new Promise((resolve, reject) => {
@@ -103,6 +113,31 @@ export function filterIngredientsByName(db, searchText, asc=true) {
             }
         });
         
+    });
+}
+
+
+/**
+ * 
+ * @param {IDBDatabase} db 
+ * @param {(key: IDBValidKey, value: any) => boolean} predicate 
+ * @param {boolean} asc 
+ * @returns {Promise<IngredientEntry[]>}
+ */
+export function filterIngredientsBy(db, predicate=defaultPredicate, asc=true) {
+    return new Promise((resolve, reject) => {
+        const transaction = db.transaction(ING_OBJ_STORE, 'readonly');
+        const objStore = transaction.objectStore(ING_OBJ_STORE);
+        let results = [];
+        filterBy(objStore, null, asc ? 'next': 'prev', predicate, (item) => {
+            results.push(item);
+        }, (err) => {
+            if (err) {
+                reject(err);
+            } else {
+                resolve(results);
+            }
+        });
     });
 }
 
@@ -138,7 +173,7 @@ export function filterIngredientsByEffect(db, searchText, asc=true) {
 /**
  * 
  * @param {IDBDatabase} db 
- * @returns {Promise<Ingredient[]>}
+ * @returns {Promise<IngredientEntry[]>}
  */
 export function getAllIngredients(db) {
     const tx = db.transaction(ING_OBJ_STORE, 'readonly');
@@ -157,7 +192,7 @@ export function getAllIngredients(db) {
 export function getAllIngredientNames(db) {
     const tx = db.transaction(ING_OBJ_STORE);
     const ingredientStore = tx.objectStore(ING_OBJ_STORE);
-    /** @type {IDBRequest<Ingredient[]>} */
+    /** @type {IDBRequest<IngredientEntry[]>} */
     const getIngredients = ingredientStore.getAll(); 
     /**
      * @type {Promise<string[]>}

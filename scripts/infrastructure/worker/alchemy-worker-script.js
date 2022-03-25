@@ -1,10 +1,10 @@
 import { Ingredient, parseIngredientsJSON } from "../../alchemy/ingredients.js";
 import { DB_NAME, VERSION, ING_OBJ_STORE } from "../config.js";
 import { createPotionBuilder as makePotion, findPossibleCombinations } from "../../alchemy/alchemy.js";
-import { openDB, insertEntry, filterIngredientsByEffect, getAllIngredientNames, filterByDLC, getIngredient } from '../db/db.js';
+import { openDB, insertEntry, filterIngredientsByEffect, getAllIngredientNames, filterByDLC, getIngredient, filterIngredientsBy } from '../db/db.js';
 import {buildCalculateResultMessage, buildErrorMessage, buildPopulateResultMessage, buildSearchResultMessage, buildWorkerReadyMessage} from '../messaging.js';
 import { intersection, toArray, toSet } from "../array-helpers.js";
-import {isNullish} from '../utils.js';
+import {isNullish, and, or, pipe, compose} from '../utils.js';
 
 //const console = logger;
 
@@ -57,6 +57,28 @@ function listenToEvents(source) {
     source.start();
 }
 
+/**
+ * 
+ * @param {string} effectName the name of the effect.
+ * @returns {import("../db/query.js").predicateCB}
+ * 
+ */
+const byEffect = (effectName) => {
+    return (value, key) => {
+        return /** @type {import("../db/db.js").IngredientEntry} */(value).effectNames.includes(effectName);
+    };
+};
+
+/**
+ * 
+ * @param {string[]} dlc the name of the dlc the effect should include.
+ * @returns {import("../db/query.js").predicateCB}
+ */
+const byDLC = (dlc) => {
+    return (value, key) => {
+        return dlc.includes(/** @type {import("../db/db.js").IngredientEntry} */(value).dlc);
+    };
+};
 
 
 /**
@@ -75,22 +97,25 @@ async function filterIngredients(db, messagePayload) {
     let searchResults = [];
     const appliedFilters = [];
     if (effectSearchTerm === 'All') {
-        appliedFilters.push(getAllIngredientNames(db));
+        const allFilter = (value, key) => {
+            return true;
+        };
+        appliedFilters.push(allFilter);
         console.info('Getting all ingredients');
     } else {
-        const byEffect = filterIngredientsByEffect(db, effectSearchTerm, sortingOrderToBool(effectOrder));
-        appliedFilters.push(byEffect);
+        const effectFilter = byEffect(effectSearchTerm);
+        appliedFilters.push(effectFilter);
         console.info(`Getting by Effect ${effectSearchTerm}`);
     }
-    const byDLC = filterByDLC(db, dlc);
-    appliedFilters.push(byDLC);
-    let unprocessedResults = await Promise.all(appliedFilters);
+    appliedFilters.push(byDLC(dlc));
+    const filterFunc = and(...appliedFilters);
+    let unprocessedResults = await filterIngredientsBy(db, filterFunc);
     console.groupCollapsed('unprocessed');
     console.debug(effectSearchTerm === 'All' ? 'All Ingredients': `By ${effectSearchTerm}`, unprocessedResults[0]);
     console.debug(`By DLC`, unprocessedResults[1]);
     console.groupEnd();
     const comparator = createComparator(!sortingOrderToBool(effectOrder));
-    searchResults = toArray(intersection(toSet(unprocessedResults[0]), toSet(unprocessedResults[1]))).sort(comparator);
+    searchResults = unprocessedResults.map(item => item.name).sort(comparator);
     console.debug('Filters: ', searchResults);
     
     console.groupEnd();
