@@ -3,16 +3,16 @@ import { DB_NAME, VERSION, ING_OBJ_STORE } from "../config.js";
 import { createPotionBuilder as makePotion, findPossibleCombinations } from "../../alchemy/alchemy.js";
 import { openDB, insertEntry, filterIngredientsByEffect, getAllIngredientNames, filterByDLC, getIngredient, filterIngredientsBy } from '../db/db.js';
 import {buildCalculateResultMessage, buildErrorMessage, buildPopulateResultMessage, buildSearchResultMessage, buildWorkerReadyMessage} from '../messaging.js';
-import { intersection, toArray, toSet } from "../array-helpers.js";
-import {isNullish, and, or, pipe, compose} from '../utils.js';
-
-//const console = logger;
+import {isNullish, and} from '../utils.js';
 
 /**
  * @type {IDBDatabase}
  */
 let db;
 
+/**
+ * @type {MessagePort | undefined}
+ */
 let port2;
 
 let shouldUpgrade = false;
@@ -28,8 +28,10 @@ globalThis.addEventListener('message', async e => {
 }, {once: true});
 
 /**
+ * Adds event listeners to supporting the message types of calculate, search and populate.
+ * The populate event listener has it's once flag set to true, so it will unregister itself automatically.
  * 
- * @param { MessagePort} source 
+ * @param { MessagePort} source The message port to listen to.
  */
 function listenToEvents(source) {
     source.addEventListener('message', async e => {
@@ -53,13 +55,14 @@ function listenToEvents(source) {
             const ingredients = await getAllIngredientNames(db);
             source.postMessage(buildPopulateResultMessage(ingredients));
         }
-    });
+    }, {once: true});
     source.start();
 }
 
 /**
+ * A clojure returning a predicate for use by the filterIngredientsBy function.
  * 
- * @param {string} effectName the name of the effect.
+ * @param {string} effectName the name of the effect the ingredient should include.
  * @returns {import("../db/query.js").predicateCB}
  * 
  */
@@ -70,8 +73,9 @@ const byEffect = (effectName) => {
 };
 
 /**
+ * A clojure returning a predicate for use by the filterIngredientsBy function.
  * 
- * @param {string[]} dlc the name of the dlc the effect should include.
+ * @param {string[]} dlc the name of the dlc the ingredient should include.
  * @returns {import("../db/query.js").predicateCB}
  */
 const byDLC = (dlc) => {
@@ -82,7 +86,7 @@ const byDLC = (dlc) => {
 
 
 /**
- * Attempts to search for any ingredients by effect or ingredient names.
+ * Filters ingredients by effect and dlc according to the message payload.
  * 
  * @param {IDBDatabase} db 
  * @param {import("../messaging.js").SearchMessagePayload} messagePayload 
@@ -110,10 +114,6 @@ async function filterIngredients(db, messagePayload) {
     appliedFilters.push(byDLC(dlc));
     const filterFunc = and(...appliedFilters);
     let unprocessedResults = await filterIngredientsBy(db, filterFunc);
-    console.groupCollapsed('unprocessed');
-    console.debug(effectSearchTerm === 'All' ? 'All Ingredients': `By ${effectSearchTerm}`, unprocessedResults[0]);
-    console.debug(`By DLC`, unprocessedResults[1]);
-    console.groupEnd();
     const comparator = createComparator(!sortingOrderToBool(effectOrder));
     searchResults = unprocessedResults.map(item => item.name).sort(comparator);
     console.debug('Filters: ', searchResults);
