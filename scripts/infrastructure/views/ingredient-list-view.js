@@ -15,6 +15,9 @@ import {triggerIngredientSelected, triggerIngredientDeselected, triggerMaxSelect
 export class IngredientListView {
     #olList;
     #ingredientList;
+    #observer;
+    /** @type {Map<string, HTMLElement>} */
+    #namesToNodes = new Map();
     /**
      * 
      * @param {HTMLOListElement} olList 
@@ -22,6 +25,30 @@ export class IngredientListView {
     constructor(olList, ingredientList = new IngredientList()) {
         this.#ingredientList = ingredientList;
         this.#olList = olList;
+        /*
+        Attach mutation observer to keep running map of ingredient names to child nodes. 
+        */
+        this.#observer = new MutationObserver((mutations) => {
+            for (const mutation of mutations) {
+                if (mutation.type === 'childList') {
+                    const {addedNodes, removedNodes} = mutation;
+                    if (removedNodes.length > 0) {
+                        for (const node of removedNodes.values()) {
+                            this.#namesToNodes.delete(node.textContent);
+                        }
+                    }
+                    if (addedNodes.length > 0) {
+                        for (const node of addedNodes.values()) {
+                            this.#namesToNodes.set(node.textContent, node);
+                        }
+                    }
+                    console.dir(this.#namesToNodes);
+                }
+            }
+        });
+        this.#observer.observe(this.#olList, {
+            childList: true,
+        });
         this.#olList.addEventListener('click', this);
     }
 
@@ -34,20 +61,32 @@ export class IngredientListView {
 
     /**
      * 
-     * @param {HTMLElement} element 
+     * @param {HTMLElement | string} element 
      */
     select(element) {
-        element.dataset.selected = true;
+        let elementToChange = element;
+        if (typeof element === 'string') {
+            elementToChange = this.#namesToNodes.get(element);
+        }
+        elementToChange.dataset.selected = true;
+        this.#ingredientList.selectIngredient(elementToChange.textContent);
     }
+
+   
 
     /**
      * 
-     * @param {HTMLElement} element 
+     * @param {HTMLElement | string} element 
      */
     deselect(element) {
-        if ('selected' in element.dataset) {
-            delete element.dataset.selected;
+        let elementToChange = element;
+        if (typeof element === 'string') {
+            elementToChange = this.#namesToNodes.get(element);
         }
+        this.#ingredientList.unselectIngredient(elementToChange.textContent);
+        console.debug('Removing selected from dataset.');
+        let result = delete elementToChange.dataset.selected;
+        console.assert(result, 'Dataset attribute \'selected\' was not removed.');
     }
 
     /**

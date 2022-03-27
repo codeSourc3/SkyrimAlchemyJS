@@ -91,8 +91,10 @@ chosenIngredientsElem.addEventListener(LIST_CLEARED, evt => {
 // Unselects ingredient from ingredient list if chosen ingredients is clicked on.
 chosenIngredientsElem.addEventListener(INGREDIENT_DESELECTED, evt => {
     const ingredientName = evt.detail.ingredientName;
-    ingredientListView.unselectIngredient(ingredientName);
-})
+    console.debug(`chosen ingredient deselected evt listener: Ingredient ${ingredientName} deselected.`);
+    ingredientList.unselectIngredient(ingredientName);
+    ingredientListView.deselect(ingredientName);
+});
 
 ingredientListElem.addEventListener(MAX_INGREDIENTS_SELECTED, displayTooManyIngredientsMessage);
 
