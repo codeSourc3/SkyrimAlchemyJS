@@ -6,7 +6,9 @@
 async function addResourcesToCache(resources) {
     const cache = await caches.open('v1');
     try {
-       await cache.addAll(resources)
+       await cache.addAll(resources);
+       const indexPageResponse = await cache.match('/index.html');
+       await cache.put('/', indexPageResponse.clone());
     } catch (err) {
         console.error(`Failed to add resource to cache. Details: ${err}`);
     }
@@ -37,7 +39,10 @@ self.addEventListener('install', (/** @type {ExtendableEvent} */event) => {
         '/scripts/infrastructure/utils.js',
         '/scripts/main.js',
         '/styles/styles.css',
-        '/index.html'
+        '/index.html',
+        '/manifest.json',
+        '/images/alchemyjs-icon-128x128.png',
+        '/images/alchemyjs-icon-144x144.png'
     ]));
 });
 
