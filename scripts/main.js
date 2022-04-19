@@ -8,6 +8,24 @@ import { ChosenIngredients } from './infrastructure/models/chosen-ingredients.js
 import { formatListLocalized } from './infrastructure/strings.js';
 import { IngredientListView } from './infrastructure/views/ingredient-list-view.js';
 
+async function registerServiceWorker() {
+    if ('serviceWorker' in navigator) {
+        try {
+            const registration = await navigator.serviceWorker.register('../sw.js', {type: 'module'});
+            if (registration.installing) {
+                console.log('Service worker installing.');
+            } else if (registration.waiting) {
+                console.log('Service worker installed');
+            } else if (registration.active) {
+                console.log('Service worker active.');
+            }
+        } catch (err) {
+            console.error(`Registration failed with ${err}`);
+        } 
+    }
+}
+registerServiceWorker();
+
 const alchemyWorker = new AlchemyWorker('scripts/infrastructure/worker/alchemy-worker-script.js');
 const domCache = new DomCache();
 alchemyWorker.onWorkerReady(onWorkerReady);
