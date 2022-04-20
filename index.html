@@ -12,8 +12,8 @@
     <link rel="stylesheet" href="styles/styles.css">
 </head>
 
-<body>
-    <header>
+<body class="grid-container">
+    <header class="center-text">
         <h1>Skyrim Alchemy Calculator</h1>
     </header>
     <main>
@@ -86,79 +86,102 @@
                         <option value="asc" selected>Asc</option>
                         <option value="desc">Desc</option>
                     </select>
-                    
+
                 </fieldset>
                 <fieldset>
                     <legend>By DLC</legend>
-                    <input type="checkbox" name="dragonborn-dlc" id="dragonborn-dlc" checked>
-                    <label for="dragonborn-dlc">Dragonborn</label>
-                    <input type="checkbox" name="dawnguard-dlc" id="dawnguard-dlc" checked>
-                    <label for="dawnguard-dlc">Dawnguard</label>
-                    <input type="checkbox" name="hearthfire-dlc" id="hearthfire-dlc" checked>
-                    <label for="hearthfire-dlc">Hearthfire</label>
+
+                    <div class="form-group">
+                        <input type="checkbox" name="dragonborn-dlc" id="dragonborn-dlc" checked>
+                        <label for="dragonborn-dlc">Dragonborn</label>
+                    </div>
+
+                    <div class="form-group">
+                        <input type="checkbox" name="dawnguard-dlc" id="dawnguard-dlc" checked>
+                        <label for="dawnguard-dlc">Dawnguard</label>
+                    </div>
+
+                    <div class="form-group">
+                        <input type="checkbox" name="hearthfire-dlc" id="hearthfire-dlc" checked>
+                        <label for="hearthfire-dlc">Hearthfire</label>
+                    </div>
                 </fieldset>
-                <input type="submit" value="Search">
-                <input type="reset" value="Reset">
+                <button type="submit">Submit</button>
+                <button type="reset">Reset</button>
             </form>
-            <output class="search-stats" id="query-interpretation"></output>
-            <output class="search-stats" id="hit-count"></output>
+            <div>
+                <output class="search-stats" id="query-interpretation"></output>
+                <output class="search-stats" id="hit-count"></output>
+            </div>
             <ol id="ingredient-list">
                 <!-- Filled on DOMContentLoaded -->
             </ol>
         </article>
         <!-- Could sort filtered ingredients by name, gold cost, etc. -->
         <section>
-            <h1>Chosen Ingredients</h1>
+            <h1 class="center-text">Chosen Ingredients</h1>
             <ul id="chosen-ingredients">
                 <!-- Filled on user select -->
             </ul>
         </section>
         <article>
-            <h1>Mixing</h1>
-            <form id="brew-potion">
+            <h1 class="center-text">Mixing</h1>
+            <form id="brew-potion" class="formgrid">
                 <p><output id="brewing-error-message"></output></p>
-                
-                <label for="skill-level">Alchemy Skill: </label>
-                <input type="number" name="skill-level" id="skill-level" min="15" value="15">
 
-                <label for="alchemist-perk">Alchemist: </label>
-                <select name="alchemist-perk" id="alchemist-perk">
-                    <option value="0" selected>0</option>
-                    <option value="1">1</option>
-                    <option value="2">2</option>
-                    <option value="3">3</option>
-                    <option value="4">4</option>
-                    <option value="5">5</option>
-                </select>
+                <div class="form-group">
+                    <label for="skill-level">Alchemy Skill: </label>
+                    <input type="number" name="skill-level" id="skill-level" min="15" value="15" max="100">
+                </div>
 
-                <label for="physician-perk">Physician: </label>
-                <input type="checkbox" name="physician-perk" id="physician-perk">
+                <div class="form-group">
+                    <label for="alchemist-perk">Alchemist: </label>
+                    <select name="alchemist-perk" id="alchemist-perk">
+                        <option value="0" selected>0</option>
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="4">4</option>
+                        <option value="5">5</option>
+                    </select>
+                </div>
 
-                <label for="benefactor-perk">Benefactor: </label>
-                <input type="checkbox" name="benefactor-perk" id="benefactor-perk">
+                <div class="form-group">
+                    <label for="physician-perk">Physician: </label>
+                    <input type="checkbox" name="physician-perk" id="physician-perk">
+                </div>
 
-                <label for="poisoner-perk">Poisoner: </label>
-                <input type="checkbox" name="poisoner-perk" id="poisoner-perk">
+                <div class="form-group">
+                    <label for="benefactor-perk">Benefactor: </label>
+                    <input type="checkbox" name="benefactor-perk" id="benefactor-perk">
+                </div>
 
-                <label for="fortify-alchemy">Fortify Alchemy: </label>
-                <input type="number" name="fortify-alchemy" id="fortify-alchemy" min="0" value="0">
-                
-                <input type="reset" value="Reset">
-                <input type="submit" value="Mix">
+                <div class="form-group">
+                    <label for="poisoner-perk">Poisoner: </label>
+                    <input type="checkbox" name="poisoner-perk" id="poisoner-perk">
+                </div>
+
+                <div class="form-group">
+                    <label for="fortify-alchemy">Fortify Alchemy: </label>
+                    <input type="number" name="fortify-alchemy" id="fortify-alchemy" min="0" value="0">
+                </div>
+
+                <button type="reset">Reset</button>
+                <button type="submit">Mix</button>
             </form>
             <section>
-                <h1>Results</h1>
+                <h1 class="center-text">Results</h1>
                 <!-- Should display possible potions from the 2-3 ingredients 
                     selected. Potions with 3 ingredient potions being appended first, 
                  then each successful 2-ingredient potion after that.
                 -->
-                <ol id="possible-potions">
+                <ol id="possible-potions" class="center-text">
                     <p>Choose one to two ingredients.</p>
                 </ol>
             </section>
         </article>
     </main>
-    <footer>
+    <footer class="center-text">
         <p>Link to <a href="https://github.com/codeSourc3/SkyrimAlchemyJS">Github</a></p>
     </footer>
     <script type="module" src="./scripts/main.js">
@@ -166,7 +189,7 @@
     <script type="module">
         if ('serviceWorker' in navigator) {
             try {
-                const registration = await navigator.serviceWorker.register('/sw.js', {type: 'module'});
+                const registration = await navigator.serviceWorker.register('/sw.js', { type: 'module' });
                 if (registration.installing) {
                     console.log('Service worker installing.');
                 } else if (registration.waiting) {
@@ -176,8 +199,8 @@
                 }
             } catch (err) {
                 console.error(`Registration failed with ${err}`);
-            } 
-    }
+            }
+        }
     </script>
 </body>
 
