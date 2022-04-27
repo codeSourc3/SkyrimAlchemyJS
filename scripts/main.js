@@ -204,6 +204,7 @@ function onSearchFormSubmit(event) {
     console.debug('Ingredient search form submitting ', Array.from(formData.entries()));
     // Showing what the user last searched for.
     queryInterpretation.textContent = stringifyQuery(effectSearch, effOrder, dlc);
+    ingredientListElem.ariaSort = effOrder === 'asc' ? 'ascending' : 'descending';
     alchemyWorker.sendSearchMessage(effectSearch, effOrder, dlc);
 }
 
@@ -247,12 +248,17 @@ function handleBrewPotionFormSubmit(event) {
         brewingErrorOutput.textContent = `Expected 2 to 3 ingredients to be selected.`;
         return;
     }
+
+    // clear error output from last submission.
+    if (brewingErrorOutput.textContent.length > 0) {
+        brewingErrorOutput.textContent = '';
+    }
     const formData = new FormData(brewPotionForm);
     formData.set('selected-ingredients', Array.from(ingredientList.selectedIngredients).join());
     sendCalculateMessage(formData);
     
     // Assuming we still have the paragraph element.
-    if (resultList.hasChildNodes) {
+    if (resultList.hasChildNodes()) {
         console.debug('Attempting to remove default text');
         resultList.replaceChildren();
     }

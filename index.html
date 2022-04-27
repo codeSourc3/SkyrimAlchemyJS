@@ -20,11 +20,11 @@
         <!-- Search by ingredients, search by effect, 
             filters out ingredients based off of said conditions -->
         <article>
-            <h1>Filter</h1>
+            <h2>Filter</h2>
             <form id="ingredient-filter">
                 <fieldset>
-                    <legend>By Effect</legend>
-                    <select id="by-effect" name="by-effect">
+                    <legend id="aria-by-effect">By Effect</legend>
+                    <select id="by-effect" name="by-effect" aria-labelledby="aria-by-effect">
                         <option value="All" selected>All</option>
                         <option value="Cure Disease">Cure Disease</option>
                         <option value="Damage Health">Damage Health</option>
@@ -92,40 +92,40 @@
                     <legend>By DLC</legend>
 
                     <div class="form-group">
-                        <input type="checkbox" name="dragonborn-dlc" id="dragonborn-dlc" checked>
+                        <input type="checkbox" name="dragonborn-dlc" id="dragonborn-dlc" checked aria-checked="true">
                         <label for="dragonborn-dlc">Dragonborn</label>
                     </div>
 
                     <div class="form-group">
-                        <input type="checkbox" name="dawnguard-dlc" id="dawnguard-dlc" checked>
+                        <input type="checkbox" name="dawnguard-dlc" id="dawnguard-dlc" checked aria-checked="true">
                         <label for="dawnguard-dlc">Dawnguard</label>
                     </div>
 
                     <div class="form-group">
-                        <input type="checkbox" name="hearthfire-dlc" id="hearthfire-dlc" checked>
+                        <input type="checkbox" name="hearthfire-dlc" id="hearthfire-dlc" checked aria-checked="true">
                         <label for="hearthfire-dlc">Hearthfire</label>
                     </div>
                 </fieldset>
-                <button type="submit">Submit</button>
                 <button type="reset">Reset</button>
+                <button type="submit">Submit</button>
             </form>
             <div>
                 <output class="search-stats" id="query-interpretation"></output>
                 <output class="search-stats" id="hit-count"></output>
             </div>
-            <ol id="ingredient-list">
+            <ol id="ingredient-list" aria-label="Ingredient List" aria-sort="ascending">
                 <!-- Filled on DOMContentLoaded -->
             </ol>
         </article>
         <!-- Could sort filtered ingredients by name, gold cost, etc. -->
         <section>
-            <h1 class="center-text">Chosen Ingredients</h1>
+            <h2 class="center-text">Chosen Ingredients</h2>
             <ul id="chosen-ingredients">
                 <!-- Filled on user select -->
             </ul>
         </section>
         <article>
-            <h1 class="center-text">Mixing</h1>
+            <h2 class="center-text">Mixing</h2>
             <form id="brew-potion" class="formgrid">
                 <p><output id="brewing-error-message"></output></p>
 
@@ -170,18 +170,19 @@
                 <button type="submit">Mix</button>
             </form>
             <section>
-                <h1 class="center-text">Results</h1>
+                <h3 class="center-text">Results</h3>
                 <!-- Should display possible potions from the 2-3 ingredients 
                     selected. Potions with 3 ingredient potions being appended first, 
                  then each successful 2-ingredient potion after that.
                 -->
                 <ol id="possible-potions" class="center-text">
-                    <p>Choose one to two ingredients.</p>
+                    <li><p>Choose two to three ingredients.</p></li>
                 </ol>
             </section>
         </article>
     </main>
     <footer class="center-text">
+        <p>Created by Enzo M.</p>
         <p>Link to <a href="https://github.com/codeSourc3/SkyrimAlchemyJS">Github</a></p>
     </footer>
     <script type="module" src="./scripts/main.js">
