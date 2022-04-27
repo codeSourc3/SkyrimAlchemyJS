@@ -6,9 +6,9 @@
 async function addResourcesToCache(resources) {
     const cache = await caches.open('v1');
     try {
-       await cache.addAll(resources);
-       const indexPageResponse = await cache.match('/index.html');
-       await cache.put('/', indexPageResponse.clone());
+        await cache.addAll(resources);
+        const indexPageResponse = await cache.match('/index.html');
+        await cache.put('/', indexPageResponse.clone());
     } catch (err) {
         console.error(`Failed to add resource to cache. Details: ${err}`);
     }
@@ -17,7 +17,7 @@ async function addResourcesToCache(resources) {
 
 
 self.addEventListener('install', (/** @type {ExtendableEvent} */event) => {
-    
+
     event.waitUntil(addResourcesToCache([
         '/data/ingredients.json',
         '/scripts/alchemy/alchemy.js',
@@ -48,21 +48,26 @@ self.addEventListener('install', (/** @type {ExtendableEvent} */event) => {
 
 self.addEventListener('fetch', (/** @type {FetchEvent} */event) => {
     event.respondWith((async () => {
-        const cachedResponse = await caches.match(event.request);
-        if (cachedResponse) {
-          return cachedResponse;
+
+        try {
+            const response = await fetch(event.request);
+            if (!response || response.status !== 200 || response.type !== 'basic') {
+                return response;
+            }
+            const responseToCache = response.clone();
+            const cache = await caches.open('v1')
+            await cache.put(event.request, responseToCache);
+
+            return response;
+        } catch (err) {
+            const cachedResponse = await caches.match(event.request);
+            if (cachedResponse) {
+                return cachedResponse;
+            }
         }
-      
-        const response = await fetch(event.request);
-      
-        if (!response || response.status !== 200 || response.type !== 'basic') {
-          return response;
-        }
-      
-        const responseToCache = response.clone();
-        const cache = await caches.open('v1')
-        await cache.put(event.request, responseToCache);
-      
-        return response;
+
+
+
+
     })());
 });
