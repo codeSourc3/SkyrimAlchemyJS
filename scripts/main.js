@@ -69,6 +69,15 @@ ingredientListElem.addEventListener(INGREDIENT_SELECTED, (evt) => {
     chosenIngredients.addIngredient(ingredientName);
 });
 
+ingredientListElem.addEventListener('change', e => {
+    /**
+     * @type {HTMLInputElement}
+     */
+    const inputElem = e.target;
+    let val = inputElem.value;
+    console.debug(`Change event: ${val}`);
+});
+
 // Removes unselected ingredient from chosen ingredients.
 ingredientListElem.addEventListener(INGREDIENT_DESELECTED, (evt) => {
     const ingredientName = evt.detail.ingredientName;
