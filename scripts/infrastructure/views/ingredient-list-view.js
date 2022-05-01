@@ -76,12 +76,18 @@ export class IngredientListView {
                     const { addedNodes, removedNodes } = mutation;
                     if (removedNodes.length > 0) {
                         for (const node of removedNodes.values()) {
-                            this.#namesToNodes.delete(node.textContent);
+                            if (node.hasChildNodes()) {
+                                const inputValue = node.childNodes[0].value;
+                                this.#namesToNodes.delete(inputValue);
+                            }
                         }
                     }
                     if (addedNodes.length > 0) {
                         for (const node of addedNodes.values()) {
-                            this.#namesToNodes.set(node.textContent, node);
+                            const inputEl = node.childNodes[0];
+                            const inputValue = inputEl.value;
+                            console.debug('Added input node value: ', inputEl.value);
+                            this.#namesToNodes.set(inputValue, inputEl);
                         }
                     }
                     console.dir(this.#namesToNodes);
