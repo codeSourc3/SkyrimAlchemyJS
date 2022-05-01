@@ -91,7 +91,7 @@ export class IngredientListView {
         this.#observer.observe(this.#olList, {
             childList: true,
         });
-        this.#olList.addEventListener('click', this);
+        this.#olList.addEventListener('change', this);
     }
 
     replaceWithNoResults() {
@@ -103,32 +103,31 @@ export class IngredientListView {
 
     /**
      * 
-     * @param {HTMLElement | string} element 
+     * @param {HTMLInputElement | string} element 
      */
     select(element) {
         let elementToChange = element;
         if (typeof element === 'string') {
             elementToChange = this.#namesToNodes.get(element);
         }
-        elementToChange.dataset.selected = true;
-        this.#ingredientList.selectIngredient(elementToChange.textContent);
+        elementToChange.checked = true;
+        this.#ingredientList.selectIngredient(elementToChange.value);
     }
 
 
 
     /**
      * 
-     * @param {HTMLElement | string} element 
+     * @param {HTMLInputElement | string} element 
      */
     deselect(element) {
         let elementToChange = element;
         if (typeof element === 'string') {
             elementToChange = this.#namesToNodes.get(element);
         }
-        this.#ingredientList.unselectIngredient(elementToChange.textContent);
+        this.#ingredientList.unselectIngredient(elementToChange.value);
         console.debug('Removing selected from dataset.');
-        let result = delete elementToChange.dataset.selected;
-        console.assert(result, 'Dataset attribute \'selected\' was not removed.');
+        elementToChange.checked = false;
     }
 
     /**
@@ -174,27 +173,24 @@ export class IngredientListView {
     }
 
     /**
-     * 
-     * @param {} evt 
+     * Listens to change events.
+     * @param {InputEvent} evt 
      */
     handleEvent(evt) {
         /**
-             * @type {HTMLElement}
+             * @type {HTMLInputElement}
              */
         const selectedElement = evt.target;
-        const { textContent } = selectedElement;
-        const li = selectedElement.closest('li');
-        // no li element.
-        if (!li) return;
-        // li not in UL element.
-        if (!this.#olList.contains(li)) return;
-        if (!this.#ingredientList.hasIngredient(textContent) && this.#ingredientList.canSelectMore()) {
-            this.#ingredientList.selectIngredient(textContent);
-            triggerIngredientSelected(selectedElement, textContent);
-        } else if (this.#ingredientList.hasIngredient(textContent)) {
-            this.#ingredientList.unselectIngredient(textContent);
-            triggerIngredientDeselected(selectedElement, textContent);
+        const { value } = selectedElement;
+        
+        if (!this.#ingredientList.hasIngredient(value) && this.#ingredientList.canSelectMore()) {
+            this.#ingredientList.selectIngredient(value);
+            triggerIngredientSelected(selectedElement, value);
+        } else if (this.#ingredientList.hasIngredient(value)) {
+            this.#ingredientList.unselectIngredient(value);
+            triggerIngredientDeselected(selectedElement, value);
         } else {
+            selectedElement.checked = false;
             triggerMaxSelected(selectedElement);
         }
     }

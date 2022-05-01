@@ -69,15 +69,6 @@ ingredientListElem.addEventListener(INGREDIENT_SELECTED, (evt) => {
     chosenIngredients.addIngredient(ingredientName);
 });
 
-ingredientListElem.addEventListener('change', e => {
-    /**
-     * @type {HTMLInputElement}
-     */
-    const inputElem = e.target;
-    let val = inputElem.value;
-    console.debug(`Change event: ${val}`);
-});
-
 // Removes unselected ingredient from chosen ingredients.
 ingredientListElem.addEventListener(INGREDIENT_DESELECTED, (evt) => {
     const ingredientName = evt.detail.ingredientName;
@@ -263,7 +254,6 @@ function handleBrewPotionFormSubmit(event) {
         brewingErrorOutput.textContent = '';
     }
     const formData = new FormData(brewPotionForm);
-    formData.set('selected-ingredients', Array.from(ingredientList.selectedIngredients).join());
     sendCalculateMessage(formData);
     
     // Assuming we still have the paragraph element.
@@ -283,7 +273,7 @@ function sendCalculateMessage(formData) {
     let hasPhysician = formData.has('physician-perk');
     let hasBenefactor = formData.has('benefactor-perk');
     let hasPoisoner = formData.has('poisoner-perk');
-    let selectedIngredients = String(formData.get('selected-ingredients')).split(',');
+    let selectedIngredients = formData.getAll('selected-ingredients');
     console.assert(Array.isArray(selectedIngredients), `selectedIngredients are ${typeof selectedIngredients}`);
     let alchemist = Number(formData.get('alchemist-perk'));
     let skillLevel = Number(formData.get('skill-level'));
