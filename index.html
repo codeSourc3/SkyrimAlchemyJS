@@ -109,10 +109,12 @@
                 <button type="reset">Reset</button>
                 <button type="submit">Submit</button>
             </form>
-            <div>
-                <output class="search-stats" id="query-interpretation"></output>
-                <output class="search-stats" id="hit-count"></output>
-            </div>
+            <dl>
+                <dt>Query Interpretation: </dt>
+                <dd><output class="search-stats" id="query-interpretation">Showing ingredients sharing "All", sorted by asc, and part of Vanilla, Dragonborn, Dawnguard, and Healthfire</output></dd>
+                <dt>Number of Results: </dt>
+                <dd><output class="search-stats" id="hit-count"></output></dd>
+            </dl>
             <section>
                 <h3>Possible Ingredients</h3>
                 <ol id="ingredient-list" aria-label="Ingredient List" aria-multiselectable="true" aria-sort="ascending" role="listbox" aria-live="assertive" aria-atomic="true" aria-relevant="additions remove">

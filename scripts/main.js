@@ -218,7 +218,7 @@ function onPopulateResult({detail: {payload}}) {
 }
 
 function setHitCount(count) {
-    hitCount.textContent = `Number of Results: ${count}`;
+    hitCount.textContent = `${count}`;
 }
 
 
