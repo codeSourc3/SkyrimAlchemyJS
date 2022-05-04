@@ -92,17 +92,17 @@
                     <legend>By DLC</legend>
 
                     <div class="form-group">
-                        <input type="checkbox" name="dragonborn-dlc" id="dragonborn-dlc" checked aria-checked="true">
+                        <input type="checkbox" name="installed-dlc" id="dragonborn-dlc" value="Dragonborn" checked aria-checked="true">
                         <label for="dragonborn-dlc">Dragonborn</label>
                     </div>
 
                     <div class="form-group">
-                        <input type="checkbox" name="dawnguard-dlc" id="dawnguard-dlc" checked aria-checked="true">
+                        <input type="checkbox" name="installed-dlc" id="dawnguard-dlc" value="Dawnguard" checked aria-checked="true">
                         <label for="dawnguard-dlc">Dawnguard</label>
                     </div>
 
                     <div class="form-group">
-                        <input type="checkbox" name="hearthfire-dlc" id="hearthfire-dlc" checked aria-checked="true">
+                        <input type="checkbox" name="installed-dlc" id="hearthfire-dlc" value="Hearthfire" checked aria-checked="true">
                         <label for="hearthfire-dlc">Hearthfire</label>
                     </div>
                 </fieldset>
@@ -113,11 +113,12 @@
                 <output class="search-stats" id="query-interpretation"></output>
                 <output class="search-stats" id="hit-count"></output>
             </div>
-            <fieldset form="brew-potion">
-                <ol id="ingredient-list" aria-label="Ingredient List" aria-sort="ascending">
+            <section>
+                <h3>Possible Ingredients</h3>
+                <ol id="ingredient-list" aria-label="Ingredient List" aria-multiselectable="true" aria-sort="ascending" role="listbox" aria-live="assertive" aria-atomic="true" aria-relevant="additions remove">
                     <!-- Filled on DOMContentLoaded -->
                 </ol>
-            </fieldset>
+            </section>
         </article>
         <!-- Could sort filtered ingredients by name, gold cost, etc. -->
         <section>

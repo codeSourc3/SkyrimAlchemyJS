@@ -23,6 +23,7 @@ function createSelectableListItem(ingredientName) {
     const checkBoxInput = document.createElement('input');
     checkBoxInput.type = 'checkbox';
     checkBoxInput.name = 'selected-ingredients';
+    checkBoxInput.ariaChecked = false;
     checkBoxInput.id = ingredientName.replace(' ', '-').toLowerCase();
     checkBoxInput.value = ingredientName;
 
@@ -117,6 +118,7 @@ export class IngredientListView {
             elementToChange = this.#namesToNodes.get(element);
         }
         elementToChange.checked = true;
+        elementToChange.ariaChecked = true;
         this.#ingredientList.selectIngredient(elementToChange.value);
     }
 
@@ -132,8 +134,8 @@ export class IngredientListView {
             elementToChange = this.#namesToNodes.get(element);
         }
         this.#ingredientList.unselectIngredient(elementToChange.value);
-        console.debug('Removing selected from dataset.');
         elementToChange.checked = false;
+        elementToChange.ariaChecked = false;
     }
 
     /**

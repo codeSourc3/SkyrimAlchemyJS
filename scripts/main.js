@@ -198,9 +198,7 @@ function onSearchFormSubmit(event) {
     let dlc = ['Vanilla'];
     let effectSearch = formData.get('by-effect');
     let effOrder = formData.get('effect-sort-order');
-    if (formData.has('dragonborn-dlc')) dlc.push('Dragonborn');
-    if (formData.has('dawnguard-dlc')) dlc.push('Dawnguard');
-    if (formData.has('hearthfire-dlc')) dlc.push('Hearthfire');
+    dlc.push(...formData.getAll('installed-dlc'));
     console.debug('Ingredient search form submitting ', Array.from(formData.entries()));
     // Showing what the user last searched for.
     queryInterpretation.textContent = stringifyQuery(effectSearch, effOrder, dlc);

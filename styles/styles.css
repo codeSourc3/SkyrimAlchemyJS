@@ -50,13 +50,9 @@ footer {
 
 
 
-li[data-selected='true'] {
-    background-color: burlywood;
-    font-size: large;
-}
-
-li[data-selected='true']::before {
-    content: '>';
+input[name="selected-ingredients"]:checked + label {
+    background-color: black;
+    color: whitesmoke;
 }
 
 .search-stats {
