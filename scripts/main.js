@@ -68,6 +68,13 @@ ingredientSearchBar.addEventListener('reset', evt => {
     setTimeout(() => ingredientSearchBar.requestSubmit(), 0);
 }, {passive: true});
 
+// Resetting brew potion form
+brewPotionForm.addEventListener('reset', e => {
+    const defaultParagraph = tag('li', {children: [tag('p', {content: `Choose two to three ingredients.`})]});
+    resultList.replaceChildren(defaultParagraph);
+});
+
+
 // Adds selected ingredient to chosen ingredients.
 ingredientListElem.addEventListener(INGREDIENT_SELECTED, (evt) => {
     const ingredientName = evt.detail.ingredientName;
