@@ -7,6 +7,7 @@ import { ChosenIngredients } from './infrastructure/models/chosen-ingredients.js
 
 import { formatListLocalized } from './infrastructure/strings.js';
 import { IngredientListView } from './infrastructure/views/ingredient-list-view.js';
+import { isNullish } from './infrastructure/utils.js';
 
 const alchemyWorker = new AlchemyWorker('scripts/infrastructure/worker/alchemy-worker-script.js');
 const domCache = new DomCache();
@@ -36,18 +37,21 @@ brewPotionForm.addEventListener('submit', handleBrewPotionFormSubmit);
 const ingredientSearchBar = domCache.id('ingredient-filter');
 ingredientSearchBar.addEventListener('submit', onSearchFormSubmit);
 const queryInterpretation = domCache.id('query-interpretation');
-const brewingErrorOutput = domCache.id('brewing-error-message');
 const ingredientListElem = domCache.id('ingredient-list');
 const chosenIngredientsElem = domCache.id('chosen-ingredients');
 const resultList = domCache.id('possible-potions');
 const hitCount = domCache.id('hit-count');
-
+const invalidElementsCache = [];
 
 
 // Used to avoid querying the DOM to get the name of the ingredient.
 const ingredientList = new IngredientList();
 const ingredientListView = new IngredientListView(ingredientListElem, ingredientList);
 const chosenIngredients = new ChosenIngredients(chosenIngredientsElem);
+/**
+ * @type {HTMLButtonElement}
+ */
+const brewPotionButton = brewPotionForm.elements[brewPotionForm.elements.length - 2];
 
 // Add ARIA support for checkboxes
 const SECOND_FIELDSET_INDEX = 3;
@@ -59,6 +63,7 @@ ingredientSearchBar.addEventListener('reset', evt => {
     // on Search form reset, remove all chosen ingredients. Remove all selected ingredients as well.
     ingredientListView.reset();
     chosenIngredients.clear();
+    invalidElementsCache.length = 0;
     // Done because the submit handler runs before the form has a chance to reset.
     setTimeout(() => ingredientSearchBar.requestSubmit(), 0);
 }, {passive: true});
@@ -70,6 +75,10 @@ ingredientListElem.addEventListener(INGREDIENT_SELECTED, (evt) => {
      * @type {HTMLLIElement}
      */
     let liElem = evt.target;
+    console.assert(liElem instanceof HTMLInputElement, 'Exepected an input element.');
+    if (brewPotionButton.validationMessage.length > 0) {
+        brewPotionButton.setCustomValidity('');
+    }
     ingredientListView.select(liElem);
     console.info(`${ingredientName} selected`);
     chosenIngredients.addIngredient(ingredientName);
@@ -229,9 +238,24 @@ function setHitCount(count) {
     hitCount.textContent = `${count}`;
 }
 
-
-function displayTooManyIngredientsMessage() {
-    console.warn('Too many ingredients, unselect some.');
+/**
+ * 
+ * @param {Event} event 
+ */
+function displayTooManyIngredientsMessage(event) {
+    /**
+     * @type {HTMLInputElement}
+     */
+    const excessInputElement = event.target;
+    invalidElementsCache.push(excessInputElement);
+    excessInputElement.setCustomValidity(`Too many ingredients were selected. Unselect some please.`);
+    excessInputElement.reportValidity();
+    setTimeout(() => {
+        let el = invalidElementsCache.pop();
+        if (!isNullish(el)) {
+            el.setCustomValidity('');
+        }
+    }, 1000);
 }
 
 /**
@@ -248,18 +272,18 @@ function onWorkerReady() {
 function handleBrewPotionFormSubmit(event) {
     // Prevents the form from redirecting to a URL.
     event.preventDefault();
+    /**
+     * @type {HTMLButtonElement}
+     */
+    const submitter = event.submitter;
     let selectedIngredients = Array.from(ingredientList.selectedIngredients);
     if (selectedIngredients.length < MIN_CHOSEN_INGREDIENTS) {
-        brewPotionForm.reset();
-        brewingErrorOutput.textContent = `Expected 2 to 3 ingredients to be selected.`;
+        submitter.setCustomValidity('Expected 2 to 3 ingredients to be selected.');
+        submitter.reportValidity();
         return;
     }
-
-    // clear error output from last submission.
-    if (brewingErrorOutput.textContent.length > 0) {
-        brewingErrorOutput.textContent = '';
-    }
     const formData = new FormData(brewPotionForm);
+    submitter.setCustomValidity('');
     sendCalculateMessage(formData);
     
     // Assuming we still have the paragraph element.

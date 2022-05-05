@@ -148,7 +148,7 @@ export class IngredientListView {
             const listEl = createSelectableListItem(element);
             // highlight selected elements.
             if (this.#ingredientList.hasIngredient(element)) {
-                this.select(listEl);
+                this.select(listEl.firstElementChild);
             }
             frag.appendChild(listEl);
         }
@@ -167,7 +167,7 @@ export class IngredientListView {
             const listEl = createSelectableListItem(element);
             // highlight selected elements.
             if (this.#ingredientList.hasIngredient(element)) {
-                this.select(listEl);
+                this.select(listEl.firstElementChild);
             }
             frag.appendChild(listEl);
         }
