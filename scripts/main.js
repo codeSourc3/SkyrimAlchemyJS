@@ -49,6 +49,12 @@ const ingredientList = new IngredientList();
 const ingredientListView = new IngredientListView(ingredientListElem, ingredientList);
 const chosenIngredients = new ChosenIngredients(chosenIngredientsElem);
 
+// Add ARIA support for checkboxes
+const SECOND_FIELDSET_INDEX = 3;
+ingredientSearchBar.elements[SECOND_FIELDSET_INDEX].addEventListener('change', e => {
+    e.target.ariaChecked = e.target.checked;
+});
+
 ingredientSearchBar.addEventListener('reset', evt => {
     // on Search form reset, remove all chosen ingredients. Remove all selected ingredients as well.
     ingredientListView.reset();

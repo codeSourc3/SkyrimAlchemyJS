@@ -8,6 +8,8 @@ body {
     font-family: Arial, Helvetica, sans-serif;
     width: 80%;
     margin: auto;
+    font-size: 1.125rem;
+    line-height: 1.5;
 }
 
 .grid-container {
@@ -20,19 +22,34 @@ body {
 }
 
 .form-group {
-    margin: .5rem 0rem;
+    padding: .5rem 0rem;
     justify-content: center;
 }
 
 .form-group input[type="number"], select {
-    width: 100%;
+    width: 90%;
+}
+
+input, button, select {
+    padding: 0.5rem;
+    font-family: inherit;
+    font-size: inherit;
+    margin: 1rem;
+}
+
+.form-controls {
+    display: flex;
+    padding: 1rem 0rem;
+    justify-content: start;
 }
 
 
 
 form {
     margin: auto;
-    max-width: 100%;
+    width: 100%;
+    max-width: 40rem;
+    padding: .5rem;
 }
 
 header {
@@ -74,6 +91,7 @@ ol, ul {
 
 li {
     border-bottom: 1px solid black ;
+    padding: .5rem;
 }
 
 li:last-child {
@@ -100,8 +118,5 @@ li:last-child {
 
     
     
-    input[type="number"], select {
-        display: block;
-        width: 100%;
-    }
+    
 }
