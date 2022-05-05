@@ -1,15 +1,15 @@
-export function tag(tagName, {content='', classes=[], id='', parent, children=[]}) {
+export function tag(tagName, {content='', classes=[], id='', parent, children=[]}={}) {
     /**
      * @type {HTMLElement}
      */
     const el = document.createElement(tagName);
-    el.textContent = content;
-    el.id = id;
+    if (content.length > 0) el.textContent = content;
+    if (id.length > 0) el.id = id;
     if (parent instanceof HTMLElement) {
         parent.appendChild(el);
     }
-    el.classList.add(...classes);
-    el.append(...children);
+    if (classes.length > 0) el.classList.add(...classes);
+    if (children.length > 0) el.append(...children);
     return el;
 }
 

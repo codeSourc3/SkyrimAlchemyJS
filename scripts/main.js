@@ -129,28 +129,30 @@ function onCalculateResult({detail: {payload}}) {
  */
 function displayPotion({name, didSucceed, effects, gold}, combination='') {
     const frag = document.createDocumentFragment();
+    const li = tag('li');
     // create name paragraph.
     const potionName = tag('h2', {
         content: name
     });
-    frag.appendChild(potionName);
+    li.appendChild(potionName);
     if (didSucceed) {
         // add effects and gold to fragment.
         const potionEffects = tag('p', {
             content: `Description: ${effects}`
         });
-        frag.appendChild(potionEffects);
+        li.appendChild(potionEffects);
         
         const potionSellPrice = tag('p', {
             content: `Gold: ${gold}`
         });
-        frag.appendChild(potionSellPrice);
+        li.appendChild(potionSellPrice);
 
         const recipe = tag('i', {
             content: `Recipe: ${combination}`
         });
-        frag.appendChild(recipe);
+        li.appendChild(recipe);
     }
+    frag.appendChild(li);
     return frag;
 }
 

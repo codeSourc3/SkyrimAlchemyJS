@@ -20,89 +20,101 @@
         <!-- Search by ingredients, search by effect, 
             filters out ingredients based off of said conditions -->
         <article>
-            <h2>Filter</h2>
+            <h2>Find Ingredients</h2>
             <form id="ingredient-filter">
+                <h3>Filters</h3>
                 <fieldset>
                     <legend id="aria-by-effect">By Effect</legend>
-                    <select id="by-effect" name="by-effect" aria-labelledby="aria-by-effect">
-                        <option value="All" selected>All</option>
-                        <option value="Cure Disease">Cure Disease</option>
-                        <option value="Damage Health">Damage Health</option>
-                        <option value="Damage Magicka">Damage Magicka</option>
-                        <option value="Damage Magicka Regen">Damage Magicka Regen</option>
-                        <option value="Damage Stamina">Damage Stamina</option>
-                        <option value="Damage Stamina Regen">Damage Stamina Regen</option>
-                        <option value="Fear">Fear</option>
-                        <option value="Fortify Alteration">Fortify Alteration</option>
-                        <option value="Fortify Barter">Fortify Barter</option>
-                        <option value="Fortify Block">Fortify Block</option>
-                        <option value="Fortify Carry Weight">Fortify Carry Weight</option>
-                        <option value="Fortify Conjuration">Fortify Conjuration</option>
-                        <option value="Fortify Destruction">Fortify Destruction</option>
-                        <option value="Fortify Enchanting">Fortify Enchanting</option>
-                        <option value="Fortify Health">Fortify Health</option>
-                        <option value="Fortify Heavy Armor">Fortify Heavy Armor</option>
-                        <option value="Fortify Illusion">Fortify Illusion</option>
-                        <option value="Fortify Illusion Armor">Fortify Illusion Armor</option>
-                        <option value="Fortify Lockpicking">Fortify Lockpicking</option>
-                        <option value="Fortify Magicka">Fortify Magicka</option>
-                        <option value="Fortify Marksman">Fortify Marksman</option>
-                        <option value="Fortify One-handed">Fortify One-handed</option>
-                        <option value="Fortify Pickpocket">Fortify Pickpocket</option>
-                        <option value="Fortify Restoration">Fortify Restoration</option>
-                        <option value="Fortify Smithing">Fortify Smithing</option>
-                        <option value="Fortify Sneak">Fortify Sneak</option>
-                        <option value="Fortify Stamina">Fortify Stamina</option>
-                        <option value="Fortify Two-handed">Fortify Two-handed</option>
-                        <option value="Frenzy">Frenzy</option>
-                        <option value="Invisibility">Invisibility</option>
-                        <option value="Lingering Damage Health">Lingering Damage Health</option>
-                        <option value="Lingering Damage Magicka">Lingering Damage Magicka</option>
-                        <option value="Lingering Damage Stamina">Lingering Damage Stamina</option>
-                        <option value="Paralysis">Paralysis</option>
-                        <option value="Ravage Health">Ravage Health</option>
-                        <option value="Ravage Magicka">Ravage Magicka</option>
-                        <option value="Ravage Stamina">Ravage Stamina</option>
-                        <option value="Regenerate Health">Regenerate Health</option>
-                        <option value="Regenerate Magicka">Regenerate Magicka</option>
-                        <option value="Regenerate Stamina">Regenerate Stamina</option>
-                        <option value="Resist Fire">Resist Fire</option>
-                        <option value="Resist Frost">Resist Frost</option>
-                        <option value="Resist Magic">Resist Magic</option>
-                        <option value="Resist Poison">Resist Poison</option>
-                        <option value="Resist Shock">Resist Shock</option>
-                        <option value="Restore Health">Restore Health</option>
-                        <option value="Restore Magicka">Restore Magicka</option>
-                        <option value="Restore Stamina">Restore Stamina</option>
-                        <option value="Slow">Slow</option>
-                        <option value="Waterbreathing">Waterbreathing</option>
-                        <option value="Weakness to Fire">Weakness to Fire</option>
-                        <option value="Weakness to Frost">Weakness to Frost</option>
-                        <option value="Weakness to Magic">Weakness to Magic</option>
-                        <option value="Weakness to Poison">Weakness to Poison</option>
-                        <option value="Weakness to Shock">Weakness to Shock</option>
-                    </select>
-                    <select name="effect-sort-order" id="effect-sort-order">
-                        <option value="asc" selected>Asc</option>
-                        <option value="desc">Desc</option>
-                    </select>
+
+                    <div class="form-group">
+                        <label for="by-effect">Effect: </label>
+                        <select id="by-effect" name="by-effect" aria-labelledby="aria-by-effect">
+                            <option value="All" selected>All</option>
+                            <option value="Cure Disease">Cure Disease</option>
+                            <option value="Damage Health">Damage Health</option>
+                            <option value="Damage Magicka">Damage Magicka</option>
+                            <option value="Damage Magicka Regen">Damage Magicka Regen</option>
+                            <option value="Damage Stamina">Damage Stamina</option>
+                            <option value="Damage Stamina Regen">Damage Stamina Regen</option>
+                            <option value="Fear">Fear</option>
+                            <option value="Fortify Alteration">Fortify Alteration</option>
+                            <option value="Fortify Barter">Fortify Barter</option>
+                            <option value="Fortify Block">Fortify Block</option>
+                            <option value="Fortify Carry Weight">Fortify Carry Weight</option>
+                            <option value="Fortify Conjuration">Fortify Conjuration</option>
+                            <option value="Fortify Destruction">Fortify Destruction</option>
+                            <option value="Fortify Enchanting">Fortify Enchanting</option>
+                            <option value="Fortify Health">Fortify Health</option>
+                            <option value="Fortify Heavy Armor">Fortify Heavy Armor</option>
+                            <option value="Fortify Illusion">Fortify Illusion</option>
+                            <option value="Fortify Illusion Armor">Fortify Illusion Armor</option>
+                            <option value="Fortify Lockpicking">Fortify Lockpicking</option>
+                            <option value="Fortify Magicka">Fortify Magicka</option>
+                            <option value="Fortify Marksman">Fortify Marksman</option>
+                            <option value="Fortify One-handed">Fortify One-handed</option>
+                            <option value="Fortify Pickpocket">Fortify Pickpocket</option>
+                            <option value="Fortify Restoration">Fortify Restoration</option>
+                            <option value="Fortify Smithing">Fortify Smithing</option>
+                            <option value="Fortify Sneak">Fortify Sneak</option>
+                            <option value="Fortify Stamina">Fortify Stamina</option>
+                            <option value="Fortify Two-handed">Fortify Two-handed</option>
+                            <option value="Frenzy">Frenzy</option>
+                            <option value="Invisibility">Invisibility</option>
+                            <option value="Lingering Damage Health">Lingering Damage Health</option>
+                            <option value="Lingering Damage Magicka">Lingering Damage Magicka</option>
+                            <option value="Lingering Damage Stamina">Lingering Damage Stamina</option>
+                            <option value="Paralysis">Paralysis</option>
+                            <option value="Ravage Health">Ravage Health</option>
+                            <option value="Ravage Magicka">Ravage Magicka</option>
+                            <option value="Ravage Stamina">Ravage Stamina</option>
+                            <option value="Regenerate Health">Regenerate Health</option>
+                            <option value="Regenerate Magicka">Regenerate Magicka</option>
+                            <option value="Regenerate Stamina">Regenerate Stamina</option>
+                            <option value="Resist Fire">Resist Fire</option>
+                            <option value="Resist Frost">Resist Frost</option>
+                            <option value="Resist Magic">Resist Magic</option>
+                            <option value="Resist Poison">Resist Poison</option>
+                            <option value="Resist Shock">Resist Shock</option>
+                            <option value="Restore Health">Restore Health</option>
+                            <option value="Restore Magicka">Restore Magicka</option>
+                            <option value="Restore Stamina">Restore Stamina</option>
+                            <option value="Slow">Slow</option>
+                            <option value="Waterbreathing">Waterbreathing</option>
+                            <option value="Weakness to Fire">Weakness to Fire</option>
+                            <option value="Weakness to Frost">Weakness to Frost</option>
+                            <option value="Weakness to Magic">Weakness to Magic</option>
+                            <option value="Weakness to Poison">Weakness to Poison</option>
+                            <option value="Weakness to Shock">Weakness to Shock</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="effect-sort-order">Order: </label>
+                        <select name="effect-sort-order" id="effect-sort-order">
+                            <option value="asc" selected>Asc</option>
+                            <option value="desc">Desc</option>
+                        </select>
+                    </div>
 
                 </fieldset>
                 <fieldset>
                     <legend>By DLC</legend>
 
                     <div class="form-group">
-                        <input type="checkbox" name="installed-dlc" id="dragonborn-dlc" value="Dragonborn" checked aria-checked="true">
+                        <input type="checkbox" name="installed-dlc" id="dragonborn-dlc" value="Dragonborn" checked
+                            aria-checked="true">
                         <label for="dragonborn-dlc">Dragonborn</label>
                     </div>
 
                     <div class="form-group">
-                        <input type="checkbox" name="installed-dlc" id="dawnguard-dlc" value="Dawnguard" checked aria-checked="true">
+                        <input type="checkbox" name="installed-dlc" id="dawnguard-dlc" value="Dawnguard" checked
+                            aria-checked="true">
                         <label for="dawnguard-dlc">Dawnguard</label>
                     </div>
 
                     <div class="form-group">
-                        <input type="checkbox" name="installed-dlc" id="hearthfire-dlc" value="Hearthfire" checked aria-checked="true">
+                        <input type="checkbox" name="installed-dlc" id="hearthfire-dlc" value="Hearthfire" checked
+                            aria-checked="true">
                         <label for="hearthfire-dlc">Hearthfire</label>
                     </div>
                 </fieldset>
@@ -111,26 +123,28 @@
             </form>
             <dl>
                 <dt>Query Interpretation: </dt>
-                <dd><output class="search-stats" id="query-interpretation">Showing ingredients sharing "All", sorted by asc, and part of Vanilla, Dragonborn, Dawnguard, and Healthfire</output></dd>
+                <dd><output class="search-stats" id="query-interpretation">Showing ingredients sharing "All", sorted by
+                        asc, and part of Vanilla, Dragonborn, Dawnguard, and Healthfire</output></dd>
                 <dt>Number of Results: </dt>
                 <dd><output class="search-stats" id="hit-count"></output></dd>
             </dl>
             <section>
                 <h3>Possible Ingredients</h3>
-                <ol id="ingredient-list" aria-label="Ingredient List" aria-multiselectable="true" aria-sort="ascending" role="listbox" aria-live="assertive" aria-atomic="true" aria-relevant="additions remove">
+                <ol id="ingredient-list" aria-label="Ingredient List" aria-multiselectable="true" aria-sort="ascending"
+                    role="listbox" aria-live="assertive" aria-atomic="true" aria-relevant="additions remove">
                     <!-- Filled on DOMContentLoaded -->
                 </ol>
             </section>
         </article>
         <!-- Could sort filtered ingredients by name, gold cost, etc. -->
         <section>
-            <h2 class="center-text">Chosen Ingredients</h2>
+            <h2>Chosen Ingredients</h2>
             <ul id="chosen-ingredients">
                 <!-- Filled on user select -->
             </ul>
         </section>
         <article>
-            <h2 class="center-text">Mixing</h2>
+            <h2>Mixing</h2>
             <form id="brew-potion" class="formgrid">
                 <p><output id="brewing-error-message"></output></p>
 
@@ -175,13 +189,15 @@
                 <button type="submit">Mix</button>
             </form>
             <section>
-                <h3 class="center-text">Results</h3>
+                <h3>Results</h3>
                 <!-- Should display possible potions from the 2-3 ingredients 
                     selected. Potions with 3 ingredient potions being appended first, 
                  then each successful 2-ingredient potion after that.
                 -->
                 <ol id="possible-potions" class="center-text">
-                    <li><p>Choose two to three ingredients.</p></li>
+                    <li>
+                        <p>Choose two to three ingredients.</p>
+                    </li>
                 </ol>
             </section>
         </article>
