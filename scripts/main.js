@@ -300,6 +300,8 @@ function handleBrewPotionFormSubmit(event) {
     }
 }
 
+
+
 /**
  * Constructs a calculate message from the form data
  * submitted.
@@ -311,9 +313,11 @@ function sendCalculateMessage(formData) {
     let hasBenefactor = formData.has('benefactor-perk');
     let hasPoisoner = formData.has('poisoner-perk');
     let selectedIngredients = formData.getAll('selected-ingredients');
-    console.assert(Array.isArray(selectedIngredients), `selectedIngredients are ${typeof selectedIngredients}`);
+    console.assert(selectedIngredients.length > 0, `Selected ingredients can't be empty.`);
     let alchemist = Number(formData.get('alchemist-perk'));
     let skillLevel = Number(formData.get('skill-level'));
     let fortifyAlchemy = Number(formData.get('fortify-alchemy'));
+
+    formData.forEach(([value, key]) => console.debug(`Debugging Send Calculate Message: ${key}, ${value}`));
     alchemyWorker.sendCalculateMessage(selectedIngredients, skillLevel, alchemist, hasPhysician, hasBenefactor, hasPoisoner, fortifyAlchemy);
 }
