@@ -1,6 +1,60 @@
 import { triggerIngredientDeselected, triggerListCleared } from "../events/client-side-events.js";
 import { createListItem } from "../html/html.js";
 
+
+/**
+ * This has to be done after the inputs have been added to the DOM because 
+ * {@link Element.setAttribute} requires the element to be connected to the
+ * document.
+ * 
+ * @param {HTMLInputElement[]} inputElements 
+ * @param {string} formId 
+ */
+ function linkInputsToForm(inputElements, formId) {
+    if (Array.from(inputElements).every(input => input.isConnected)) {
+        for (const inputEl of Array.from(inputElements)) {
+            inputEl.setAttribute('form', formId);
+        }
+    } else {
+        console.warn('Not all input elements are connected');
+    }
+}
+
+/**
+ * 
+ * @param {HTMLInputElement} inputElement 
+ * @param {string} formId 
+ */
+function linkInputToForm(inputElement, formId) {
+    if (inputElement.isConnected) {
+        inputElement.setAttribute('form', formId);
+    }
+}
+
+/**
+ * 
+ * @param {string} ingredientName 
+ * @returns {HTMLLIElement}
+ */
+ function createListButtonItem(ingredientName) {
+    const listEl = document.createElement('li');
+
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.value = ingredientName;
+    button.textContent = ingredientName;
+
+    const hiddenInput = document.createElement('input');
+    hiddenInput.type = 'hidden';
+    hiddenInput.name = 'selected-ingredients';
+    hiddenInput.id = ingredientName.replace(' ', '-').toLowerCase();
+    hiddenInput.value = ingredientName;
+
+    listEl.appendChild(button);
+    listEl.appendChild(hiddenInput);
+    return listEl;
+}
+
 /**
  * The ingredients the user has chosen. 
  */
@@ -69,8 +123,9 @@ class ChosenIngredients {
      * @param {string} ingredientName 
      */
     addToList(ingredientName) {
-        const listEl = createListItem(ingredientName);
+        const listEl = createListButtonItem(ingredientName);
         this.#list.appendChild(listEl);
+        linkInputToForm(listEl.lastElementChild, 'brew-potion');
     }
 
     /**
@@ -121,17 +176,14 @@ class ChosenIngredients {
         // remove from list and fire 
         // ingredient-deselected event.
         /**
-         * @type {HTMLElement}
+         * @type {HTMLInputElement | HTMLButtonElement}
          */
         const selectedElement = evt.target;
-        const li = selectedElement.closest('li');
-        const {textContent} = selectedElement;
-        if (!li) return;
-        if (!this.#list.contains(li)) return;
-        if (this.hasIngredient(textContent)) {
+        const {value} = selectedElement;
+        if (this.hasIngredient(value)) {
             // remove from selected and remove from list.
-            this.removeIngredient(textContent);
-            triggerIngredientDeselected(this.#list, textContent);
+            this.removeIngredient(value);
+            triggerIngredientDeselected(this.#list, value);
         }
     }
 }

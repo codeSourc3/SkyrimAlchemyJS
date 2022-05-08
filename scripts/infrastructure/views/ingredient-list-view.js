@@ -154,7 +154,6 @@ export class IngredientListView {
         }
         saveAndFireListCleared(this.#ingredientList.selectedIngredients, this.#olList);
         this.#olList.appendChild(frag);
-        linkInputsToForm(this.#olList.querySelectorAll('input'), 'brew-potion');
     }
 
     /**
@@ -173,7 +172,6 @@ export class IngredientListView {
         }
         saveAndFireListCleared(this.#ingredientList.selectedIngredients, this.#olList);
         this.#olList.replaceChildren(frag);
-        linkInputsToForm(this.#olList.querySelectorAll('input'), 'brew-potion');
     }
 
     reset() {
