@@ -1,11 +1,11 @@
-import { Ingredient } from "../../alchemy/ingredients.js";
+import { Effect, Ingredient } from "../../alchemy/ingredients.js";
 import { ING_OBJ_STORE } from "../config.js";
 import {equals, equalsAnyOf, filterBy, startsWith} from './query.js'
 import { defaultIDBRequestHandler } from "./handlers.js";
 /**
  * @typedef IngredientEntry
  * @property {string} dlc the downloadable content the ingredient belongs to.
- * @property {number[]} effects an array of IDs for the effects.
+ * @property {Effect[]} effects an array of IDs for the effects.
  * @property {string[]} effectNames an array of names of effects for use by IndexedDB indexes.
  * @property {number} goldValue the amount of gold the ingredient is worth.
  * @property {string} name the name of the ingredient.
