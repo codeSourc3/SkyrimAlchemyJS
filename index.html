@@ -7,9 +7,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Skyrim Special Edition potion calculator.">
     <meta name="author" content="Enzo M.">
-    <link rel="manifest" href="/manifest.json">
+    <link rel="manifest" href="./manifest.json">
     <title>Skyrim Alchemy Calculator</title>
-    <link rel="stylesheet" href="styles/styles.css">
+    <link rel="stylesheet" href="./styles/styles.css">
 </head>
 
 <body class="grid-container">
@@ -215,7 +215,7 @@
     <script type="module">
         if ('serviceWorker' in navigator) {
             try {
-                const registration = await navigator.serviceWorker.register('/sw.js', { type: 'module' });
+                const registration = await navigator.serviceWorker.register('./sw.js', { type: 'module' });
                 if (registration.installing) {
                     console.log('Service worker installing.');
                 } else if (registration.waiting) {
