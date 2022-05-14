@@ -16,9 +16,9 @@
             "purpose": "any"
         }
     ],
-    "start_url": "/index.html",
+    "start_url": "/SkyrimAlchemyJS/index.html",
     "background_color": "#3367D6",
     "display": "standalone",
-    "scope": "/",
+    "scope": "/SkyrimAlchemyJS",
     "theme_color": "#3367D6"
 }
