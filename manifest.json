@@ -19,6 +19,5 @@
     "start_url": "./",
     "background_color": "#3367D6",
     "display": "standalone",
-    "scope": "https://codesourc3.github.io/SkyrimAlchemyJS/",
     "theme_color": "#3367D6"
 }
