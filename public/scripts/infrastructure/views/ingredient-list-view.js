@@ -15,11 +15,15 @@ function saveAndFireListCleared(aSet, olList) {
 
 /**
  * 
- * @param {string} ingredientName 
+ * @param {string} ingredientName the name of the ingredient. May have spaces and apostrophes.
  * @returns {string}
  */
 function valueToId(ingredientName) {
-    return ingredientName.split(' ').join('-').toLowerCase();
+    let selectorId = ingredientName.split(' ').join('-');
+    while (selectorId.includes('\'')) {
+        selectorId = selectorId.replace('\'', '');
+    }
+    return selectorId;
 }
 
 /**
@@ -218,7 +222,6 @@ export class IngredientListView {
      */
     #focusItem(element) {
         this.#activeDescendant = element.id;
-        console.debug(`Active descendant: ${this.#activeDescendant}`);
         this.#olList.setAttribute('aria-activedescendant', this.#activeDescendant);
         element.focus();
     }
@@ -236,12 +239,9 @@ export class IngredientListView {
      */
     #findNextOption(currentOption) {
         let nextOption = null;
-        console.debug(`Next element is ${currentOption.nextElementSibling}`);
         if (!isNullish(currentOption.nextElementSibling) && currentOption.nextElementSibling.hasAttribute('role')
         && currentOption.nextElementSibling.getAttribute('role') === 'option') {
             nextOption = currentOption.nextElementSibling;
-        } else {
-            console.warn('No next element or element doesn\'t have role of "option": ', currentOption)
         }
         return nextOption;
     }
@@ -255,8 +255,6 @@ export class IngredientListView {
         if (!isNullish(currentOption.previousElementSibling) && currentOption.previousElementSibling.hasAttribute('role')
         && currentOption.previousElementSibling.getAttribute('role') === 'option') {
             nextOption = currentOption.previousElementSibling;
-        } else {
-            console.warn('No previous element or element doesn\'t have role of "option".');
         }
         return nextOption;
     }
@@ -271,7 +269,6 @@ export class IngredientListView {
         let nextItem = currentItem;
 
         if (!currentItem) {
-            console.debug('no aria-activedescendant: ', {currentItem});
             return;
         }
 
@@ -285,8 +282,6 @@ export class IngredientListView {
                 if (nextItem) {
                     this.#focusItem(nextItem);
                     evt.preventDefault();
-                } else {
-                    console.debug('no next item.');
                 }
                 break;
             case 'ArrowUp':
@@ -319,7 +314,6 @@ export class IngredientListView {
                const optionLI = evt.target.closest('[role="option"]');
                this.#focusItem(optionLI);
                const inputEl = optionLI.firstElementChild;
-               console.assert(inputEl instanceof HTMLInputElement, 'Did not pass a checkbox to handleInput');
                this.#handleInput(inputEl);
                break;
             
@@ -327,10 +321,6 @@ export class IngredientListView {
                 this.#checkKeyPress(evt);
                 break;
             
-            case 'focus':
-                
-                break;
-
             default:
                 // Do nothing;
                 break;
