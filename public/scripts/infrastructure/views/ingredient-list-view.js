@@ -1,6 +1,7 @@
 import { IngredientList } from '../models/ingredient-list.js';
 import { tag, createListItem } from '../html/html.js';
 import { triggerIngredientSelected, triggerIngredientDeselected, triggerMaxSelected, triggerListCleared } from '../events/client-side-events.js';
+import { isNullish } from '../utils.js';
 
 /**
  * 
@@ -14,25 +15,41 @@ function saveAndFireListCleared(aSet, olList) {
 
 /**
  * 
+ * @param {string} ingredientName the name of the ingredient. May have spaces and apostrophes.
+ * @returns {string}
+ */
+function valueToId(ingredientName) {
+    let selectorId = ingredientName.split(' ').join('-');
+    while (selectorId.includes('\'')) {
+        selectorId = selectorId.replace('\'', '');
+    }
+    return selectorId;
+}
+
+/**
+ * 
  * @param {string} ingredientName 
  * @returns {HTMLLIElement}
  */
 function createSelectableListItem(ingredientName) {
     const listEl = document.createElement('li');
+    listEl.ariaSelected = false;
+    listEl.id = `${valueToId(ingredientName)}-item`;
+    listEl.tabIndex = -1;
+    listEl.setAttribute('role', 'option');
 
     const checkBoxInput = document.createElement('input');
     checkBoxInput.type = 'checkbox';
     checkBoxInput.name = 'selected-ingredients';
-    checkBoxInput.ariaChecked = false;
-    checkBoxInput.id = ingredientName.replace(' ', '-').toLowerCase();
     checkBoxInput.value = ingredientName;
+    checkBoxInput.id = valueToId(ingredientName);
+    checkBoxInput.tabIndex = -1;
 
     const label = document.createElement('label');
     label.htmlFor = checkBoxInput.id;
-    label.textContent = ingredientName;
+    const textNode = document.createTextNode(ingredientName);
 
-    listEl.appendChild(checkBoxInput);
-    listEl.appendChild(label);
+    listEl.append(checkBoxInput, label, textNode);
     return listEl;
 }
 
@@ -61,6 +78,7 @@ export class IngredientListView {
     #observer;
     /** @type {Map<string, HTMLElement>} */
     #namesToNodes = new Map();
+    #activeDescendant;
     /**
      * 
      * @param {HTMLOListElement} olList 
@@ -68,6 +86,7 @@ export class IngredientListView {
     constructor(olList, ingredientList = new IngredientList()) {
         this.#ingredientList = ingredientList;
         this.#olList = olList;
+        
         /*
         Attach mutation observer to keep running map of ingredient names to child nodes. 
         */
@@ -87,7 +106,6 @@ export class IngredientListView {
                         for (const node of addedNodes.values()) {
                             const inputEl = node.childNodes[0];
                             const inputValue = inputEl.value;
-                            console.debug('Added input node value: ', inputEl.value);
                             this.#namesToNodes.set(inputValue, inputEl);
                         }
                     }
@@ -98,7 +116,8 @@ export class IngredientListView {
         this.#observer.observe(this.#olList, {
             childList: true,
         });
-        this.#olList.addEventListener('change', this);
+        this.#olList.addEventListener('click', this);
+        this.#olList.addEventListener('keydown', this);
     }
 
     replaceWithNoResults() {
@@ -113,13 +132,13 @@ export class IngredientListView {
      * @param {HTMLInputElement | string} element 
      */
     select(element) {
-        let elementToChange = element;
+        let checkBox = element;
         if (typeof element === 'string') {
-            elementToChange = this.#namesToNodes.get(element);
+            checkBox = this.#namesToNodes.get(element);
         }
-        elementToChange.checked = true;
-        elementToChange.ariaChecked = true;
-        this.#ingredientList.selectIngredient(elementToChange.value);
+        checkBox.checked = true;
+        checkBox.parentElement.ariaSelected = true;
+        this.#ingredientList.selectIngredient(checkBox.value);
     }
 
 
@@ -129,13 +148,13 @@ export class IngredientListView {
      * @param {HTMLInputElement | string} element 
      */
     deselect(element) {
-        let elementToChange = element;
+        let checkBox = element;
         if (typeof element === 'string') {
-            elementToChange = this.#namesToNodes.get(element);
+            checkBox = this.#namesToNodes.get(element);
         }
-        this.#ingredientList.unselectIngredient(elementToChange.value);
-        elementToChange.checked = false;
-        elementToChange.ariaChecked = false;
+        this.#ingredientList.unselectIngredient(checkBox.value);
+        checkBox.checked = false;
+        checkBox.parentElement.ariaSelected = false;
     }
 
     /**
@@ -179,25 +198,132 @@ export class IngredientListView {
     }
 
     /**
-     * Listens to change events.
-     * @param {InputEvent} evt 
+     * 
+     * @param {HTMLInputElement} inputEl 
      */
-    handleEvent(evt) {
-        /**
-             * @type {HTMLInputElement}
-             */
-        const selectedElement = evt.target;
-        const { value } = selectedElement;
-        
+    #handleInput(inputEl) {
+        const { value } = inputEl;
         if (!this.#ingredientList.hasIngredient(value) && this.#ingredientList.canSelectMore()) {
             this.#ingredientList.selectIngredient(value);
-            triggerIngredientSelected(selectedElement, value);
+            triggerIngredientSelected(inputEl, value);
         } else if (this.#ingredientList.hasIngredient(value)) {
             this.#ingredientList.unselectIngredient(value);
-            triggerIngredientDeselected(selectedElement, value);
+            triggerIngredientDeselected(inputEl, value);
         } else {
-            selectedElement.checked = false;
-            triggerMaxSelected(selectedElement);
+            inputEl.checked = false;
+            triggerMaxSelected(inputEl);
         }
+    }
+
+
+    /**
+     * 
+     * @param {HTMLElement} element 
+     */
+    #focusItem(element) {
+        this.#activeDescendant = element.id;
+        this.#olList.setAttribute('aria-activedescendant', this.#activeDescendant);
+        element.focus();
+    }
+
+    #clearActiveDescendant() {
+        this.#activeDescendant = null;
+        this.#olList.setAttribute('aria-activedescendant', null);
+    }
+
+    #moveUpItems() {}
+
+    /**
+     * 
+     * @param {HTMLElement} currentOption 
+     */
+    #findNextOption(currentOption) {
+        let nextOption = null;
+        if (!isNullish(currentOption.nextElementSibling) && currentOption.nextElementSibling.hasAttribute('role')
+        && currentOption.nextElementSibling.getAttribute('role') === 'option') {
+            nextOption = currentOption.nextElementSibling;
+        }
+        return nextOption;
+    }
+
+    /**
+     * 
+     * @param {HTMLElement} currentOption 
+     */
+    #findPreviousOption(currentOption) {
+        let nextOption = null;
+        if (!isNullish(currentOption.previousElementSibling) && currentOption.previousElementSibling.hasAttribute('role')
+        && currentOption.previousElementSibling.getAttribute('role') === 'option') {
+            nextOption = currentOption.previousElementSibling;
+        }
+        return nextOption;
+    }
+
+    /**
+     * 
+     * @param {MouseEvent} evt 
+     */
+    #checkKeyPress(evt) {
+        const allOptions = this.#olList.querySelectorAll('[role="option"]');
+        const currentItem = this.#olList.querySelector(`#${this.#olList.getAttribute('aria-activedescendant')}`);
+        let nextItem = currentItem;
+
+        if (!currentItem) {
+            return;
+        }
+
+        switch (evt.key) {
+            case 'ArrowDown':
+                if (!this.#activeDescendant) {
+                    this.#focusItem(allOptions[0]);
+                    break;
+                }
+                nextItem = this.#findNextOption(currentItem);
+                if (nextItem) {
+                    this.#focusItem(nextItem);
+                    evt.preventDefault();
+                }
+                break;
+            case 'ArrowUp':
+                if (!this.#activeDescendant) {
+                    this.#focusItem(allOptions[0]);
+                    break;
+                }
+                nextItem = this.#findPreviousOption(currentItem);
+                if (nextItem) {
+                    this.#focusItem(nextItem);
+                    evt.preventDefault();
+                }
+                break;
+            case ' ':
+                const inputEl = currentItem.firstElementChild;
+                this.#handleInput(inputEl);
+                evt.preventDefault();
+                break;
+        }
+    }
+
+    /**
+     * Listens to change events.
+     * @param {InputEvent | MouseEvent} evt 
+     */
+    handleEvent(evt) {
+       switch(evt.type) {
+           case 'click':
+               evt.preventDefault();
+               const optionLI = evt.target.closest('[role="option"]');
+               this.#focusItem(optionLI);
+               const inputEl = optionLI.firstElementChild;
+               this.#handleInput(inputEl);
+               break;
+            
+            case 'keydown':
+                this.#checkKeyPress(evt);
+                break;
+            
+            default:
+                // Do nothing;
+                break;
+       }
     }
 }

@@ -1,5 +1,11 @@
 /** Mobile First design. */
 
+:root {
+    --focused-bg: #bde4ff;
+    --selected-bg: rgb(187, 187, 187);
+    --selected-border-color: black;
+}
+
 * {
     box-sizing: border-box;
 }
@@ -76,7 +82,7 @@ footer {
 
 input[name="selected-ingredients"]:checked + label {
     background-color: black;
-    color: whitesmoke;
+    color: rgb(245, 245, 245);
 }
 dt {
     font-weight: 600;
@@ -85,17 +91,25 @@ dt {
 
 ol, ul {
     list-style: none;
-    border: 1px black solid;
+    border: 1px var(--selected-border-color, black) solid;
     padding: 1rem;
 }
 
 li {
-    border-bottom: 1px solid black ;
+    border-bottom: 1px var(--selected-border-color) solid;
     padding: .5rem;
 }
 
 li:last-child {
     border-bottom-style: none;
+}
+
+li:focus {
+    background-color: var(--focused-bg);
+}
+
+[role="option"][aria-selected="true"] {
+    background-color: var(--selected-bg);
 }
 
 #ingredient-list {
