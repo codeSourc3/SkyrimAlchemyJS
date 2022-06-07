@@ -11,6 +11,7 @@ What I'm working on:
 * Styling the website.
 * Making the website into a webapp.
 * Allowing the user to filter ingredients by the location they're found.
-* Allowing the user to sort ingredients by magnitude.
 * Allowing the user to sort ingredients by multipliers.
 * Displaying multipliers.
+
+[Web App URL](https://codesourc3.github.io/SkyrimAlchemyJS/)
