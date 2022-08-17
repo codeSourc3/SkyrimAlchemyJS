@@ -8,10 +8,10 @@ const eventDelegator = {
     },
     /**
      * 
-     * @param {string[]} payload 
+     * @param {import("../db/db.js").IngredientEntry[]} payload 
      */
     ['search-result'](payload) {
-        console.assert(Array.isArray(payload) && payload.every(item => typeof item === 'string'), 'Message handler switch docs need updating.');
+        console.assert(Array.isArray(payload), 'Message handler switch docs need updating.');
         triggerSearchEvt(this.target, payload);
     },
     /**
@@ -19,7 +19,7 @@ const eventDelegator = {
      * @param {string[]} payload 
      */
     ['populate-result'](payload) {
-        console.assert(Array.isArray(payload) && payload.every(item => typeof item === 'string'), 'Message handler switch docs need updating.');
+        console.assert(Array.isArray(payload), 'Message handler switch docs need updating.');
         triggerPopulate(this.target, payload);
     },
     /**

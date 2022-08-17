@@ -180,12 +180,11 @@ function displayPotion({name, didSucceed, effects, gold}, combination='') {
 
 /**
  * 
- * @param {CustomEvent<{payload: string[]}>} payload 
+ * @param {CustomEvent<{payload: import('./infrastructure/db/db.js').IngredientEntry[]}>} payload 
  */
 function onSearchResult({detail: {payload}}) {
     console.debug('Search result incoming', payload);
     if (Array.isArray(payload)) {
-        
         if (payload.length > 0) {
             // We have search results.
             ingredientListView.replaceChildrenWith(payload);

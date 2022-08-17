@@ -1,7 +1,7 @@
 import { Ingredient, parseIngredientsJSON } from "../../alchemy/ingredients.js";
 import { DB_NAME, VERSION, ING_OBJ_STORE } from "../config.js";
 import { createPotionBuilder as makePotion, findPossibleCombinations } from "../../alchemy/alchemy.js";
-import { openDB, insertEntry, filterIngredientsByEffect, getAllIngredientNames, filterByDLC, getIngredient, filterIngredientsBy } from '../db/db.js';
+import { openDB, insertEntry, filterIngredientsByEffect, getAllIngredientNames, filterByDLC, getIngredient, filterIngredientsBy, getAllIngredients } from '../db/db.js';
 import {buildCalculateResultMessage, buildErrorMessage, buildPopulateResultMessage, buildSearchResultMessage, buildWorkerReadyMessage} from '../messaging.js';
 import {isNullish, and} from '../utils.js';
 
@@ -52,7 +52,7 @@ function listenToEvents(source) {
     });
     source.addEventListener('message', async e => {
         if (e.data.type === 'populate') {
-            const ingredients = await getAllIngredientNames(db);
+            const ingredients = await getAllIngredients(db);
             source.postMessage(buildPopulateResultMessage(ingredients));
         }
     }, {once: true});
@@ -115,7 +115,7 @@ async function filterIngredients(db, messagePayload) {
     const filterFunc = and(...appliedFilters);
     let unprocessedResults = await filterIngredientsBy(db, filterFunc);
     const comparator = createComparator(!sortingOrderToBool(effectOrder));
-    searchResults = unprocessedResults.map(item => item.name).sort(comparator);
+    searchResults = unprocessedResults.sort((a, b) => comparator(a.name, b.name));
     console.debug('Filters: ', searchResults);
     
     console.groupEnd();

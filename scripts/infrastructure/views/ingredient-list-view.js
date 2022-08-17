@@ -28,26 +28,26 @@ function valueToId(ingredientName) {
 
 /**
  * 
- * @param {string} ingredientName 
+ * @param {import('../db/db.js').IngredientEntry} ingredientName 
  * @returns {HTMLLIElement}
  */
-function createSelectableListItem(ingredientName) {
+function createSelectableListItem(ingredient) {
     const listEl = document.createElement('li');
     listEl.ariaSelected = false;
-    listEl.id = `${valueToId(ingredientName)}-item`;
+    listEl.id = `${valueToId(ingredient.name)}-item`;
     listEl.tabIndex = -1;
     listEl.setAttribute('role', 'option');
 
     const checkBoxInput = document.createElement('input');
     checkBoxInput.type = 'checkbox';
     checkBoxInput.name = 'selected-ingredients';
-    checkBoxInput.value = ingredientName;
-    checkBoxInput.id = valueToId(ingredientName);
+    checkBoxInput.value = ingredient.name;
+    checkBoxInput.id = valueToId(ingredient.name);
     checkBoxInput.tabIndex = -1;
 
     const label = document.createElement('label');
     label.htmlFor = checkBoxInput.id;
-    const textNode = document.createTextNode(ingredientName);
+    const textNode = document.createTextNode(ingredient.name);
 
     listEl.append(checkBoxInput, label, textNode);
     return listEl;
@@ -159,14 +159,14 @@ export class IngredientListView {
 
     /**
      * 
-     * @param {string[]} elements 
+     * @param {import('../db/db.js').IngredientEntry[]} elements 
      */
     addAll(elements) {
         const frag = new DocumentFragment();
         for (let element of elements) {
             const listEl = createSelectableListItem(element);
             // highlight selected elements.
-            if (this.#ingredientList.hasIngredient(element)) {
+            if (this.#ingredientList.hasIngredient(element.name)) {
                 this.select(listEl.firstElementChild);
             }
             frag.appendChild(listEl);
@@ -177,14 +177,14 @@ export class IngredientListView {
 
     /**
      * 
-     * @param {string[]} elements 
+     * @param {import('../db/db.js').IngredientEntry[]} elements 
      */
     replaceChildrenWith(elements = []) {
         const frag = new DocumentFragment();
         for (let element of elements) {
             const listEl = createSelectableListItem(element);
             // highlight selected elements.
-            if (this.#ingredientList.hasIngredient(element)) {
+            if (this.#ingredientList.hasIngredient(element.name)) {
                 this.select(listEl.firstElementChild);
             }
             frag.appendChild(listEl);
