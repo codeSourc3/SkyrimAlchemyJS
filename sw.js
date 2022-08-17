@@ -13,7 +13,7 @@ async function addResourcesToCache(resources) {
             try {
                 await cache.add(resource);
             } catch (err) {
-                throw new Error(`Resource ${resource.url} failed to be cached`);
+                throw new Error(`Resource ${resource.url || resource} failed to be cached`);
             }
         }
         const indexPageResponse = await cache.match('/index.html');
