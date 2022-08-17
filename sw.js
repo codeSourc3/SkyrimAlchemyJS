@@ -9,7 +9,9 @@ async function addResourcesToCache(resources) {
     await caches.delete('v1');
     const cache = await caches.open('v1');
     try {
-        await cache.addAll(resources);
+        for (const resource of resources) {
+            await cache.put(resource);
+        }
         const indexPageResponse = await cache.match('/index.html');
         await cache.put('/', indexPageResponse.clone());
     } catch (err) {
