@@ -6,10 +6,7 @@ const VERSION = 1;
  */
 async function addResourcesToCache(resources) {
     // clear cache
-    const hasCache = await caches.has('v1');
-    if (hasCache) {
-        await caches.delete('v1');
-    }
+    await caches.delete('v1');
     const cache = await caches.open('v1');
     try {
         await cache.addAll(resources);
