@@ -49,6 +49,14 @@ function createSelectableListItem(ingredient) {
     label.htmlFor = checkBoxInput.id;
     const textNode = document.createTextNode(ingredient.name);
 
+    // if current filtered effect is the first effect of ingredient
+    // append span element with text of "1st"
+
+    // if ingredient is not part of the base game,
+    // append the DLC it's in.
+
+    // If ingredient has any multipliers for current filtered effect,
+    // append them as sup tags in the format #.## Mag/Dur/Cost
     listEl.append(checkBoxInput, label, textNode);
     return listEl;
 }
