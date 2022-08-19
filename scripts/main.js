@@ -9,6 +9,12 @@ import { formatListLocalized } from './infrastructure/strings.js';
 import { IngredientListView } from './infrastructure/views/ingredient-list-view.js';
 import { isNullish } from './infrastructure/utils.js';
 
+/**
+ * @template T
+ * @typedef {CustomEvent<{payload: T}} AlchemyWorkerEvent
+ * 
+ */
+
 const alchemyWorker = new AlchemyWorker('scripts/infrastructure/worker/alchemy-worker-script.js');
 const domCache = new DomCache();
 alchemyWorker.onWorkerReady(onWorkerReady);
@@ -127,7 +133,7 @@ function onErrorMessage({detail: {payload: message}}) {
 
 /**
  * 
- * @param {CustomEvent<{payload: Map<string, import('./alchemy/alchemy.js').Potion> }>} payload 
+ * @param {AlchemyWorkerEvent<import('./infrastructure/messaging.js').CalculateResultPayload>} payload 
  */
 function onCalculateResult({detail: {payload}}) {
     console.info('Worker calculation results: ', payload);
@@ -180,15 +186,15 @@ function displayPotion({name, didSucceed, effects, gold}, combination='') {
 
 /**
  * 
- * @param {CustomEvent<{payload: import('./infrastructure/db/db.js').IngredientEntry[]}>} payload 
+ * @param {AlchemyWorkerEvent<import('./infrastructure/messaging.js').SearchResultPayload>} payload 
  */
 function onSearchResult({detail: {payload}}) {
     console.debug('Search result incoming', payload);
-    if (Array.isArray(payload)) {
-        if (payload.length > 0) {
+    if (Array.isArray(payload.results)) {
+        if (payload.results.length > 0) {
             // We have search results.
-            ingredientListView.replaceChildrenWith(payload);
-            setHitCount(payload.length);
+            ingredientListView.replaceChildrenWith(payload.results, payload.query);
+            setHitCount(payload.results.length);
             
         } else {
             // Query turned up nothing.
@@ -231,7 +237,7 @@ function onSearchFormSubmit(event) {
 
 /**
  * 
- * @param {CustomEvent<{payload: string[]}>} payload 
+ * @param {CustomEvent<{payload: import('./infrastructure/messaging.js').PopulateResultPayload}>} payload 
  */
 function onPopulateResult({detail: {payload}}) {
     console.assert(Array.isArray(payload), 'Populate results payload was not an array');

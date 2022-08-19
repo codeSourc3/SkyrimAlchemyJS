@@ -47,7 +47,7 @@ function listenToEvents(source) {
     source.addEventListener('message', async e => {
         if (e.data.type === 'search') {
             const searchResults = await filterIngredients(db, e.data.payload);
-            source.postMessage(buildSearchResultMessage(searchResults));
+            source.postMessage(buildSearchResultMessage(searchResults, e.data.payload));
         }
     });
     source.addEventListener('message', async e => {

@@ -3,6 +3,12 @@ import { tag, createListItem } from '../html/html.js';
 import { triggerIngredientSelected, triggerIngredientDeselected, triggerMaxSelected, triggerListCleared } from '../events/client-side-events.js';
 import { isNullish } from '../utils.js';
 
+const dlcNameToAcronym = new Map([
+    ['Dawnguard', 'DG'],
+    ['Dragonborn', 'DB'],
+    ['Hearthfire', 'HF']
+]);
+
 /**
  * 
  * @param {Set<string>} aSet 
@@ -28,10 +34,11 @@ function valueToId(ingredientName) {
 
 /**
  * 
- * @param {import('../db/db.js').IngredientEntry} ingredientName 
+ * @param {import('../db/db.js').IngredientEntry} ingredient
+ * @param {import('../messaging.js').SearchMessagePayload} query 
  * @returns {HTMLLIElement}
  */
-function createSelectableListItem(ingredient) {
+function createSelectableListItem(ingredient, query) {
     const listEl = document.createElement('li');
     listEl.ariaSelected = false;
     listEl.id = `${valueToId(ingredient.name)}-item`;
@@ -47,16 +54,57 @@ function createSelectableListItem(ingredient) {
 
     const label = document.createElement('label');
     label.htmlFor = checkBoxInput.id;
-    const textNode = document.createTextNode(ingredient.name);
+    const textNode = document.createElement('span');
+    textNode.textContent = ingredient.name;
 
-    // if current filtered effect is the first effect of ingredient
-    // append span element with text of "1st"
+    if (query !== null && typeof query !== 'undefined') {
 
-    // if ingredient is not part of the base game,
-    // append the DLC it's in.
+        // if current filtered effect is the first effect of ingredient
+        // append span element with text of "1st"
+        if (ingredient.effectNames[0] === query.effectSearchTerm) {
+            textNode.classList.add('first-effect');
+        }
+        // if ingredient is not part of the base game,
+        // append the DLC it's in.
+        if (ingredient.dlc !== 'Vanilla') {
+            const dlcTag = document.createElement('sup');
+            dlcTag.textContent = dlcNameToAcronym.get(ingredient.dlc);
+            dlcTag.tabIndex = -1;
+            dlcTag.classList.add('pill');
+            textNode.appendChild(dlcTag);
+        }
+        // If ingredient has any multipliers for current filtered effect,
+        // append them as sup tags in the format #.## Mag/Dur/Cost
+        const ingredientEffect = ingredient.effects[ingredient.effectNames.indexOf(query.effectSearchTerm)];
+        const {
+            cost: {multiplier: costMultiplier}, 
+            duration: {multiplier: durMultiplier},
+            magnitude: {multiplier: magMultiplier}
+        } = ingredientEffect;
+        if (!Number.isInteger(costMultiplier)) {
+            const costMultiplierTag = document.createElement('sup');
+            costMultiplierTag.textContent = `${costMultiplier}x Cost`;
+            costMultiplierTag.tabIndex = -1;
+            costMultiplierTag.classList.add('pill');
+            textNode.appendChild(costMultiplierTag);
+        }
 
-    // If ingredient has any multipliers for current filtered effect,
-    // append them as sup tags in the format #.## Mag/Dur/Cost
+        if (!Number.isInteger(durMultiplier)) {
+            const durMultiplierTag = document.createElement('sup');
+            durMultiplierTag.textContent = `${durMultiplier}x Dur`;
+            durMultiplierTag.tabIndex = -1;
+            durMultiplierTag.classList.add('pill');
+            textNode.appendChild(durMultiplierTag);
+        }
+
+        if (!Number.isInteger(magMultiplier)) {
+            const magMultiplierTag = document.createElement('sup');
+            magMultiplierTag.textContent = `${magMultiplier}x Mag`;
+            magMultiplierTag.tabIndex = -1;
+            magMultiplierTag.classList.add('pill');
+            textNode.appendChild(magMultiplierTag);
+        }
+    }
     listEl.append(checkBoxInput, label, textNode);
     return listEl;
 }
@@ -168,11 +216,12 @@ export class IngredientListView {
     /**
      * 
      * @param {import('../db/db.js').IngredientEntry[]} elements 
+     * @param {import('../messaging.js').SearchMessagePayload} query 
      */
-    addAll(elements) {
+    addAll(elements, query=null) {
         const frag = new DocumentFragment();
         for (let element of elements) {
-            const listEl = createSelectableListItem(element);
+            const listEl = createSelectableListItem(element, query);
             // highlight selected elements.
             if (this.#ingredientList.hasIngredient(element.name)) {
                 this.select(listEl.firstElementChild);
@@ -186,11 +235,12 @@ export class IngredientListView {
     /**
      * 
      * @param {import('../db/db.js').IngredientEntry[]} elements 
+     * @param {import('../messaging.js').SearchMessagePayload} query
      */
-    replaceChildrenWith(elements = []) {
+    replaceChildrenWith(elements = [], query=null) {
         const frag = new DocumentFragment();
         for (let element of elements) {
-            const listEl = createSelectableListItem(element);
+            const listEl = createSelectableListItem(element, query);
             // highlight selected elements.
             if (this.#ingredientList.hasIngredient(element.name)) {
                 this.select(listEl.firstElementChild);
