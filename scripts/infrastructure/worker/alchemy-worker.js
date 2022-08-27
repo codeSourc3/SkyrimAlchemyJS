@@ -8,10 +8,9 @@ const eventDelegator = {
     },
     /**
      * 
-     * @param {string[]} payload 
+     * @param {import("../messaging.js").SearchResultMessage} payload 
      */
     ['search-result'](payload) {
-        console.assert(Array.isArray(payload) && payload.every(item => typeof item === 'string'), 'Message handler switch docs need updating.');
         triggerSearchEvt(this.target, payload);
     },
     /**
@@ -19,12 +18,12 @@ const eventDelegator = {
      * @param {string[]} payload 
      */
     ['populate-result'](payload) {
-        console.assert(Array.isArray(payload) && payload.every(item => typeof item === 'string'), 'Message handler switch docs need updating.');
+        console.assert(Array.isArray(payload), 'Message handler switch docs need updating.');
         triggerPopulate(this.target, payload);
     },
     /**
      * 
-     * @param {import("../../alchemy/alchemy.js").Potion} payload 
+     * @param {import("../messaging.js").CalculateResultMessage} payload 
      */
     ['calculate-result'](payload)  {
         console.dir(payload);
@@ -69,7 +68,7 @@ export class AlchemyWorker {
         eventDelegator.onUnknownMessage = this.onUnknownMessage;
         /**
          * Converts MessageEvent data to CustomEvents and dispatches them on the worker.
-         * @param {MessageEvent<any>} evt - The message event sent to the worker.
+         * @param {MessageEvent<import("../messaging.js").Message<any>>} evt - The message event sent to the worker.
          */
         const messageHandler = (evt) => {
             console.log(`Message ${evt.type}`);

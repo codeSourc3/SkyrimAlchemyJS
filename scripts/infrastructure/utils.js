@@ -25,3 +25,7 @@ export const or = (...funcs) => (...args) => {
         return a(...args) || b(...args);
     });
 };
+
+export const compareFloats = (a, b, tolerance=0.0001) => {
+    return Math.abs(a - b) < tolerance;
+};

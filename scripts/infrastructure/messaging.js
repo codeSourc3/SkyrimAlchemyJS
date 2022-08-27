@@ -1,6 +1,11 @@
 /** @module messaging */
 
 /**
+ * @typedef {import("./db/db").IngredientEntry} IngredientEntry
+ * @typedef {import("../alchemy/alchemy").Potion} Potion
+ */
+
+/**
  * @template T
  * @typedef Message
  * @property {string} type the type of message.
@@ -8,16 +13,19 @@
  */
 
 /**
+ * The message sent to the main thread from the worker
  * @typedef {Message<string>} WorkerReadyMessage
  * 
  */
 
 /**
+ * The message sent to the worker from the main thread.
  * @typedef {Message<null>} PopulateMessage
  * 
  */
 
 /**
+ * The message sent to the worker from the main thread.
  * @typedef SearchMessagePayload
  * @property {string} effectSearchTerm
  * @property {string} effectOrder
@@ -25,16 +33,20 @@
  */
 
 /**
- * @typedef {Message<string[]>} PopulateResultMessage
+ * @typedef {IngredientEntry[]} PopulateResultPayload
+ * @typedef {Message<PopulateResultPayload>} PopulateResultMessage
+ * The resulting message sent to the main thread from the worker.
+ */
+
+/** 
+ * @typedef {{results: IngredientEntry[], query: SearchMessagePayload}} SearchResultPayload
+ * @typedef {Message<SearchResultPayload>} SearchResultMessage
+ * The resulting message sent to the main thread from the worker.
  * 
  */
 
 /** 
- * @typedef {Message<import("./db/db").IngredientEntry[]} SearchResultMessage
- * 
- */
-
-/** 
+ * The payload sent to the worker.
  * @typedef CalculateMessagePayload
  * @property {string[]} ingredientNames 
  * @property {number} skill 
@@ -46,6 +58,7 @@
  */
 
 /**
+ * The message sent to the worker from the main thread.
  * @typedef {Message<CalculateMessagePayload>} CalculateMessage
  * 
  */
@@ -53,21 +66,23 @@
 
 
 /** 
- * @typedef {Message<import("../alchemy/alchemy").Potion>} CalculateResultMessage
+ * @typedef {Map<string, Potion>} CalculateResultPayload
+ * @typedef {Message<CalculateResultPayload>} CalculateResultMessage
+ * The result message sent to the main thread from the worker
  * 
  */
 
 /**
- * @typedef SearchMessage
- * @property {string} type the type of the message.
- * @property {SearchMessagePayload} payload the search payload.
+ * The message sent to the worker from the main thread.
+ * @typedef {Message<SearchMessagePayload>} SearchMessage
+ * 
  */
 
 /**
  * Constructs the message to be sent between threads.
  * @param {string} type 
- * @param {any} payload 
- * @returns {Message}
+ * @param {T} payload 
+ * @returns {Message<T>}
  */
  function buildMessage(type, payload={}) {
     
@@ -81,7 +96,7 @@
  * Creates an error message.
  * 
  * @param {string} message the text message.
- * @returns {Message}
+ * @returns {Message<string>}
  */
 export function buildErrorMessage(message='Error') {
     const workerMessage = buildMessage('error', message);
@@ -108,17 +123,22 @@ export function buildSearchMessage(effectSearchTerm, effectOrder, dlc) {
         effectOrder,
         dlc
     };
+    /**
+     * @type {Message<SearchMessage>}
+     */
     const message = buildMessage('search', payload);
     return message;
 }
 
 /**
  * 
- * @param {import("./db/db.js").IngredientEntry[]} results 
- * @returns {SearchResultMessage}
+ * @type {import("./db/db.js").IngredientEntry}
+ * @param {IngredientEntry[]} results 
+ * @param {SearchMessagePayload} query 
+ * @returns {Message<SearchResultMessage>}
  */
-export function buildSearchResultMessage(results) {
-    const message = buildResultMessage('search', results);
+export function buildSearchResultMessage(results, query) {
+    const message = buildResultMessage('search', {results, query});
     return message;
 }
 
@@ -126,7 +146,7 @@ export function buildSearchResultMessage(results) {
  * 
  * @param {string} workerName 
  * @param {number} timestamp
- * @returns {WorkerReadyMessage}
+ * @returns {Message<WorkerReadyMessage>}
  */
 export function buildWorkerReadyMessage(workerName, timestamp=performance.now()) {
     const payload = {
@@ -142,7 +162,7 @@ export function buildWorkerReadyMessage(workerName, timestamp=performance.now())
 /**
  * 
  * @param {string[]} populateResult 
- * @returns {PopulateResultMessage}
+ * @returns {Message<PopulateResultMessage>}
  */
 export function buildPopulateResultMessage(populateResult) {
     const message = buildResultMessage('populate', populateResult);
@@ -151,7 +171,7 @@ export function buildPopulateResultMessage(populateResult) {
 
 /**
  * 
- * @returns {PopulateMessage}
+ * @returns {Message<PopulateMessage>}
  */
 export function buildPopulateMessage() {
     return buildMessage('populate');
@@ -166,7 +186,7 @@ export function buildPopulateMessage() {
  * @param {boolean} hasBenefactor 
  * @param {boolean} hasPoisoner 
  * @param {number} fortifyAlchemy 
- * @returns {CalculateMessage}
+ * @returns {Message<CalculateMessage>}
  */
 export function buildCalculateMessage(ingredientNames, skill=15, alchemist=0, hasPhysician=false, hasBenefactor=false, hasPoisoner=false, fortifyAlchemy=0) {
     const payload = {
@@ -183,9 +203,9 @@ export function buildCalculateMessage(ingredientNames, skill=15, alchemist=0, ha
 }
 
 /**
- * 
- * @param {import("../alchemy/alchemy").Potion} potion 
- * @returns {CalculateResultMessage}
+ * @typedef {import("../alchemy/alchemy").Potion} Potion
+ * @param {Potion} potion 
+ * @returns {Message<CalculateResultMessage>}
  */
 export function buildCalculateResultMessage(potion) {
     const message = buildResultMessage('calculate', potion);
