@@ -11,7 +11,6 @@ const eventDelegator = {
      * @param {import("../messaging.js").SearchResultMessage} payload 
      */
     ['search-result'](payload) {
-        console.assert(Array.isArray(payload), 'Message handler switch docs need updating.');
         triggerSearchEvt(this.target, payload);
     },
     /**
