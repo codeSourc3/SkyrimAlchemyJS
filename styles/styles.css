@@ -1,25 +1,33 @@
 /** Mobile First design. */
 
 :root {
-    --focused-bg: #bde4ff;
-    --selected-bg: rgb(187, 187, 187);
-    --selected-border-color: black;
-    --main-bg-color: white;
-    --main-text-color: black;
+    --main-bg-color: #0f0f0e;
+    --main-text-color: #fff;
+    --main-text-color--hover: #9ea399;
+    --main-border-color: #767e7a;
+    --main-border-color-hover: #aeb0a6;
+    --main-text-accent-color: #6b7e09;
+    --main-text-accent-color-2: #3b7408;
+    --cta-color: lightgreen;
 }
 
 * {
     box-sizing: border-box;
-    background-color: var(--main-bg-color);
-    color: var(--main-text-color);
+    
 }
 
 body {
+    background-color: var(--main-bg-color);
+    color: var(--main-text-color);
     font-family: Arial, Helvetica, sans-serif;
     width: 80%;
     margin: auto;
     font-size: 1.125rem;
     line-height: 1.5;
+}
+
+fieldset {
+    border-radius: 1em;
 }
 
 .grid-container {
@@ -45,6 +53,7 @@ input, button, select {
     font-family: inherit;
     font-size: inherit;
     margin: 1rem;
+    border-radius: 0.5em;
 }
 
 .form-controls {
@@ -54,31 +63,36 @@ input, button, select {
 }
 
 .first-effect {
-    text-decoration: underline black;
+    text-decoration: underline var(--main-text-accent-color) 0.5em;
 }
 
 .pill {
     display: inline-block;
     border-radius: .5em;
-    border: 1px black solid;
+    border: 1px var(--main-border-color) solid;
     margin-left: 0.5em;
     padding: 0.2em
 }
 
+.cta-button {
+    border-color: var(--cta-color);
+    color: var(--cta-color);
+}
+
 .multiplier {
-    background-color: lightgrey;
+    border-color: lightgrey;
 }
 
 .beneficial-effect {
-    background-color: lightgreen;
+    color: var(--cta-color);
 }
 
 .harmful-effect {
-    background-color: lightcoral;
+    color: lightcoral;
 }
 
 .dlc {
-    background-color: aqua;
+    border-color: var(--main-text-accent-color);
 }
 
 
@@ -87,6 +101,7 @@ form {
     width: 100%;
     max-width: 40rem;
     padding: .5rem;
+    border-radius: 1em;
 }
 
 header {
@@ -117,25 +132,28 @@ dt {
 
 ol, ul {
     list-style: none;
-    border: 1px var(--selected-border-color, black) solid;
+    border: 1px var(--main-border-color, black) solid;
+    border-radius: 1em;
     padding: 1rem;
 }
 
 li {
-    border-bottom: 1px var(--selected-border-color) solid;
+    border-bottom: 1px var(--main-border-color) solid;
     padding: .5rem;
+    border-radius: 0.5em;
 }
 
 li:last-child {
     border-bottom-style: none;
 }
 
-li:focus {
-    background-color: var(--focused-bg);
+li:focus, li:hover {
+    color: var(--main-text-color-hover);
+    outline: var(--main-border-color-hover) solid 1px;
 }
 
 [role="option"][aria-selected="true"] {
-    background-color: var(--selected-bg);
+    background-color: var(--main-text-accent-color-2);
 }
 
 #ingredient-list {
@@ -144,7 +162,16 @@ li:focus {
     resize: vertical;
 }
 
+button {
+    border-radius: 1em;
+    border-color: var(--main-border-color);
+    background-color: var(--main-bg-color);
+    color: var(--main-text-color);
+}
 
+a {
+    color: lightgreen;
+}
 
 
 
