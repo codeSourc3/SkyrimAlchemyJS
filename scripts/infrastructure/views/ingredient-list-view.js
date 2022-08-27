@@ -70,7 +70,7 @@ function createSelectableListItem(ingredient, query) {
             const dlcTag = document.createElement('sup');
             dlcTag.textContent = dlcNameToAcronym.get(ingredient.dlc);
             dlcTag.tabIndex = -1;
-            dlcTag.classList.add('pill');
+            dlcTag.classList.add('pill', 'dlc');
             textNode.appendChild(dlcTag);
         }
         // If ingredient has any multipliers for current filtered effect,
@@ -85,7 +85,7 @@ function createSelectableListItem(ingredient, query) {
             const costMultiplierTag = document.createElement('sup');
             costMultiplierTag.textContent = `${costMultiplier}x Cost`;
             costMultiplierTag.tabIndex = -1;
-            costMultiplierTag.classList.add('pill');
+            costMultiplierTag.classList.add('pill', 'multiplier');
             textNode.appendChild(costMultiplierTag);
         }
 
@@ -93,7 +93,7 @@ function createSelectableListItem(ingredient, query) {
             const durMultiplierTag = document.createElement('sup');
             durMultiplierTag.textContent = `${durMultiplier}x Dur`;
             durMultiplierTag.tabIndex = -1;
-            durMultiplierTag.classList.add('pill');
+            durMultiplierTag.classList.add('pill', 'multiplier');
             textNode.appendChild(durMultiplierTag);
         }
 
@@ -101,7 +101,7 @@ function createSelectableListItem(ingredient, query) {
             const magMultiplierTag = document.createElement('sup');
             magMultiplierTag.textContent = `${magMultiplier}x Mag`;
             magMultiplierTag.tabIndex = -1;
-            magMultiplierTag.classList.add('pill');
+            magMultiplierTag.classList.add('pill', 'multiplier');
             textNode.appendChild(magMultiplierTag);
         }
     }

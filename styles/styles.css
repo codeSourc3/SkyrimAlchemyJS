@@ -4,10 +4,14 @@
     --focused-bg: #bde4ff;
     --selected-bg: rgb(187, 187, 187);
     --selected-border-color: black;
+    --main-bg-color: white;
+    --main-text-color: black;
 }
 
 * {
     box-sizing: border-box;
+    background-color: var(--main-bg-color);
+    color: var(--main-text-color);
 }
 
 body {
@@ -49,6 +53,33 @@ input, button, select {
     justify-content: start;
 }
 
+.first-effect {
+    text-decoration: underline black;
+}
+
+.pill {
+    display: inline-block;
+    border-radius: .5em;
+    border: 1px black solid;
+    margin-left: 0.5em;
+    padding: 0.2em
+}
+
+.multiplier {
+    background-color: lightgrey;
+}
+
+.beneficial-effect {
+    background-color: lightgreen;
+}
+
+.harmful-effect {
+    background-color: lightcoral;
+}
+
+.dlc {
+    background-color: aqua;
+}
 
 
 form {
@@ -79,11 +110,6 @@ footer {
 }
 
 
-
-input[name="selected-ingredients"]:checked + label {
-    background-color: black;
-    color: rgb(245, 245, 245);
-}
 dt {
     font-weight: 600;
 }
