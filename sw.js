@@ -50,8 +50,15 @@ self.addEventListener('install', (/** @type {ExtendableEvent} */event) => {
         '/styles/styles.css',
         '/index.html',
         '/manifest.json',
-        '/images/alchemyjs-icon-128x128.png',
-        '/images/alchemyjs-icon-144x144.png'
+        '/images/alchemyjs-social-media-image.png',
+        '/images/favicon.ico',
+        '/images/maskable_icon_x48.png',
+        '/images/maskable_icon_x72.png',
+        '/images/maskable_icon_x96.png',
+        '/images/maskable_icon_x128.png',
+        '/images/maskable_icon_x192.png',
+        '/images/maskable_icon_x384.png',
+        '/images/maskable_icon_x512.png'
     ]));
 });
 
