@@ -57,7 +57,7 @@ function createSelectableListItem(ingredient, query) {
     const textNode = document.createElement('span');
     textNode.textContent = ingredient.name;
 
-    if (query !== null && typeof query !== 'undefined') {
+    if (query !== null && typeof query !== 'undefined' && query.effectSearchTerm !== 'All') {
 
         // if current filtered effect is the first effect of ingredient
         // append span element with text of "1st"
