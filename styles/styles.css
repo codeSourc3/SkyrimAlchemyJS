@@ -141,6 +141,8 @@ li {
     border-bottom: 1px var(--main-border-color) solid;
     padding: .5rem;
     border-radius: 0.5em;
+    margin-top: 0.25rem;
+    margin-bottom: 0.25rem;
 }
 
 li input {
@@ -161,7 +163,7 @@ li:focus, li:hover {
 }
 
 #ingredient-list {
-    max-height: 75vh;
+    max-height: 50vh;
     overflow-y: scroll;
     resize: vertical;
     line-height: normal;
@@ -188,16 +190,13 @@ a {
         display: block;
     }
 
-    li {
-        margin-top: 0.25rem;
-        margin-bottom: 0.25rem;
-    }
-
     li input {
         margin: 0.25rem
     }
 
-    
+    #ingredient-list {
+        max-height: 75vh;
+    }
     
     
 }
