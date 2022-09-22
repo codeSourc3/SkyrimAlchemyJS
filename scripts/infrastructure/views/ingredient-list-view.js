@@ -1,5 +1,5 @@
 import { IngredientList } from '../models/ingredient-list.js';
-import { tag, createListItem } from '../html/html.js';
+import { tag } from '../html/html.js';
 import { triggerIngredientSelected, triggerIngredientDeselected, triggerMaxSelected, triggerListCleared } from '../events/client-side-events.js';
 import { isNullish } from '../utils.js';
 

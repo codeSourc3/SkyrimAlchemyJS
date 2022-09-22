@@ -1,7 +1,7 @@
 import { Ingredient, parseIngredientsJSON } from "../../alchemy/ingredients.js";
 import { DB_NAME, VERSION, ING_OBJ_STORE } from "../config.js";
 import { createPotionBuilder as makePotion, findPossibleCombinations } from "../../alchemy/alchemy.js";
-import { openDB, insertEntry, filterIngredientsByEffect, getAllIngredientNames, filterByDLC, getIngredient, filterIngredientsBy, getAllIngredients } from '../db/db.js';
+import { openDB, insertEntry, getIngredient, filterIngredientsBy, getAllIngredients } from '../db/db.js';
 import {buildCalculateResultMessage, buildErrorMessage, buildPopulateResultMessage, buildSearchResultMessage, buildWorkerReadyMessage} from '../messaging.js';
 import {isNullish, and} from '../utils.js';
 
