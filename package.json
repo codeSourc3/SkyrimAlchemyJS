@@ -9,16 +9,7 @@
   "type": "module",
   "module": "server.js",
   "dependencies": {
-    "http-server": "^14.1.0",
-    "idb": "^7.0.0",
-    "karma": "^6.3.17",
-    "karma-chrome-launcher": "^3.1.0",
-    "karma-coverage-istanbul-instrumenter": "^1.0.4",
-    "karma-coverage-istanbul-reporter": "^3.0.3",
-    "karma-edge-launcher": "^0.4.2",
-    "karma-mocha": "^2.0.1",
-    "karma-should": "^1.0.0",
-    "should": "^13.2.3"
+    "http-server": "^14.1.0"
   },
   "devDependencies": {
     "fake-indexeddb": "^3.1.7",
