@@ -26,8 +26,6 @@
     <meta name="twitter:description" content="Skyrim Special Edition potion calculator web app.">
     <meta name="twitter:image"
         content="https://codesourc3.github.io/SkyrimAlchemyJS/images/alchemyjs-social-media-image.png">
-
-    <link rel="manifest" href="/manifest.json">
     <link rel="shortcut icon" href="/images/favicon.ico" type="image/x-icon">
     <link rel="icon" href="/images/maskable_icon_x48.png" sizes="48x48" type="image/png">
     <link rel="apple-touch-icon" href="/images/maskable_icon_x192.png">
@@ -233,22 +231,6 @@
         <p>Link to <a href="https://github.com/codeSourc3/SkyrimAlchemyJS">Github</a></p>
     </footer>
     <script type="module" src="./scripts/main.js">
-    </script>
-    <script type="module">
-        if ('serviceWorker' in navigator) {
-            try {
-                const registration = await navigator.serviceWorker.register('/sw.js', { type: 'module' });
-                if (registration.installing) {
-                    console.log('Service worker installing.');
-                } else if (registration.waiting) {
-                    console.log('Service worker installed');
-                } else if (registration.active) {
-                    console.log('Service worker active.');
-                }
-            } catch (err) {
-                console.error(`Registration failed with ${err}`);
-            }
-        }
     </script>
 </body>
 
