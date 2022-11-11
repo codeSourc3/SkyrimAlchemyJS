@@ -11,7 +11,7 @@ export default defineConfig({
             manifest: {
                 name: 'Skyrim AlchemyJS',
                 short_name: 'AlchemyJS',
-                start_url: import.meta.env.BASE_URL,
+                start_url: '/SkyrimAlchemyJS/',
                 background_color: '#0f0f0e',
                 display: 'standalone',
                 theme_color: '#90ee90',
