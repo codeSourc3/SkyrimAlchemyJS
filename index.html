@@ -27,12 +27,11 @@
     <meta name="twitter:image"
         content="https://codesourc3.github.io/SkyrimAlchemyJS/images/alchemyjs-social-media-image.png">
 
-    <link rel="manifest" href="manifest.json">
-    <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon">
-    <link rel="icon" href="images/maskable_icon_x48.png" sizes="48x48" type="image/png">
-    <link rel="apple-touch-icon" href="images/maskable_icon_x192.png">
+    <link rel="manifest" href="/manifest.json">
+    <link rel="shortcut icon" href="/images/favicon.ico" type="image/x-icon">
+    <link rel="icon" href="/images/maskable_icon_x48.png" sizes="48x48" type="image/png">
+    <link rel="apple-touch-icon" href="/images/maskable_icon_x192.png">
     <meta name="theme-color" content="#90ee90">
-    <link rel="stylesheet" href="./styles/styles.css">
 </head>
 
 <body class="grid-container">
@@ -238,7 +237,7 @@
     <script type="module">
         if ('serviceWorker' in navigator) {
             try {
-                const registration = await navigator.serviceWorker.register('sw.js', { type: 'module' });
+                const registration = await navigator.serviceWorker.register('/sw.js', { type: 'module' });
                 if (registration.installing) {
                     console.log('Service worker installing.');
                 } else if (registration.waiting) {

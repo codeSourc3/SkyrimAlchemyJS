@@ -46,13 +46,12 @@ export class AlchemyWorker {
     #worker;
     #port;
     /**
-     * Creates a worker from the specified path and attaches an event listener
+     * Creates a worker for doing alchemy and attaches an event listener
      * to it.
      * 
-     * @param {string | URL} aPath - The relative path to the worker script from the caller.
      */
-    constructor(aPath) {
-        this.#worker = new Worker(aPath, {type: 'module', name: 'mixer'});
+    constructor() {
+        this.#worker = new Worker(new URL('alchemy-worker-script.js', import.meta.url), {type: 'module', name: 'mixer'});
         const channel = new MessageChannel();
         this.#port = channel.port1;
         /**
