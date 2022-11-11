@@ -1,9 +1,10 @@
-import { Ingredient, parseIngredientsJSON } from "../../alchemy/ingredients.js";
+import { Ingredient} from "../../alchemy/ingredients.js";
 import { DB_NAME, VERSION, ING_OBJ_STORE } from "../config.js";
 import { createPotionBuilder as makePotion, findPossibleCombinations } from "../../alchemy/alchemy.js";
 import { openDB, insertEntry, getIngredient, filterIngredientsBy, getAllIngredients } from '../db/db.js';
 import {buildCalculateResultMessage, buildErrorMessage, buildPopulateResultMessage, buildSearchResultMessage, buildWorkerReadyMessage} from '../messaging.js';
 import {isNullish, and} from '../utils.js';
+import ingredientJSON from '../../../data/ingredients.json';
 
 /**
  * @type {IDBDatabase}
@@ -230,12 +231,11 @@ async function populateDatabase(db, data) {
  */
 async function setupIndexedDB() {
     
-    const ingredientData = await parseIngredientsJSON('../../../data/ingredients.json');
     try {
         db = await openDB(DB_NAME, buildStructure, VERSION);
         if (shouldUpgrade) {
             console.log('Populating database');
-            await populateDatabase(db, ingredientData);
+            await populateDatabase(db, ingredientJSON);
         }
     } catch (error) {
         console.log('Error setting up database: ', error);
