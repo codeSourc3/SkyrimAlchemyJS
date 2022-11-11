@@ -1,3 +1,5 @@
+/// <reference types="vite/client" />
+import '../styles/styles.css';
 import {DomCache, tag} from './infrastructure/html/html.js';
 import { MIN_CHOSEN_INGREDIENTS } from './alchemy/alchemy.js';
 import { INGREDIENT_DESELECTED, INGREDIENT_SELECTED, LIST_CLEARED, MAX_INGREDIENTS_SELECTED } from './infrastructure/events/client-side-events.js';
