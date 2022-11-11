@@ -1,3 +1,4 @@
+/// <reference types="vite/client" />
 import { VitePWA } from "vite-plugin-pwa";
 import { defineConfig } from "vite";
 
@@ -10,7 +11,7 @@ export default defineConfig({
             manifest: {
                 name: 'Skyrim AlchemyJS',
                 short_name: 'AlchemyJS',
-                start_url: '/',
+                start_url: import.meta.env.BASE_URL,
                 background_color: '#0f0f0e',
                 display: 'standalone',
                 theme_color: '#90ee90',
