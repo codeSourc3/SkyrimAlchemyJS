@@ -2,22 +2,12 @@
   "name": "skyrimalchemyjs",
   "version": "1.0.0",
   "description": "Web application for the alchemy minigame in Elder Scrolls: Skyrim.",
-  "main": "server.js",
-  "directories": {
-    "test": "test"
-  },
   "type": "module",
-  "module": "server.js",
-  "dependencies": {
-    "http-server": "^14.1.0"
-  },
-  "devDependencies": {
-    "fake-indexeddb": "^3.1.7",
-    "mocha": "^9.2.1"
-  },
   "scripts": {
-    "test": "mocha",
-    "start": "http-server"
+    "dev": "vite",
+    "build": "vite build",
+    "deploy:gh": "vite build --base=/SkyrimAlchemyJS/",
+    "preview": "vite preview"
   },
   "repository": {
     "type": "git",
@@ -32,5 +22,8 @@
   "bugs": {
     "url": "https://github.com/codeSourc3/SkyrimAlchemyJS/issues"
   },
-  "homepage": "https://github.com/codeSourc3/SkyrimAlchemyJS#readme"
+  "homepage": "https://github.com/codeSourc3/SkyrimAlchemyJS#readme",
+  "devDependencies": {
+    "vite": "^3.2.3"
+  }
 }
