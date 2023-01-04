@@ -20,24 +20,36 @@ export class IngredientListItem extends LitElement {
      * @type {import("lit").PropertyDeclaration}
      */
     static properties = {
-        selected: { type: Boolean },
-        dlc: {type: String},
-        value: {type: String},
-        count: {type: Number}
+        selected: { type: Boolean, reflect: true },
+        dlc: {type: String, reflect: true},
+        value: {type: String, reflect: true},
+        count: {type: Number, reflect: true}
     };
 
     constructor() {
         super();
+        /**
+         * @type {boolean}
+         */
         this.selected = false;
+        /**
+         * @type {string}
+         */
         this.dlc = '';
+        /**
+         * @type {string}
+         */
         this.value = '';
+        /**
+         * @type {number}
+         */
         this.count = 0;
     }
 
     render() {
         return html`
         <li aria-selected=${this.selected} id="${valueToId(this.value)}-item" tabindex="-1" role="option">
-            <input type="checkbox" name="selected-ingredients" value=${this.value} id=${valueToId(this.value)} tabindex="-1">
+            <input type="checkbox" name="selected-ingredients" value=${this.value} id=${valueToId(this.value)} tabindex="-1" ?checked=${this.selected}>
             <label for=${valueToId(this.value)}></label>
             <span>
                 <slot></slot>

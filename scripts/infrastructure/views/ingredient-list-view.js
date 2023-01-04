@@ -111,7 +111,7 @@ export class IngredientListView {
     #olList;
     #ingredientList;
     #observer;
-    /** @type {Map<string, HTMLElement>} */
+    /** @type {Map<string, IngredientListItem>} */
     #namesToNodes = new Map();
     #activeDescendant;
     /**
@@ -131,17 +131,12 @@ export class IngredientListView {
                     const { addedNodes, removedNodes } = mutation;
                     if (removedNodes.length > 0) {
                         for (const node of removedNodes.values()) {
-                            if (node.hasChildNodes()) {
-                                const inputValue = node.childNodes[0].value;
-                                this.#namesToNodes.delete(inputValue);
-                            }
+                            this.#namesToNodes.delete(node.value);
                         }
                     }
                     if (addedNodes.length > 0) {
                         for (const node of addedNodes.values()) {
-                            const inputEl = node.childNodes[0];
-                            const inputValue = inputEl.value;
-                            this.#namesToNodes.set(inputValue, inputEl);
+                            this.#namesToNodes.set(node.value, node);
                         }
                     }
                     console.dir(this.#namesToNodes);
@@ -164,23 +159,25 @@ export class IngredientListView {
 
     /**
      * 
-     * @param {HTMLInputElement | string} element 
+     * @param {IngredientListItem | string} element 
      */
     select(element) {
-        let checkBox = element;
+        let listItem = element;
         if (typeof element === 'string') {
-            checkBox = this.#namesToNodes.get(element);
+            listItem = this.#namesToNodes.get(element);
         }
-        checkBox.checked = true;
-        checkBox.parentElement.ariaSelected = true;
-        this.#ingredientList.selectIngredient(checkBox.value);
+        /**
+         * @type {IngredientListItem}
+         */
+        listItem.selected = true;
+        this.#ingredientList.selectIngredient(listItem.value);
     }
 
 
 
     /**
      * 
-     * @param {HTMLInputElement | string} element 
+     * @param {IngredientListItem | string} element 
      */
     deselect(element) {
         let checkBox = element;
@@ -188,8 +185,7 @@ export class IngredientListView {
             checkBox = this.#namesToNodes.get(element);
         }
         this.#ingredientList.unselectIngredient(checkBox.value);
-        checkBox.checked = false;
-        checkBox.parentElement.ariaSelected = false;
+        checkBox.selected = false;
     }
 
     /**
@@ -203,7 +199,7 @@ export class IngredientListView {
             const listEl = createSelectableListItem(element, query);
             // highlight selected elements.
             if (this.#ingredientList.hasIngredient(element.name)) {
-                this.select(listEl.firstElementChild);
+                this.select(listEl);
             }
             frag.appendChild(listEl);
         }
@@ -222,7 +218,7 @@ export class IngredientListView {
             const listEl = createSelectableListItem(element, query);
             // highlight selected elements.
             if (this.#ingredientList.hasIngredient(element.name)) {
-                this.select(listEl.firstElementChild);
+                this.select(listEl);
             }
             frag.appendChild(listEl);
         }
@@ -255,7 +251,7 @@ export class IngredientListView {
 
     /**
      * 
-     * @param {HTMLElement} element 
+     * @param {IngredientListItem} element 
      */
     #focusItem(element) {
         this.#activeDescendant = element.value;
@@ -276,8 +272,7 @@ export class IngredientListView {
      */
     #findNextOption(currentOption) {
         let nextOption = null;
-        if (!isNullish(currentOption.nextElementSibling) && currentOption.nextElementSibling.hasAttribute('role')
-            && currentOption.nextElementSibling.getAttribute('role') === 'option') {
+        if (!isNullish(currentOption.nextElementSibling)) {
             nextOption = currentOption.nextElementSibling;
         }
         return nextOption;
@@ -289,8 +284,7 @@ export class IngredientListView {
      */
     #findPreviousOption(currentOption) {
         let nextOption = null;
-        if (!isNullish(currentOption.previousElementSibling) && currentOption.previousElementSibling.hasAttribute('role')
-            && currentOption.previousElementSibling.getAttribute('role') === 'option') {
+        if (!isNullish(currentOption.previousElementSibling) ) {
             nextOption = currentOption.previousElementSibling;
         }
         return nextOption;
@@ -301,7 +295,7 @@ export class IngredientListView {
      * @param {MouseEvent} evt 
      */
     #checkKeyPress(evt) {
-        const allOptions = this.#olList.querySelectorAll('[role="option"]');
+        const allOptions = this.#olList.querySelectorAll('ingredient-list-item');
         const currentItem = this.#olList.querySelector(`#${this.#olList.getAttribute('aria-activedescendant')}`);
         let nextItem = currentItem;
 
@@ -333,7 +327,7 @@ export class IngredientListView {
                 }
                 break;
             case ' ':
-                const inputEl = currentItem.firstElementChild;
+                const inputEl = currentItem;
                 this.#handleInput(inputEl);
                 evt.preventDefault();
                 break;
@@ -348,7 +342,11 @@ export class IngredientListView {
         switch (evt.type) {
             case 'click':
                 evt.preventDefault();
-                const optionLI = evt.target;
+                /**
+                 * @type {HTMLElement}
+                 */
+                const target = evt.target;
+                const optionLI = target.closest('ingredient-list-item');
                 this.#focusItem(optionLI);
                 this.#handleInput(optionLI);
                 break;

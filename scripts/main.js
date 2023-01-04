@@ -10,6 +10,7 @@ import { ChosenIngredients } from './infrastructure/models/chosen-ingredients.js
 import { formatListLocalized } from './infrastructure/strings.js';
 import { IngredientListView } from './infrastructure/views/ingredient-list-view.js';
 import { isNullish } from './infrastructure/utils.js';
+import { IngredientListItem } from './infrastructure/components/ingredient-list-item';
 
 /**
  * @template T
@@ -87,10 +88,10 @@ brewPotionForm.addEventListener('reset', e => {
 ingredientListElem.addEventListener(INGREDIENT_SELECTED, (evt) => {
     const ingredientName = evt.detail.ingredientName;
     /**
-     * @type {HTMLLIElement}
+     * @type {IngredientListItem}
      */
     let liElem = evt.target;
-    console.assert(liElem instanceof HTMLInputElement, 'Exepected an input element.');
+    console.assert(liElem instanceof IngredientListItem, 'Exepected an input element.');
     if (brewPotionButton.validationMessage.length > 0) {
         brewPotionButton.setCustomValidity('');
     }
@@ -103,7 +104,7 @@ ingredientListElem.addEventListener(INGREDIENT_SELECTED, (evt) => {
 ingredientListElem.addEventListener(INGREDIENT_DESELECTED, (evt) => {
     const ingredientName = evt.detail.ingredientName;
     /**
-     * @type {HTMLLIElement}
+     * @type {IngredientListItem}
      */
     let liElem = evt.target;
     ingredientListView.deselect(liElem);
