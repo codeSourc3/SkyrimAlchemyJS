@@ -1,6 +1,41 @@
 import { LitElement, html, nothing } from "lit";
 
 
+class AriaOptionController {
+    /**
+     * @type {LitElement}
+     */
+    host;
+
+    /**
+     * 
+     * @param {import("lit").ReactiveControllerHost} host 
+     */
+    constructor(host) {
+        (this.host = host).addController(this);
+    }
+
+    hostConnected() {
+        this.host.setAttribute('role', 'option');
+        this.host.setAttribute('aria-selected', '');
+        if (this.host.hasAttribute('value')) {
+            let optionValue = this.host.getAttribute('value');
+            this.host.setAttribute('id', `${valueToId(optionValue)}-item`);
+        }
+        this.host.setAttribute('tabindex', '-1');
+
+    }
+
+    hostUpdated() {
+        let selected = this.host.hasAttribute('selected')
+        this.host.setAttribute('aria-selected', selected);
+        if (this.host.hasAttribute('value')) {
+            let optionValue = this.host.getAttribute('value');
+            this.host.setAttribute('id', `${valueToId(optionValue)}-item`);
+        }
+    }
+}
+
 /**
  * 
  * @param {string} ingredientName the name of the ingredient. May have spaces and apostrophes.
@@ -16,6 +51,7 @@ import { LitElement, html, nothing } from "lit";
 
 export class IngredientListItem extends LitElement {
 
+    ariaController = new AriaOptionController(this);
     /**
      * @type {import("lit").PropertyDeclaration}
      */
@@ -48,7 +84,7 @@ export class IngredientListItem extends LitElement {
 
     render() {
         return html`
-        <li aria-selected=${this.selected} id="${valueToId(this.value)}-item" tabindex="-1" role="option">
+        <li>
             <input type="checkbox" name="selected-ingredients" value=${this.value} id=${valueToId(this.value)} tabindex="-1" ?checked=${this.selected}>
             <label for=${valueToId(this.value)}></label>
             <span>

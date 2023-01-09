@@ -254,7 +254,7 @@ export class IngredientListView {
      * @param {IngredientListItem} element 
      */
     #focusItem(element) {
-        this.#activeDescendant = element.value;
+        this.#activeDescendant = element.id;
         this.#olList.setAttribute('aria-activedescendant', this.#activeDescendant);
         element.focus();
     }
