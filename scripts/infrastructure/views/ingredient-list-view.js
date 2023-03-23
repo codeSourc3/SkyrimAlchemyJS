@@ -203,7 +203,7 @@ export class IngredientListView {
             }
             frag.appendChild(listEl);
         }
-        saveAndFireListCleared(this.#ingredientList.selectedIngredients, this.#olList);
+        
         this.#olList.appendChild(frag);
     }
 
@@ -222,7 +222,7 @@ export class IngredientListView {
             }
             frag.appendChild(listEl);
         }
-        saveAndFireListCleared(this.#ingredientList.selectedIngredients, this.#olList);
+        
         this.#olList.replaceChildren(frag);
     }
 

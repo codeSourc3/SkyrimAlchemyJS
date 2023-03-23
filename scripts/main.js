@@ -112,13 +112,6 @@ ingredientListElem.addEventListener(INGREDIENT_DESELECTED, (evt) => {
     chosenIngredients.removeIngredient(ingredientName);
 });
 
-// 
-chosenIngredientsElem.addEventListener(LIST_CLEARED, evt => {
-    const elementsToKeep = evt.detail;
-    console.info('Ingredients to keep in chosen: ', elementsToKeep, evt.target);
-    chosenIngredients.addAll(elementsToKeep);
-});
-
 // Unselects ingredient from ingredient list if chosen ingredients is clicked on.
 chosenIngredientsElem.addEventListener(INGREDIENT_DESELECTED, evt => {
     const ingredientName = evt.detail.ingredientName;
