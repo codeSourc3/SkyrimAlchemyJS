@@ -1,11 +1,13 @@
 import { html, LitElement } from "lit";
+import { ListBoxController } from "./controllers/ListBoxController";
 import { IngredientListItem } from "./ingredient-list-item";
 
 
 
 
 export class IngredientList extends LitElement {
-    
+    listBoxController = new ListBoxController(this);
+
     /**
      * @type {import("lit").PropertyDeclarations}
      */
