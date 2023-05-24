@@ -1,6 +1,8 @@
 
 
-
+/**
+ * Maps out keyboard keys to actions for Lit.js
+ */
 export class KeyboardController {
     host;
 
