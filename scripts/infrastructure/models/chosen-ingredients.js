@@ -162,7 +162,7 @@ class ChosenIngredients {
         this.#list.replaceChildren();
         this.#chosen.clear();
         
-        triggerListCleared(this.#list, []);
+        
     }
 
     /**

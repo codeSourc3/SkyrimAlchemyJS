@@ -3,6 +3,9 @@ import { tag } from '../html/html.js';
 import { triggerIngredientSelected, triggerIngredientDeselected, triggerMaxSelected, triggerListCleared } from '../events/client-side-events.js';
 import { isNullish } from '../utils.js';
 
+import '../components/ingredient-list-item.js';
+import { IngredientListItem } from '../components/ingredient-list-item.js';
+
 const dlcNameToAcronym = new Map([
     ['Dawnguard', 'DG'],
     ['Dragonborn', 'DB'],
@@ -36,26 +39,17 @@ function valueToId(ingredientName) {
  * 
  * @param {import('../db/db.js').IngredientEntry} ingredient
  * @param {import('../messaging.js').SearchMessagePayload | null} query 
- * @returns {HTMLLIElement}
+ * @returns {IngredientListItem}
  */
 function createSelectableListItem(ingredient, query) {
-    const listEl = document.createElement('li');
-    listEl.ariaSelected = false;
-    listEl.id = `${valueToId(ingredient.name)}-item`;
-    listEl.tabIndex = -1;
-    listEl.setAttribute('role', 'option');
-
-    const checkBoxInput = document.createElement('input');
-    checkBoxInput.type = 'checkbox';
-    checkBoxInput.name = 'selected-ingredients';
-    checkBoxInput.value = ingredient.name;
-    checkBoxInput.id = valueToId(ingredient.name);
-    checkBoxInput.tabIndex = -1;
-
-    const label = document.createElement('label');
-    label.htmlFor = checkBoxInput.id;
+    /**
+     * @type {import('../components/ingredient-list-item.js').IngredientListItem}
+     */
+    const ingredientListItem = document.createElement('ingredient-list-item');
+    ingredientListItem.value = ingredient.name;
     const textNode = document.createElement('span');
     textNode.textContent = ingredient.name;
+    
 
     if (query !== null && typeof query !== 'undefined' && query.effectSearchTerm !== 'All') {
 
@@ -67,11 +61,7 @@ function createSelectableListItem(ingredient, query) {
         // if ingredient is not part of the base game,
         // append the DLC it's in.
         if (ingredient.dlc !== 'Vanilla') {
-            const dlcTag = document.createElement('sup');
-            dlcTag.textContent = dlcNameToAcronym.get(ingredient.dlc);
-            dlcTag.tabIndex = -1;
-            dlcTag.classList.add('pill', 'dlc');
-            textNode.appendChild(dlcTag);
+            ingredientListItem.dlc = dlcNameToAcronym.get(ingredient.dlc);
         }
         /* 
         If ingredient has any multipliers for current filtered effect (not including "All"),
@@ -88,47 +78,32 @@ function createSelectableListItem(ingredient, query) {
                 const costMultiplierTag = document.createElement('sup');
                 costMultiplierTag.textContent = `${costMultiplier}x Cost`;
                 costMultiplierTag.tabIndex = -1;
+                costMultiplierTag.slot = 'multipliers';
                 costMultiplierTag.classList.add('pill', 'multiplier');
-                textNode.appendChild(costMultiplierTag);
+                ingredientListItem.appendChild(costMultiplierTag);
             }
 
             if (!Number.isInteger(durMultiplier)) {
                 const durMultiplierTag = document.createElement('sup');
                 durMultiplierTag.textContent = `${durMultiplier}x Dur`;
                 durMultiplierTag.tabIndex = -1;
+                durMultiplierTag.slot = 'multipliers';
                 durMultiplierTag.classList.add('pill', 'multiplier');
-                textNode.appendChild(durMultiplierTag);
+                ingredientListItem.appendChild(durMultiplierTag);
             }
 
             if (!Number.isInteger(magMultiplier)) {
                 const magMultiplierTag = document.createElement('sup');
                 magMultiplierTag.textContent = `${magMultiplier}x Mag`;
                 magMultiplierTag.tabIndex = -1;
+                magMultiplierTag.slot = 'multipliers';
                 magMultiplierTag.classList.add('pill', 'multiplier');
-                textNode.appendChild(magMultiplierTag);
+                ingredientListItem.appendChild(magMultiplierTag);
             }
         }
     }
-    listEl.append(checkBoxInput, label, textNode);
-    return listEl;
-}
-
-/**
- * This has to be done after the inputs have been added to the DOM because 
- * {@link Element.setAttribute} requires the element to be connected to the
- * document.
- * 
- * @param {HTMLInputElement[]} inputElements 
- * @param {string} formId 
- */
-function linkInputsToForm(inputElements, formId) {
-    if (Array.from(inputElements).every(input => input.isConnected)) {
-        for (const inputEl of Array.from(inputElements)) {
-            inputEl.setAttribute('form', formId);
-        }
-    } else {
-        console.warn('Not all input elements are connected');
-    }
+    ingredientListItem.append(textNode);
+    return ingredientListItem;
 }
 
 
@@ -136,7 +111,7 @@ export class IngredientListView {
     #olList;
     #ingredientList;
     #observer;
-    /** @type {Map<string, HTMLElement>} */
+    /** @type {Map<string, IngredientListItem>} */
     #namesToNodes = new Map();
     #activeDescendant;
     /**
@@ -156,17 +131,12 @@ export class IngredientListView {
                     const { addedNodes, removedNodes } = mutation;
                     if (removedNodes.length > 0) {
                         for (const node of removedNodes.values()) {
-                            if (node.hasChildNodes()) {
-                                const inputValue = node.childNodes[0].value;
-                                this.#namesToNodes.delete(inputValue);
-                            }
+                            this.#namesToNodes.delete(node.value);
                         }
                     }
                     if (addedNodes.length > 0) {
                         for (const node of addedNodes.values()) {
-                            const inputEl = node.childNodes[0];
-                            const inputValue = inputEl.value;
-                            this.#namesToNodes.set(inputValue, inputEl);
+                            this.#namesToNodes.set(node.value, node);
                         }
                     }
                     console.dir(this.#namesToNodes);
@@ -189,23 +159,25 @@ export class IngredientListView {
 
     /**
      * 
-     * @param {HTMLInputElement | string} element 
+     * @param {IngredientListItem | string} element 
      */
     select(element) {
-        let checkBox = element;
+        let listItem = element;
         if (typeof element === 'string') {
-            checkBox = this.#namesToNodes.get(element);
+            listItem = this.#namesToNodes.get(element);
         }
-        checkBox.checked = true;
-        checkBox.parentElement.ariaSelected = true;
-        this.#ingredientList.selectIngredient(checkBox.value);
+        /**
+         * @type {IngredientListItem}
+         */
+        listItem.selected = true;
+        this.#ingredientList.selectIngredient(listItem.value);
     }
 
 
 
     /**
      * 
-     * @param {HTMLInputElement | string} element 
+     * @param {IngredientListItem | string} element 
      */
     deselect(element) {
         let checkBox = element;
@@ -213,8 +185,7 @@ export class IngredientListView {
             checkBox = this.#namesToNodes.get(element);
         }
         this.#ingredientList.unselectIngredient(checkBox.value);
-        checkBox.checked = false;
-        checkBox.parentElement.ariaSelected = false;
+        checkBox.selected = false;
     }
 
     /**
@@ -228,11 +199,11 @@ export class IngredientListView {
             const listEl = createSelectableListItem(element, query);
             // highlight selected elements.
             if (this.#ingredientList.hasIngredient(element.name)) {
-                this.select(listEl.firstElementChild);
+                this.select(listEl);
             }
             frag.appendChild(listEl);
         }
-        saveAndFireListCleared(this.#ingredientList.selectedIngredients, this.#olList);
+        
         this.#olList.appendChild(frag);
     }
 
@@ -247,11 +218,11 @@ export class IngredientListView {
             const listEl = createSelectableListItem(element, query);
             // highlight selected elements.
             if (this.#ingredientList.hasIngredient(element.name)) {
-                this.select(listEl.firstElementChild);
+                this.select(listEl);
             }
             frag.appendChild(listEl);
         }
-        saveAndFireListCleared(this.#ingredientList.selectedIngredients, this.#olList);
+        
         this.#olList.replaceChildren(frag);
     }
 
@@ -261,7 +232,7 @@ export class IngredientListView {
 
     /**
      * 
-     * @param {HTMLInputElement} inputEl 
+     * @param {IngredientListItem} inputEl 
      */
     #handleInput(inputEl) {
         const { value } = inputEl;
@@ -272,7 +243,7 @@ export class IngredientListView {
             this.#ingredientList.unselectIngredient(value);
             triggerIngredientDeselected(inputEl, value);
         } else {
-            inputEl.checked = false;
+            inputEl.selected = false;
             triggerMaxSelected(inputEl);
         }
     }
@@ -280,7 +251,7 @@ export class IngredientListView {
 
     /**
      * 
-     * @param {HTMLElement} element 
+     * @param {IngredientListItem} element 
      */
     #focusItem(element) {
         this.#activeDescendant = element.id;
@@ -301,8 +272,7 @@ export class IngredientListView {
      */
     #findNextOption(currentOption) {
         let nextOption = null;
-        if (!isNullish(currentOption.nextElementSibling) && currentOption.nextElementSibling.hasAttribute('role')
-            && currentOption.nextElementSibling.getAttribute('role') === 'option') {
+        if (!isNullish(currentOption.nextElementSibling)) {
             nextOption = currentOption.nextElementSibling;
         }
         return nextOption;
@@ -314,8 +284,7 @@ export class IngredientListView {
      */
     #findPreviousOption(currentOption) {
         let nextOption = null;
-        if (!isNullish(currentOption.previousElementSibling) && currentOption.previousElementSibling.hasAttribute('role')
-            && currentOption.previousElementSibling.getAttribute('role') === 'option') {
+        if (!isNullish(currentOption.previousElementSibling) ) {
             nextOption = currentOption.previousElementSibling;
         }
         return nextOption;
@@ -326,7 +295,7 @@ export class IngredientListView {
      * @param {MouseEvent} evt 
      */
     #checkKeyPress(evt) {
-        const allOptions = this.#olList.querySelectorAll('[role="option"]');
+        const allOptions = this.#olList.querySelectorAll('ingredient-list-item');
         const currentItem = this.#olList.querySelector(`#${this.#olList.getAttribute('aria-activedescendant')}`);
         let nextItem = currentItem;
 
@@ -358,7 +327,7 @@ export class IngredientListView {
                 }
                 break;
             case ' ':
-                const inputEl = currentItem.firstElementChild;
+                const inputEl = currentItem;
                 this.#handleInput(inputEl);
                 evt.preventDefault();
                 break;
@@ -373,10 +342,13 @@ export class IngredientListView {
         switch (evt.type) {
             case 'click':
                 evt.preventDefault();
-                const optionLI = evt.target.closest('[role="option"]');
+                /**
+                 * @type {HTMLElement}
+                 */
+                const target = evt.target;
+                const optionLI = target.closest('ingredient-list-item');
                 this.#focusItem(optionLI);
-                const inputEl = optionLI.firstElementChild;
-                this.#handleInput(inputEl);
+                this.#handleInput(optionLI);
                 break;
 
             case 'keydown':
