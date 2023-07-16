@@ -30,8 +30,8 @@
     <link rel="icon" href="/SkyrimAlchemyJS/images/maskable_icon_x48.png" sizes="48x48" type="image/png">
     <link rel="apple-touch-icon" href="/SkyrimAlchemyJS/images/maskable_icon_x192.png">
     <meta name="theme-color" content="#90ee90">
-  <script type="module" crossorigin src="/SkyrimAlchemyJS/assets/index.962431b0.js"></script>
-  <link rel="stylesheet" href="/SkyrimAlchemyJS/assets/index.1bb16ea7.css">
+  <script type="module" crossorigin src="/SkyrimAlchemyJS/assets/index.bbbb7b70.js"></script>
+  <link rel="stylesheet" href="/SkyrimAlchemyJS/assets/index.0b241632.css">
 <link rel="manifest" href="/SkyrimAlchemyJS/manifest.webmanifest"><script id="vite-plugin-pwa:register-sw" src="/SkyrimAlchemyJS/registerSW.js"></script></head>
 
 <body class="grid-container">
@@ -156,9 +156,10 @@
                 <section>
                     <h3>Possible Ingredients</h3>
                     <ol id="ingredient-list" aria-label="Ingredient List" aria-multiselectable="true" aria-sort="ascending"
-                        role="listbox" tabindex="0" aria-controls="chosen-ingredients">
-                        <!-- Filled on DOMContentLoaded -->
+                    role="listbox" tabindex="0" aria-controls="chosen-ingredients" aria-invalid="false" aria-errormessage="maxSelectionReachedErrMsg">
+                    <!-- Filled on DOMContentLoaded -->
                     </ol>
+                    <span id="maxSelectionReachedErrMsg" class="errormessage" role="alert">Error: You can only select up to 3 ingredients.</span>
                 </section>
             </article>
             <!-- Could sort filtered ingredients by name, gold cost, etc. -->
