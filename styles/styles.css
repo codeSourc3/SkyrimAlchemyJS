@@ -55,6 +55,10 @@ input, button, select {
     margin: 1rem;
     border-radius: 0.5em;
 }
+ingredient-list-item[selected] span {
+    background-color: var(--main-text-accent-color-2);
+    color: black;
+}
 
 .form-controls {
     display: flex;
@@ -160,6 +164,18 @@ li:focus, li:hover {
 
 [role="option"][aria-selected="true"] {
     background-color: var(--main-text-accent-color-2);
+}
+
+[aria-invalid="true"] {
+    outline: 2px solid red;
+}
+
+[aria-invalid="true"] ~ .errormessage {
+    visibility: visible;
+}
+
+.errormessage {
+    visibility: hidden;
 }
 
 #ingredient-list {

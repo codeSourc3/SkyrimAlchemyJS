@@ -254,14 +254,13 @@ function displayTooManyIngredientsMessage(event) {
     /**
      * @type {HTMLInputElement}
      */
-    const excessInputElement = event.target;
+    const excessInputElement = ingredientListElem;
     invalidElementsCache.push(excessInputElement);
-    excessInputElement.setCustomValidity(`Too many ingredients were selected. Unselect some please.`);
-    excessInputElement.reportValidity();
+    excessInputElement.ariaInvalid = 'true';
     setTimeout(() => {
         let el = invalidElementsCache.pop();
         if (!isNullish(el)) {
-            el.setCustomValidity('');
+            el.ariaInvalid = 'false';
         }
     }, 1000);
 }

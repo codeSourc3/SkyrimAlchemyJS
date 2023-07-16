@@ -1,4 +1,4 @@
-import { LitElement, html, nothing } from "lit";
+import { LitElement, html, nothing, css } from "lit";
 
 
 class AriaOptionController {
@@ -62,6 +62,21 @@ export class IngredientListItem extends LitElement {
         count: {type: Number, reflect: true}
     };
 
+    static styles = css`
+    li {
+    border-bottom: 1px var(--main-border-color) solid;
+    padding: .5rem;
+    border-radius: 0.5em;
+    margin-top: 0.25rem;
+    margin-bottom: 0.25rem;
+}
+
+li:focus, li:hover {
+    color: var(--main-text-color-hover);
+    outline: var(--main-border-color-hover) solid 1px;
+}
+    `;
+
     constructor() {
         super();
         /**
@@ -82,11 +97,14 @@ export class IngredientListItem extends LitElement {
         this.count = 0;
     }
 
+    handleCheckboxChange(evt) {
+        this.selected = !this.selected;
+    }
+
     render() {
         return html`
         <li>
-            <input type="checkbox" name="selected-ingredients" value=${this.value} id=${valueToId(this.value)} tabindex="-1" ?checked=${this.selected}>
-            <label for=${valueToId(this.value)}></label>
+            
             <span>
                 <slot></slot>
                 ${this.dlc ? html`

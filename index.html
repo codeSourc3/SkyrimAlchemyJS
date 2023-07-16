@@ -154,9 +154,10 @@
                 <section>
                     <h3>Possible Ingredients</h3>
                     <ol id="ingredient-list" aria-label="Ingredient List" aria-multiselectable="true" aria-sort="ascending"
-                        role="listbox" tabindex="0" aria-controls="chosen-ingredients">
-                        <!-- Filled on DOMContentLoaded -->
+                    role="listbox" tabindex="0" aria-controls="chosen-ingredients" aria-invalid="false" aria-errormessage="maxSelectionReachedErrMsg">
+                    <!-- Filled on DOMContentLoaded -->
                     </ol>
+                    <span id="maxSelectionReachedErrMsg" class="errormessage" role="alert">Error: You can only select up to 3 ingredients.</span>
                 </section>
             </article>
             <!-- Could sort filtered ingredients by name, gold cost, etc. -->
