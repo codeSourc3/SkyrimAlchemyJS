@@ -38,6 +38,8 @@ window.addEventListener('beforeunload', (e) => {
  */
 const brewPotionForm = domCache.id('brew-potion');
 brewPotionForm.addEventListener('submit', handleBrewPotionFormSubmit);
+
+const selectionMediator = document.getElementById('selection-mediator');
 /**
  * The form responsible for filtering the ingredients by
  * their DLC, effects, gold cost, etc.
@@ -46,7 +48,13 @@ brewPotionForm.addEventListener('submit', handleBrewPotionFormSubmit);
 const ingredientSearchBar = domCache.id('ingredient-filter');
 ingredientSearchBar.addEventListener('submit', onSearchFormSubmit);
 const queryInterpretation = domCache.id('query-interpretation');
+/**
+ * The <ol> where the search results are displayed.
+ */
 const ingredientListElem = domCache.id('ingredient-list');
+/**
+ * The user's chosen ingredients
+ */
 const chosenIngredientsElem = domCache.id('chosen-ingredients');
 const resultList = domCache.id('possible-potions');
 const hitCount = domCache.id('hit-count');
@@ -100,25 +108,28 @@ ingredientListElem.addEventListener(INGREDIENT_SELECTED, (evt) => {
     chosenIngredients.addIngredient(ingredientName);
 });
 
-// Removes unselected ingredient from chosen ingredients.
-ingredientListElem.addEventListener(INGREDIENT_DESELECTED, (evt) => {
+
+
+selectionMediator.addEventListener(INGREDIENT_DESELECTED, evt => {
     const ingredientName = evt.detail.ingredientName;
-    /**
-     * @type {IngredientListItem}
-     */
-    let liElem = evt.target;
-    ingredientListView.deselect(liElem);
-    console.info(`${ingredientName} deselected`);
-    chosenIngredients.removeIngredient(ingredientName);
+    if (ingredientListElem.contains(evt.target)) {
+        // Removes unselected ingredient from chosen ingredients.
+        /**
+         * @type {IngredientListItem}
+         */
+        let liElem = evt.target;
+        ingredientListView.deselect(liElem);
+        console.info(`${ingredientName} deselected`);
+        chosenIngredients.removeIngredient(ingredientName);
+    } else {
+        // Unselects ingredient from ingredient list if chosen ingredients is clicked on.
+        console.debug(`chosen ingredient deselected evt listener: Ingredient ${ingredientName} deselected.`);
+        ingredientList.unselectIngredient(ingredientName);
+        ingredientListView.deselect(ingredientName);
+    }
 });
 
-// Unselects ingredient from ingredient list if chosen ingredients is clicked on.
-chosenIngredientsElem.addEventListener(INGREDIENT_DESELECTED, evt => {
-    const ingredientName = evt.detail.ingredientName;
-    console.debug(`chosen ingredient deselected evt listener: Ingredient ${ingredientName} deselected.`);
-    ingredientList.unselectIngredient(ingredientName);
-    ingredientListView.deselect(ingredientName);
-});
+
 
 ingredientListElem.addEventListener(MAX_INGREDIENTS_SELECTED, displayTooManyIngredientsMessage);
 
