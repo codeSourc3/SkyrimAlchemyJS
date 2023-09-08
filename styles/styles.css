@@ -108,15 +108,15 @@ form {
     border-radius: 1em;
 }
 
-header {
+body > header {
     grid-area: header;
 }
 
-main {
+body > main {
     grid-area: main;
 }
 
-footer {
+body > footer {
     grid-area: footer;
 }
 

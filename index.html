@@ -37,6 +37,35 @@
         <h1>Skyrim Alchemy Calculator</h1>
     </header>
     <main>
+        <dialog id="toast-new-version">
+            <form method="dialog">
+                <header>
+                    <h4>An update is available!</h4>
+                </header>
+                <main>
+                    <p>Click confirm to update and reload.</p>
+                    <p>Any unsaved progress will be lost.</p>
+                </main>
+                <footer>
+                    <menu>
+                        <button id="new-version-cancel" type="button" value="cancel">Cancel</button>
+                        <button id="new-version-confirm" type="submit" value="refresh">Refresh</button>
+                    </menu>
+                </footer>
+            </form>
+        </dialog>
+        <dialog id="toast-offline-ready">
+            <form method="dialog">
+                <header>
+                    <h4>Ready to work offline</h4>
+                </header>
+                <footer>
+                    <menu>
+                        <button type="submit" value='ok'>OK</button>
+                    </menu>
+                </footer>
+            </form>
+        </dialog>
         <!-- Search by ingredients, search by effect, 
             filters out ingredients based off of said conditions -->
         <div id="selection-mediator">

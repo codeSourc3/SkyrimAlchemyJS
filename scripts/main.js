@@ -6,7 +6,7 @@ import { INGREDIENT_DESELECTED, INGREDIENT_SELECTED, LIST_CLEARED, MAX_INGREDIEN
 import { AlchemyWorker } from './infrastructure/worker/alchemy-worker.js';
 import { IngredientList } from './infrastructure/models/ingredient-list.js';
 import { ChosenIngredients } from './infrastructure/models/chosen-ingredients.js';
-
+import { registerSW } from 'virtual:pwa-register'; 
 import { formatListLocalized } from './infrastructure/strings.js';
 import { IngredientListView } from './infrastructure/views/ingredient-list-view.js';
 import { isNullish } from './infrastructure/utils.js';
@@ -38,7 +38,34 @@ window.addEventListener('beforeunload', (e) => {
  */
 const brewPotionForm = domCache.id('brew-potion');
 brewPotionForm.addEventListener('submit', handleBrewPotionFormSubmit);
+/**
+ * @type {HTMLDialogElement}
+ */
+const newVersionReadyToast = document.querySelector('#toast-new-version-ready');
+newVersionReadyToast.returnValue = 'cancel';
+document.querySelector('#new-version-cancel').addEventListener('click', () => {
+    newVersionReadyToast.close();
+});
+/**
+ * @type {HTMLDialogElement}
+ */
+const offlineReadyToast = document.querySelector('#toast-offline-ready');
 
+
+const updateSW = registerSW({
+    onNeedRefresh() {
+        newVersionReadyToast.show();
+        newVersionReadyToast.addEventListener('close', () => {
+            if (newVersionReadyToast.returnValue === 'refresh') {
+                updateSW(true);
+            }
+        }, {once: true});
+    },
+
+    onOfflineReady() {
+        offlineReadyToast.show();
+    }
+})
 const selectionMediator = document.getElementById('selection-mediator');
 /**
  * The form responsible for filtering the ingredients by
