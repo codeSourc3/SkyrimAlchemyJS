@@ -16,6 +16,7 @@ export class IngredientList extends LitElement {
         _items: {state: true}
     };
 
+    
     static styles = css`
         :host {
             display:block;
