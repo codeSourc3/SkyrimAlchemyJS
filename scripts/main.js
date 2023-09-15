@@ -41,7 +41,7 @@ brewPotionForm.addEventListener('submit', handleBrewPotionFormSubmit);
 /**
  * @type {HTMLDialogElement}
  */
-const newVersionReadyToast = document.querySelector('#toast-new-version-ready');
+const newVersionReadyToast = document.querySelector('#toast-new-version');
 newVersionReadyToast.returnValue = 'cancel';
 document.querySelector('#new-version-cancel').addEventListener('click', () => {
     newVersionReadyToast.close();
