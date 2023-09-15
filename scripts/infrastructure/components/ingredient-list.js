@@ -1,4 +1,4 @@
-import { html, LitElement } from "lit";
+import { html, LitElement, css } from "lit";
 import { ListBoxController } from "./controllers/ListBoxController";
 import { IngredientListItem } from "./ingredient-list-item";
 
@@ -15,6 +15,14 @@ export class IngredientList extends LitElement {
         _selectedItems: {state: true},
         _items: {state: true}
     };
+
+    static styles = css`
+        :host {
+            display:block;
+            max-height: var(--list-height, 50vh);
+            list-style: none;
+        }
+    `
 
     constructor() {
         super();
@@ -130,9 +138,9 @@ export class IngredientList extends LitElement {
 
     render() {
         return html`
-            <ol @click=${this.handleClick}>
-                <slot @slotchange=${this.handleSlotChange}><p>No results.</p></slot>
-            </ol>
+            
+                <slot @click=${this.handleClick} @slotchange=${this.handleSlotChange}><p>No results.</p></slot>
+        
         `;
     }
 }
