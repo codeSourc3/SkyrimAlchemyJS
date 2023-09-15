@@ -51,6 +51,32 @@ export class IngredientList extends LitElement {
     }
 
     /**
+     * 
+     * @param {IngredientListItem} element 
+     */
+    select(element) {
+        if (this._items.includes(element)) {
+            element.selected = true;
+            this._selectedItems = this._items.filter(element => {
+                return element.matches('*[selected]');
+            });
+        }
+    }
+
+    /**
+     * 
+     * @param {IngredientListItem} element 
+     */
+    deselect(element) {
+        if (this._items.includes(element)) {
+            element.selected = false;
+            this._selectedItems = this._items.filter(element => {
+                return element.matches('*[selected]');
+            });
+        }
+    }
+
+    /**
      * Returns all selected options in the list.
      */
     get selectedItems() {
@@ -81,7 +107,8 @@ export class IngredientList extends LitElement {
         /**
          * @type {IngredientListItem}
          */
-        const option = evt.target;
+        const option = evt.target.closest('ingredient-list-item');
+
         if (!option.selected) {
             const ingredientSelectedEvt = new CustomEvent('ingredient-selected', {
                 bubbles: true, cancelable: true, composed: true, detail: {ingredientName: option.value}
@@ -93,7 +120,7 @@ export class IngredientList extends LitElement {
             }
         } else {
             const ingredientDeselectedEvt = new CustomEvent('ingredient-deselected',{
-                bubbles: true, cancelable: true
+                bubbles: true, cancelable: true, detail: {ingredientName: option.value}
             });
             this.dispatchEvent(ingredientDeselectedEvt);
             option.selected = false;
@@ -103,10 +130,11 @@ export class IngredientList extends LitElement {
 
     render() {
         return html`
-            <ol>
-                <slot @click=${this.handleClick} @slotchange=${this.handleSlotChange}><p>No results.</p></slot>
+            <ol @click=${this.handleClick}>
+                <slot @slotchange=${this.handleSlotChange}><p>No results.</p></slot>
             </ol>
         `;
     }
 }
 customElements.define('ingredient-list', IngredientList);
+export {IngredientList as HTMLIngredientList};
