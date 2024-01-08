@@ -89,8 +89,6 @@ const hitCount = domCache.id('hit-count');
 const invalidElementsCache = [];
 
 
-// Used to avoid querying the DOM to get the name of the ingredient.
-const ingredientList = new IngredientList();
 
 const chosenIngredients = new ChosenIngredients(chosenIngredientsElem);
 /**
@@ -152,9 +150,10 @@ selectionMediator.addEventListener(INGREDIENT_DESELECTED, evt => {
         console.debug(`chosen ingredient deselected evt listener: Ingredient ${ingredientName} deselected.`);
         console.debug(`Ingredient list selected items: ${ingredientListElem.selectedItems.reduce((prev, item) => prev + ' [' + item.value + ']', '')}`);
         let ingredientToDeselect = Array.from(ingredientListElem.selectedItems).find(item => item.value === ingredientName);
-        if (ingredientToDeselect !== undefined) {
-            ingredientToDeselect.selected = false;
-            
+        console.debug(ingredientToDeselect);
+        if (ingredientToDeselect !== undefined && ingredientToDeselect !== null) {
+            ingredientListElem.deselect(ingredientToDeselect);
+            console.assert(!ingredientListElem.selectedItems.some(item => item.value === ingredientName), `Ingredient of ${ingredientToDeselect.value} should be deselected but wasn't`);
         }
         console.debug(`Ingredient list selected items after deselection: ${ingredientListElem.selectedItems.reduce((prev, item) => prev + ' [' + item.value + ']', '')}`);
     }
@@ -231,7 +230,7 @@ function onSearchResult({ detail: { payload } }) {
     if (Array.isArray(payload.results)) {
         if (payload.results.length > 0) {
             // We have search results.
-            renderSearchResults(ingredientListElem, ingredientList, payload.results, payload.query);
+            renderSearchResults(ingredientListElem, chosenIngredients, payload.results, payload.query);
             setHitCount(payload.results.length);
 
         } else {
@@ -279,7 +278,7 @@ function onSearchFormSubmit(event) {
  */
 function onPopulateResult({ detail: { payload } }) {
     console.assert(Array.isArray(payload), 'Populate results payload was not an array');
-    renderSearchResults(ingredientListElem, ingredientList, payload);
+    renderSearchResults(ingredientListElem, chosenIngredients, payload);
     setHitCount(payload.length);
 
 }
@@ -384,7 +383,13 @@ function createSelectableListItem(ingredient, query) {
     ingredientListItem.append(textNode);
     return ingredientListItem;
 }
-
+/**
+ * 
+ * @param {HTMLIngredientList} ingredientList 
+ * @param {ChosenIngredients} ingredientDataStore 
+ * @param {import('../db/db.js').IngredientEntry[]} elements
+ * @param {import('../messaging.js').SearchMessagePayload | null} query 
+ */
 function renderSearchResults(ingredientList, ingredientDataStore, elements = [], query = null) {
     const frag = new DocumentFragment();
     for (let element of elements) {
@@ -418,7 +423,12 @@ function handleBrewPotionFormSubmit(event) {
     const submitter = event.submitter;
     let selectedIngredients = Array.from(brewPotionForm.elements).filter(input => input.name === 'selected-ingredients');
     if (selectedIngredients.length < MIN_CHOSEN_INGREDIENTS) {
-        submitter.setCustomValidity('Expected 2 to 3 ingredients to be selected.');
+        submitter.setCustomValidity('A minimum of two ingredients is required.');
+        submitter.reportValidity();
+        return;
+    }
+    if (selectedIngredients.length > chosenIngredientsElem.dataset.max) {
+        submitter.setCustomValidity('Please deselect some ingredients.');
         submitter.reportValidity();
         return;
     }

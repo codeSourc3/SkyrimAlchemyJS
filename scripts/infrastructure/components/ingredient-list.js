@@ -50,7 +50,7 @@ export class IngredientList extends LitElement {
          */
         const childElements = (evt.target).assignedElements({flatten: true});
         this._items = childElements.filter((element) => {
-            return element.nodeName === 'ingredient-list-item'
+            return element.localName === 'ingredient-list-item'
         });
         // remove elements that are no longer part of the list
         this._selectedItems = this._items.filter((element) => {
@@ -67,7 +67,7 @@ export class IngredientList extends LitElement {
         if (this._items.includes(element)) {
             element.selected = true;
             this._selectedItems = this._items.filter(element => {
-                return element.matches('*[selected]');
+                return element.selected;
             });
         }
     }
@@ -80,7 +80,7 @@ export class IngredientList extends LitElement {
         if (this._items.includes(element)) {
             element.selected = false;
             this._selectedItems = this._items.filter(element => {
-                return element.matches('*[selected]');
+                return element.selected;
             });
         }
     }
@@ -133,7 +133,7 @@ export class IngredientList extends LitElement {
             });
             this.dispatchEvent(ingredientDeselectedEvt);
             option.selected = false;
-            this._selectedItems = this._selectedItems.filter(el => el.selected);
+            this._selectedItems = this.items.filter(el => el.selected);
         }
     }
 
