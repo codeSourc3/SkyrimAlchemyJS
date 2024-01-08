@@ -12,28 +12,6 @@ const dlcNameToAcronym = new Map([
     ['Hearthfire', 'HF']
 ]);
 
-/**
- * 
- * @param {Set<string>} aSet 
- * @param {HTMLOListElement} olList 
- */
-function saveAndFireListCleared(aSet, olList) {
-    const currentElements = Array.from(aSet.values());
-    triggerListCleared(olList, currentElements);
-}
-
-/**
- * 
- * @param {string} ingredientName the name of the ingredient. May have spaces and apostrophes.
- * @returns {string}
- */
-function valueToId(ingredientName) {
-    let selectorId = ingredientName.split(' ').join('-');
-    while (selectorId.includes('\'')) {
-        selectorId = selectorId.replace('\'', '');
-    }
-    return selectorId;
-}
 
 /**
  * 

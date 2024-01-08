@@ -31,8 +31,12 @@ export class ListBoxController {
     }
 
     hostConnected() {
-        this.host.firstElementChild.setAttribute('tabindex', '0');
-        this.focusedItem = this.host.firstElementChild;
+        console.assert(this.host.isConnected, 'Host element is not connected')
+        this.host.addEventListener('focusin', evt => {
+            this.focusedItem = this.host.firstElementChild;
+            this.host.firstElementChild.setAttribute('tabindex', '0');
+        }, {once: true});
+        
         console.debug('List box connected')
         this.keyboardController.addKeyDownListener('ArrowDown', evt => {
             let nextItem = this._findNextOption(this.focusedItem);

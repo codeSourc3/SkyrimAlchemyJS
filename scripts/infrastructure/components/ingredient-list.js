@@ -1,4 +1,4 @@
-import { html, LitElement } from "lit";
+import { html, LitElement, css } from "lit";
 import { ListBoxController } from "./controllers/ListBoxController";
 import { IngredientListItem } from "./ingredient-list-item";
 
@@ -15,6 +15,15 @@ export class IngredientList extends LitElement {
         _selectedItems: {state: true},
         _items: {state: true}
     };
+
+    
+    static styles = css`
+        :host {
+            display:block;
+            max-height: var(--list-height, 50vh);
+            list-style: none;
+        }
+    `
 
     constructor() {
         super();
@@ -41,13 +50,39 @@ export class IngredientList extends LitElement {
          */
         const childElements = (evt.target).assignedElements({flatten: true});
         this._items = childElements.filter((element) => {
-            return element.nodeName === 'ingredient-list-item'
+            return element.localName === 'ingredient-list-item'
         });
         // remove elements that are no longer part of the list
         this._selectedItems = this._items.filter((element) => {
             // Would do an exact match (same object in memory).
             return element.matches('*[selected]');
         });
+    }
+
+    /**
+     * 
+     * @param {IngredientListItem} element 
+     */
+    select(element) {
+        if (this._items.includes(element)) {
+            element.selected = true;
+            this._selectedItems = this._items.filter(element => {
+                return element.selected;
+            });
+        }
+    }
+
+    /**
+     * 
+     * @param {IngredientListItem} element 
+     */
+    deselect(element) {
+        if (this._items.includes(element)) {
+            element.selected = false;
+            this._selectedItems = this._items.filter(element => {
+                return element.selected;
+            });
+        }
     }
 
     /**
@@ -81,7 +116,8 @@ export class IngredientList extends LitElement {
         /**
          * @type {IngredientListItem}
          */
-        const option = evt.target;
+        const option = evt.target.closest('ingredient-list-item');
+
         if (!option.selected) {
             const ingredientSelectedEvt = new CustomEvent('ingredient-selected', {
                 bubbles: true, cancelable: true, composed: true, detail: {ingredientName: option.value}
@@ -93,20 +129,21 @@ export class IngredientList extends LitElement {
             }
         } else {
             const ingredientDeselectedEvt = new CustomEvent('ingredient-deselected',{
-                bubbles: true, cancelable: true
+                bubbles: true, cancelable: true, detail: {ingredientName: option.value}
             });
             this.dispatchEvent(ingredientDeselectedEvt);
             option.selected = false;
-            this._selectedItems = this._selectedItems.filter(el => el.selected);
+            this._selectedItems = this.items.filter(el => el.selected);
         }
     }
 
     render() {
         return html`
-            <ol>
+            
                 <slot @click=${this.handleClick} @slotchange=${this.handleSlotChange}><p>No results.</p></slot>
-            </ol>
+        
         `;
     }
 }
 customElements.define('ingredient-list', IngredientList);
+export {IngredientList as HTMLIngredientList};

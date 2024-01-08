@@ -37,9 +37,38 @@
         <h1>Skyrim Alchemy Calculator</h1>
     </header>
     <main>
+        <dialog id="toast-new-version">
+            <form method="dialog">
+                <header>
+                    <h4>An update is available!</h4>
+                </header>
+                <main>
+                    <p>Click confirm to update and reload.</p>
+                    <p>Any unsaved progress will be lost.</p>
+                </main>
+                <footer>
+                    <menu>
+                        <button id="new-version-cancel" type="button" value="cancel">Cancel</button>
+                        <button id="new-version-confirm" type="submit" value="refresh">Refresh</button>
+                    </menu>
+                </footer>
+            </form>
+        </dialog>
+        <dialog id="toast-offline-ready">
+            <form method="dialog">
+                <header>
+                    <h4>Ready to work offline</h4>
+                </header>
+                <footer>
+                    <menu>
+                        <button type="submit" value='ok'>OK</button>
+                    </menu>
+                </footer>
+            </form>
+        </dialog>
         <!-- Search by ingredients, search by effect, 
             filters out ingredients based off of said conditions -->
-        <div>
+        <div id="selection-mediator">
             <article>
                 <h2>Find Ingredients</h2>
                 <form id="ingredient-filter" aria-controls="ingredient-list query-interpretation hit-count">
@@ -153,17 +182,17 @@
                 </dl>
                 <section>
                     <h3>Possible Ingredients</h3>
-                    <ol id="ingredient-list" aria-label="Ingredient List" aria-multiselectable="true" aria-sort="ascending"
+                    <ingredient-list id="ingredient-list" aria-label="Ingredient List" aria-multiselectable="true" aria-sort="ascending"
                     role="listbox" tabindex="0" aria-controls="chosen-ingredients" aria-invalid="false" aria-errormessage="maxSelectionReachedErrMsg">
                     <!-- Filled on DOMContentLoaded -->
-                    </ol>
+                </ingredient-list>
                     <span id="maxSelectionReachedErrMsg" class="errormessage" role="alert">Error: You can only select up to 3 ingredients.</span>
                 </section>
             </article>
             <!-- Could sort filtered ingredients by name, gold cost, etc. -->
             <section>
                 <h2>Chosen Ingredients</h2>
-                <ul id="chosen-ingredients">
+                <ul id="chosen-ingredients" data-min="2" data-max="3">
                     <!-- Filled on user select -->
                 </ul>
             </section>
