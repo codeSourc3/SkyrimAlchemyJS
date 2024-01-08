@@ -126,9 +126,7 @@ ingredientListElem.addEventListener(INGREDIENT_SELECTED, (evt) => {
      */
     let liElem = evt.target.closest('ingredient-list-item');
     console.assert(liElem.nodeName === 'INGREDIENT-LIST-ITEM', `Expected an input element. Not ${liElem}`);
-    if (brewPotionButton.validationMessage.length > 0) {
-        brewPotionButton.setCustomValidity('');
-    }
+    resetValidity();
     console.info(`${ingredientName} selected`);
     chosenIngredients.addIngredient(ingredientName);
 });
@@ -157,6 +155,7 @@ selectionMediator.addEventListener(INGREDIENT_DESELECTED, evt => {
         }
         console.debug(`Ingredient list selected items after deselection: ${ingredientListElem.selectedItems.reduce((prev, item) => prev + ' [' + item.value + ']', '')}`);
     }
+    resetValidity();
 });
 
 
@@ -403,6 +402,12 @@ function renderSearchResults(ingredientList, ingredientDataStore, elements = [],
     ingredientList.replaceChildren(frag);
 }
 
+function resetValidity() {
+    if (brewPotionButton.validationMessage.length > 0) {
+        brewPotionButton.setCustomValidity('');
+    }
+}
+
 /**
  * Posts a populate message to the worker.
  */
@@ -427,7 +432,10 @@ function handleBrewPotionFormSubmit(event) {
         submitter.reportValidity();
         return;
     }
-    if (selectedIngredients.length > chosenIngredientsElem.dataset.max) {
+
+    // if data-max is present and selected ingredients are more than data-max, report validation message
+    if ('max' in chosenIngredientsElem.dataset && selectedIngredients.length > chosenIngredientsElem.dataset.max) {
+        console.debug(selectedIngredients);
         submitter.setCustomValidity('Please deselect some ingredients.');
         submitter.reportValidity();
         return;
